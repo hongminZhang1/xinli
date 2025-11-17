@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  email     String?
+  name      String?
+  avatar    String?
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  emotions     EmotionRecord[]
+  chatSessions ChatSession[]
+  appointments Appointment[]
+  journalEntries JournalEntry[]
+
+  @@map("users")
+}
+
+model EmotionRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  emotion   EmotionType
+  intensity Int
+  notes     String?
+  tags      String[]
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("emotion_records")
+}
+
+model ChatSession {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  messages  Json
+  summary   String?
+  moodScore Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("chat_sessions")
+}
+
+model Appointment {
+  id          String   @id @default(cuid())
+  userId      String
+  counselorId String
+  date        DateTime
+  duration    Int      @default(60)
+  status      AppointmentStatus @default(PENDING)
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  counselor Counselor @relation(fields: [counselorId], references: [id])
+
+  @@map("appointments")
+}
+
+model Counselor {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  avatar      String?
+  specialty   String[]
+  description String?
+  experience  Int
+  rating      Float?
+  isAvailable Boolean  @default(true)
+
+  appointments Appointment[]
+
+  @@map("counselors")
+}
+
+model JournalEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  content   String
+  mood      String?
+  tags      String[]
+  isPrivate Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("journal_entries")
+}
+
+enum UserRole {
+  USER
+  COUNSELOR
+  ADMIN
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum EmotionType {
+  HAPPY
+  SAD
+  ANXIOUS
+  ANGRY
+  CALM
+  EXCITED
+  TIRED
+  STRESSED
+  PEACEFUL
+  CONFUSED
+}
