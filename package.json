@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@prisma/client": "5.10.0",
+    "@radix-ui/react-slot": "^1.2.4",
     "autoprefixer": "10.4.19",
     "bcrypt": "5.1.1",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "10.12.6",
     "lucide-react": "0.268.0",
