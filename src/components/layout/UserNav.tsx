@@ -13,7 +13,7 @@ export default function UserNav() {
       </div>
       {session && (
         <button 
-          onClick={() => signOut({ callbackUrl: '/login' })}
+          onClick={() => signOut({ callbackUrl: '/' })}
           className="text-sm text-gray-600 hover:text-primary-600"
         >
           登出
