@@ -37,12 +37,12 @@ export default function RegisterPage() {
               </div>
               
               <p className="text-2xl lg:text-3xl text-gray-700 font-light leading-relaxed">
-                开启你的心理健康之旅
+                开启您的心理健康之旅
               </p>
               
               <div className="space-y-6">
                 <p className="text-lg text-gray-600 max-w-xl leading-relaxed">
-                  注册成为会员，享受专业的心理健康服务，让AI陪伴你度过每一个重要时刻，
+                  无须会员，享受专业的心理健康服务，让AI陪伴你度过每一个重要时刻，
                   记录情绪变化，获得个性化的心理建议和支持。
                 </p>
                 
@@ -96,7 +96,7 @@ export default function RegisterPage() {
                 <form onSubmit={onSubmit} className="space-y-6">
                   <div className="text-center mb-8">
                     <h2 className="text-3xl font-bold text-gray-800 mb-2">创建账户</h2>
-                    <p className="text-gray-600">几分钟内完成注册，开始你的心理健康之旅</p>
+                    <p className="text-gray-600">开始您的心理健康之旅</p>
                   </div>
                   
                   <div className="space-y-4">
