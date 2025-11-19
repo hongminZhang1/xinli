@@ -22,7 +22,7 @@ export default function ChatWidget() {
 
   return (
     <Card className="space-y-4">
-      <h3 className="text-lg font-semibold">AI 倾诉伙伴（Demo）</h3>
+      <h3 className="text-lg font-semibold">AI 倾诉伙伴</h3>
       <div className="space-y-2 max-h-64 overflow-auto p-2 border rounded">
         {messages.length === 0 && <div className="text-gray-500">发送第一条消息，AI 会简短回复。</div>}
         {messages.map((m) => (
