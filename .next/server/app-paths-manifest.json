@@ -1,16 +1,16 @@
 {
   "/page": "app/page.js",
   "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/api/auth/demo-register/route": "app/api/auth/demo-register/route.js",
-  "/api/emotions/route": "app/api/emotions/route.js",
   "/api/admin/users/route": "app/api/admin/users/route.js",
   "/api/admin/settings/route": "app/api/admin/settings/route.js",
+  "/api/emotions/route": "app/api/emotions/route.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/dashboard/emotions/page": "app/dashboard/emotions/page.js",
+  "/dashboard/admin/page": "app/dashboard/admin/page.js",
   "/(auth)/register/page": "app/(auth)/register/page.js",
-  "/dashboard/journal/page": "app/dashboard/journal/page.js",
+  "/dashboard/emotions/page": "app/dashboard/emotions/page.js",
   "/dashboard/chat/page": "app/dashboard/chat/page.js",
-  "/dashboard/resources/page": "app/dashboard/resources/page.js",
   "/dashboard/appointments/page": "app/dashboard/appointments/page.js",
-  "/dashboard/admin/page": "app/dashboard/admin/page.js"
+  "/dashboard/resources/page": "app/dashboard/resources/page.js",
+  "/dashboard/journal/page": "app/dashboard/journal/page.js",
+  "/dashboard/settings/page": "app/dashboard/settings/page.js"
 }
