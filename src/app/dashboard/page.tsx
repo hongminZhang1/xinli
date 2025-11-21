@@ -12,6 +12,7 @@ export default async function DashboardPage() {
         <div className="flex items-center gap-4">
           <Avatar 
             username={session?.user?.username} 
+            avatar={session?.user?.avatar}
             size="medium"
           />
           <div>

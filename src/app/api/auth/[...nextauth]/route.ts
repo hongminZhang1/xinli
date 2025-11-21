@@ -19,6 +19,14 @@ export const authOptions: AuthOptions = {
 
         const user = await prisma.user.findUnique({
           where: { username: credentials.username },
+          select: {
+            id: true,
+            username: true,
+            password: true,
+            role: true,
+            isActive: true,
+            avatar: true,
+          },
         });
 
         if (!user || !user.password) {
@@ -38,7 +46,8 @@ export const authOptions: AuthOptions = {
             id: user.id, 
             username: user.username,
             role: user.role,
-            isActive: true // 暂时默认为true
+            isActive: true, // 暂时默认为true
+            avatar: user.avatar,
           };
         } else {
           return null;
@@ -59,15 +68,41 @@ export const authOptions: AuthOptions = {
         token.username = user.username;
         token.role = user.role;
         token.isActive = user.isActive;
+        token.avatar = user.avatar;
       }
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id;
-        session.user.username = token.username;
-        session.user.role = token.role;
-        session.user.isActive = token.isActive;
+      if (session.user && token.id) {
+        // 从数据库获取最新的用户信息
+        try {
+          const user = await prisma.user.findUnique({
+            where: { id: token.id },
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+              role: true,
+              isActive: true,
+            }
+          });
+          
+          if (user) {
+            session.user.id = user.id;
+            session.user.username = user.username;
+            session.user.role = user.role;
+            session.user.isActive = user.isActive;
+            session.user.avatar = user.avatar;
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          // 如果数据库查询失败，使用token中的数据
+          session.user.id = token.id;
+          session.user.username = token.username;
+          session.user.role = token.role;
+          session.user.isActive = token.isActive;
+          session.user.avatar = token.avatar;
+        }
       }
       return session;
     },

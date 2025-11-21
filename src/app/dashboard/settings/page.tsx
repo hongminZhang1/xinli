@@ -1,26 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Avatar from "@/components/ui/Avatar";
+import AvatarUpload from "@/components/ui/AvatarUpload";
 
 export default function SettingsPage() {
-  const { data: session } = useSession();
+  const { data: session, update: updateSession } = useSession();
   const router = useRouter();
-  const [isUploading, setIsUploading] = useState(false);
+  const [currentAvatar, setCurrentAvatar] = useState<string | null>(null);
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  useEffect(() => {
+    if (session?.user) {
+      setCurrentAvatar(session.user.avatar || null);
+    }
+  }, [session?.user?.avatar, session?.user?.id]);
 
-    setIsUploading(true);
-    // TODO: 实现头像上传逻辑
-    // 这里暂时只是演示UI
-    setTimeout(() => {
-      setIsUploading(false);
-      alert("头像上传功能待实现");
-    }, 1000);
+  const handleAvatarUpdate = (avatarUrl: string | null) => {
+    setCurrentAvatar(avatarUrl);
+    // 强制刷新session
+    updateSession();
   };
 
   return (
@@ -42,47 +41,11 @@ export default function SettingsPage() {
           
           <div className="space-y-6">
             {/* 头像设置 */}
-            <div className="flex items-start gap-6">
-              <div className="flex-shrink-0">
-                <Avatar 
-                  username={session?.user?.username} 
-                  size="large"
-                  className="ring-4 ring-white shadow-lg"
-                />
-              </div>
-              <div className="flex-1 space-y-4">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">头像</h3>
-                  <p className="text-sm text-gray-500">
-                    选择一张代表你的图片。建议使用正方形图片，支持JPG、PNG格式。
-                  </p>
-                </div>
-                <div className="flex gap-3">
-                  <label className="relative">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleAvatarUpload}
-                      className="hidden"
-                      disabled={isUploading}
-                    />
-                    <button
-                      type="button"
-                      disabled={isUploading}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      {isUploading ? "上传中..." : "更换头像"}
-                    </button>
-                  </label>
-                  <button
-                    type="button"
-                    className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    使用默认头像
-                  </button>
-                </div>
-              </div>
-            </div>
+            <AvatarUpload
+              currentAvatar={currentAvatar}
+              username={session?.user?.username}
+              onAvatarUpdate={handleAvatarUpdate}
+            />
 
             {/* 用户名显示 */}
             <div className="space-y-2">

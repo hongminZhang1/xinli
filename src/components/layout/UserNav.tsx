@@ -14,6 +14,7 @@ export default function UserNav() {
       <div className="flex items-center gap-2">
         <Avatar 
           username={session?.user?.username} 
+          avatar={session?.user?.avatar}
           size="small"
         />
         <span className="text-sm font-medium">{session?.user?.username || "访客"}</span>
@@ -45,6 +46,7 @@ export default function UserNav() {
                     <div className="flex items-center gap-3">
                       <Avatar 
                         username={session.user?.username} 
+                        avatar={session.user?.avatar}
                         size="small"
                       />
                       <div className="min-w-0 flex-1">

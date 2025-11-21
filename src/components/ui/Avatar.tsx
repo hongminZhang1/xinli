@@ -2,7 +2,7 @@
 
 interface AvatarProps {
   username?: string;
-  avatar?: string;
+  avatar?: string | null;
   size?: "small" | "medium" | "large";
   className?: string;
 }
