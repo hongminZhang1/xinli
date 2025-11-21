@@ -16,6 +16,7 @@ model User {
   name      String?
   avatar    String?
   role      UserRole @default(USER)
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -25,6 +26,17 @@ model User {
   journalEntries JournalEntry[]
 
   @@map("users")
+}
+
+model SystemSettings {
+  id                String   @id @default(cuid())
+  key               String   @unique
+  value             String
+  description       String?
+  updatedAt         DateTime @updatedAt
+  updatedBy         String?
+
+  @@map("system_settings")
 }
 
 model EmotionRecord {

@@ -1,0 +1,179 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Switch } from "@headlessui/react";
+import { cn } from "@/lib/utils";
+
+interface SystemSetting {
+  id: string;
+  key: string;
+  value: string;
+  description?: string;
+  updatedAt: string;
+}
+
+export default function AdminSystemSettings() {
+  const [settings, setSettings] = useState<SystemSetting[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch('/api/admin/settings');
+      if (response.ok) {
+        const data = await response.json();
+        setSettings(data);
+      } else {
+        console.error('获取系统设置失败');
+      }
+    } catch (error) {
+      console.error('获取系统设置失败:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateSetting = async (key: string, value: string) => {
+    setUpdating(key);
+    try {
+      const response = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ key, value }),
+      });
+
+      if (response.ok) {
+        const updatedSetting = await response.json();
+        setSettings(settings.map(setting => 
+          setting.key === key ? updatedSetting : setting
+        ));
+      } else {
+        const error = await response.json();
+        alert(error.error || '更新失败');
+      }
+    } catch (error) {
+      console.error('更新系统设置失败:', error);
+      alert('更新失败');
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  const getRegistrationSetting = () => {
+    return settings.find(s => s.key === 'registration_enabled');
+  };
+
+  const isRegistrationEnabled = () => {
+    const setting = getRegistrationSetting();
+    return setting?.value === 'true';
+  };
+
+  const toggleRegistration = () => {
+    const currentValue = isRegistrationEnabled();
+    updateSetting('registration_enabled', (!currentValue).toString());
+  };
+
+  if (loading) {
+    return <div className="text-center py-8">加载中...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* 注册开关 */}
+      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+        <div className="flex-1">
+          <h3 className="text-sm font-medium text-gray-900">用户注册</h3>
+          <p className="text-sm text-gray-500 mt-1">
+            控制是否允许新用户注册账户
+          </p>
+        </div>
+        <Switch
+          checked={isRegistrationEnabled()}
+          onChange={toggleRegistration}
+          disabled={updating === 'registration_enabled'}
+          className={cn(
+            isRegistrationEnabled() ? 'bg-green-600' : 'bg-gray-200',
+            'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 disabled:opacity-50'
+          )}
+        >
+          <span
+            aria-hidden="true"
+            className={cn(
+              isRegistrationEnabled() ? 'translate-x-5' : 'translate-x-0',
+              'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+            )}
+          />
+        </Switch>
+      </div>
+
+      {/* 状态显示 */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-blue-800">
+              当前状态
+            </h3>
+            <div className="mt-2 text-sm text-blue-700">
+              <ul className="list-disc pl-5 space-y-1">
+                <li>
+                  用户注册: {isRegistrationEnabled() ? 
+                    <span className="text-green-600 font-medium">开放</span> : 
+                    <span className="text-red-600 font-medium">关闭</span>
+                  }
+                </li>
+                <li>
+                  总用户数: {updating ? '更新中...' : settings.length > 0 ? '数据已加载' : '暂无数据'}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 系统设置列表 */}
+      {settings.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-lg">
+          <div className="px-4 py-3 border-b border-gray-200">
+            <h3 className="text-sm font-medium text-gray-900">所有系统设置</h3>
+          </div>
+          <div className="divide-y divide-gray-200">
+            {settings.map((setting) => (
+              <div key={setting.key} className="px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">{setting.key}</p>
+                    {setting.description && (
+                      <p className="text-xs text-gray-500 mt-1">{setting.description}</p>
+                    )}
+                  </div>
+                  <div className="ml-4">
+                    <span className={cn(
+                      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                      setting.value === 'true' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    )}>
+                      {setting.value}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">
+                  最后更新: {new Date(setting.updatedAt).toLocaleString('zh-CN')}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
