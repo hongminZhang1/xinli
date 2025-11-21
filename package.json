@@ -10,6 +10,7 @@
     "prisma:push": "prisma db push"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.9",
     "@prisma/client": "5.10.0",
     "@radix-ui/react-slot": "^1.2.4",
     "autoprefixer": "10.4.19",

@@ -17,8 +17,21 @@ export default function RegisterPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
-    if (res.ok) router.push('/login');
-    else alert('注册失败（演示）');
+    
+    if (res.ok) {
+      router.push('/');
+    } else {
+      const errorData = await res.json();
+      if (errorData.error === 'registration_disabled') {
+        alert('注册功能已关闭，请联系管理员');
+      } else if (errorData.error === 'exists') {
+        alert('用户名已存在，请选择其他用户名');
+      } else if (errorData.error === 'invalid') {
+        alert('请输入有效的用户名和密码（密码至少6位）');
+      } else {
+        alert('注册失败，请重试');
+      }
+    }
   }
 
   return (

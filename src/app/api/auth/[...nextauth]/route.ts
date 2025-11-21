@@ -25,11 +25,21 @@ export const authOptions: AuthOptions = {
           return null;
         }
 
+        // 检查用户是否被禁用
+        // if (!user.isActive) {
+        //   throw new Error('您的账户已被禁用，请联系管理员');
+        // }
+
         const isValid = await bcrypt.compare(credentials.password, user.password);
 
         if (isValid) {
-          // Return only non-sensitive user data
-          return { id: user.id, username: user.username };
+          // Return user data including role
+          return { 
+            id: user.id, 
+            username: user.username,
+            role: user.role,
+            isActive: true // 暂时默认为true
+          };
         } else {
           return null;
         }
@@ -47,6 +57,8 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.id = user.id;
         token.username = user.username;
+        token.role = user.role;
+        token.isActive = user.isActive;
       }
       return token;
     },
@@ -54,6 +66,8 @@ export const authOptions: AuthOptions = {
       if (session.user) {
         session.user.id = token.id;
         session.user.username = token.username;
+        session.user.role = token.role;
+        session.user.isActive = token.isActive;
       }
       return session;
     },
