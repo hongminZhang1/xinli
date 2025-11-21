@@ -32,7 +32,7 @@ export default async function DashboardPage() {
         </div>
         <div className="p-6 bg-white rounded-lg shadow-md">
             <h3 className="font-semibold mb-2">快速操作</h3>
-            <p className="text-gray-600">（占位符）</p>
+            <p className="text-gray-600">（占位符） </p>
         </div>
       </div>
     </div>
