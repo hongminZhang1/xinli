@@ -1,10 +1,4 @@
 {
-  "/api/emotions/route": "app/api/emotions/route.js",
-  "/dashboard/emotions/page": "app/dashboard/emotions/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/dashboard/chat/page": "app/dashboard/chat/page.js",
-  "/dashboard/journal/page": "app/dashboard/journal/page.js",
-  "/dashboard/settings/page": "app/dashboard/settings/page.js",
-  "/dashboard/resources/page": "app/dashboard/resources/page.js",
-  "/dashboard/appointments/page": "app/dashboard/appointments/page.js"
+  "/page": "app/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js"
 }
