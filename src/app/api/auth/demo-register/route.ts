@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 export async function POST(req: Request) {
   try {
     // 检查注册是否开放
-    const settings = getSettings();
+    const settings = await getSettings();
     const isRegistrationEnabled = settings.registration_enabled;
     if (!isRegistrationEnabled) {
       return NextResponse.json({ error: 'registration_disabled' }, { status: 403 });

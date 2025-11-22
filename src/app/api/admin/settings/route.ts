@@ -32,7 +32,7 @@ export async function GET() {
   }
 
   try {
-    const settings = getSettings();
+    const settings = await getSettings();
     
     const settingsArray = Object.entries(settings).map(([key, value]) => ({
       id: key,
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
     }
 
     // 更新设置
-    const updatedSettings = updateSettings({ [key]: value === 'true' });
+    const updatedSettings = await updateSettings({ [key]: value === 'true' });
     
     const setting = {
       id: key,
