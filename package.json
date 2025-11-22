@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "prisma:generate": "prisma generate",
-    "prisma:push": "prisma db push"
+    "prisma:push": "prisma db push",
+    "init-admin": "tsx scripts/init-admin.ts",
+    "init-settings": "tsx scripts/init-settings.ts",
+    "postbuild": "npm run init-settings"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
@@ -35,6 +38,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/react": "19.2.5",
+    "tsx": "^4.20.6",
     "typescript": "^5.4.5"
   }
 }
