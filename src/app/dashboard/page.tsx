@@ -18,7 +18,7 @@ export default async function DashboardPage() {
     return "晚上好";
   };
 
-  // 角色配置
+  // 角色 配置
   const roleConfig = {
     USER: {
       title: '用户',
