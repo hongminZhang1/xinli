@@ -15,7 +15,7 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "仪表盘" },
+  { href: "/dashboard", icon: LayoutDashboard, label: "我的主页" },
   { href: "/dashboard/emotions", icon: HeartPulse, label: "情绪追踪" },
   { href: "/dashboard/chat", icon: Bot, label: "AI 倾诉" },
   { href: "/dashboard/journal", icon: Book, label: "情绪日记" },

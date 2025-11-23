@@ -108,17 +108,17 @@ export default function AvatarUpload({
         <div>
           <h3 className="text-lg font-medium text-gray-900">头像</h3>
           <p className="text-sm text-gray-500">
-            选择一张代表你的图片。建议使用正方形图片，支持JPG、PNG格式，最大4MB。
+            选择一张代表你的图片。建议使用正方形图片，支持JPG、PNG、ICO格式
           </p>
         </div>
         
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col">
           <div className="flex gap-3">
+            <div className="avatar-upload-container">
             <UploadButton
               endpoint="avatarUploader"
               onClientUploadComplete={handleAvatarUpload}
               onUploadError={(error: Error) => {
-                console.error("Upload error:", error);
                 setIsUploading(false);
                 alert(`上传失败: ${error.message}`);
               }}
@@ -127,13 +127,11 @@ export default function AvatarUpload({
               }}
               appearance={{
                 button: {
-                  background: isUploading ? "rgb(156 163 175)" : "rgb(59 130 246)",
-                  color: "white",
-                  padding: "8px 16px",
-                  borderRadius: "8px",
-                  border: "none",
-                  fontSize: "14px",
+                  color: "black",
+                  fontSize: "16px",
                   fontWeight: "500",
+                  padding: "10px 10px",
+                  border: "1px solid #d1d5db",
                   cursor: isUploading ? "not-allowed" : "pointer",
                   opacity: isUploading ? "0.7" : "1",
                 },
@@ -142,11 +140,12 @@ export default function AvatarUpload({
                 },
               }}
               content={{
-                button: isUploading ? "上传中..." : "更换头像",
+                button: isUploading ? "上传中..." : "最大4MB",
               }}
             />
+            </div>
             
-            {currentAvatar && (
+            {(currentAvatar || session?.user?.avatar) ? (
               <button
                 type="button"
                 onClick={handleDeleteAvatar}
@@ -155,14 +154,17 @@ export default function AvatarUpload({
               >
                 {isDeleting ? "删除中..." : "使用默认头像"}
               </button>
+            ) : (
+              <button
+                type="button"
+                disabled={true}
+                className="px-2 border border-gray-400 rounded-lg bg-gray-50 cursor-not-allowed"
+              >
+                已为默认头像
+              </button>
             )}
           </div>
           
-          {isUploading && (
-            <div className="text-sm text-blue-600">
-              正在上传头像，请稍候...
-            </div>
-          )}
         </div>
       </div>
     </div>
