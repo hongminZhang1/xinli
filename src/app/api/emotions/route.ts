@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       "😊": "HAPPY",
       "😔": "SAD", 
       "😡": "ANGRY",
-      "😴": "TIRED",
+      "😴": "CALM",
       "😰": "ANXIOUS",
     };
 
@@ -75,13 +75,13 @@ export async function GET(request: NextRequest) {
       "HAPPY": "😊",
       "SAD": "😔",
       "ANGRY": "😡", 
-      "TIRED": "😴",
       "ANXIOUS": "😰",
-      "CALM": "😊",
+      "CALM": "😴",
       "EXCITED": "😊",
-      "STRESSED": "😰",
-      "PEACEFUL": "😊",
-      "CONFUSED": "😔",
+      "FRUSTRATED": "😡",
+      "CONTENT": "😊",
+      "LONELY": "😔",
+      "GRATEFUL": "😊",
     };
 
     // 格式化数据以匹配前端期望的格式

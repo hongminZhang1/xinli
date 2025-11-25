@@ -36,7 +36,7 @@ export async function PATCH(
       "😊": "HAPPY",
       "😔": "SAD", 
       "😡": "ANGRY",
-      "😴": "TIRED",
+      "😴": "CALM",
       "😰": "ANXIOUS",
     };
 
