@@ -1,0 +1,260 @@
+{
+  "timestamp": "2025-11-25T15:00:07.314Z",
+  "data": {
+    "users": [
+      {
+        "id": "cmi3bwk5f0000rzldcmzjngxq",
+        "username": "user1",
+        "password": "$2b$10$TDzt9nZEuovkO34etJawtObkNnb.L3z4XA8RhoQ/T7dL79dETfsxq",
+        "email": null,
+        "name": null,
+        "avatar": null,
+        "role": "USER",
+        "isActive": true,
+        "createdAt": "2025-11-17T15:58:05.572Z",
+        "updatedAt": "2025-11-17T15:58:05.572Z"
+      },
+      {
+        "id": "cmi4pmqjo00007qhd0g9uni6v",
+        "username": "user2",
+        "password": "$2b$10$CE3bulKgwAjxnP0KYiK.wukrYJUmD3bdJ8FXfKG6B3vpQu5mV8dbq",
+        "email": null,
+        "name": null,
+        "avatar": null,
+        "role": "USER",
+        "isActive": true,
+        "createdAt": "2025-11-18T15:10:08.096Z",
+        "updatedAt": "2025-11-18T15:10:08.096Z"
+      },
+      {
+        "id": "cmi4pqr0y00017qhdv77z6wf5",
+        "username": "user3",
+        "password": "$2b$10$6jJ9oXLrpcCRAjzQ.o8a/e/sIAUSJXdu/bhMB9jtaugtvLB3WZ8Vu",
+        "email": null,
+        "name": null,
+        "avatar": null,
+        "role": "USER",
+        "isActive": true,
+        "createdAt": "2025-11-18T15:13:15.346Z",
+        "updatedAt": "2025-11-18T15:13:15.346Z"
+      },
+      {
+        "id": "cmi8vb5dt0000yjctn9veabcl",
+        "username": "user4",
+        "password": "$2b$10$g2MAbmuQlu2nOR5AwY1iN.93GtPlykrXkRZTivLfHE6iZmEdwEFEm",
+        "email": null,
+        "name": null,
+        "avatar": null,
+        "role": "USER",
+        "isActive": true,
+        "createdAt": "2025-11-21T13:00:09.857Z",
+        "updatedAt": "2025-11-21T13:00:09.857Z"
+      },
+      {
+        "id": "cmi8w21qs0001yjctoh27et52",
+        "username": "user5",
+        "password": "$2b$10$Nmvzs.h.s76fAydU3dZ.qupWyPQjOHnZw37n5vBlV9pQvX2KL1PI2",
+        "email": null,
+        "name": null,
+        "avatar": null,
+        "role": "USER",
+        "isActive": true,
+        "createdAt": "2025-11-21T13:21:04.853Z",
+        "updatedAt": "2025-11-21T13:21:04.853Z"
+      },
+      {
+        "id": "cmi3ajw2s000014b0gpq1nbh2",
+        "username": "admin",
+        "password": "$2b$10$Y3KjgwiixKynnD6ciR/RSu15qxhtY/yqZZb0YUQlw327Qs557hbvu",
+        "email": null,
+        "name": null,
+        "avatar": "https://utfs.io/f/XzSjZUnFmEsMenavfxTeAEPJC68LKB15fXDNpkqZRtQoGbjl",
+        "role": "ADMIN",
+        "isActive": true,
+        "createdAt": "2025-11-17T15:20:14.885Z",
+        "updatedAt": "2025-11-23T13:32:54.620Z"
+      },
+      {
+        "id": "cmi8yg3o4000014njscc35b6c",
+        "username": "user6",
+        "password": "$2b$10$e7rcYlQtRF.KuxuFNT226.I/dJnmjT.ByHPS.pV4PfzgF8bRHRYQe",
+        "email": null,
+        "name": null,
+        "avatar": null,
+        "role": "COUNSELOR",
+        "isActive": true,
+        "createdAt": "2025-11-21T14:27:59.764Z",
+        "updatedAt": "2025-11-22T15:20:24.130Z"
+      },
+      {
+        "id": "cmi8y41pa0000n596lxq6o0ot",
+        "username": "lianhao",
+        "password": "$2b$10$RsmUOVGoyvAIg3ABdgQ3zOef2LV8L4f7Cfm7HYgZVDrx486qydV2G",
+        "email": null,
+        "name": null,
+        "avatar": null,
+        "role": "COUNSELOR",
+        "isActive": true,
+        "createdAt": "2025-11-21T14:18:37.343Z",
+        "updatedAt": "2025-11-22T15:21:53.238Z"
+      }
+    ],
+    "systemSettings": [
+      {
+        "id": "cmiaeswyt0000qg2ckn95lyuk",
+        "key": "registration_enabled",
+        "value": "false",
+        "description": "是否允许新用户注册",
+        "updatedAt": "2025-11-23T12:23:22.976Z",
+        "updatedBy": null
+      }
+    ],
+    "emotionRecords": [
+      {
+        "id": "cmi5hbv230003vgdcnflg3hdr",
+        "userId": "cmi3bwk5f0000rzldcmzjngxq",
+        "emotion": "HAPPY",
+        "intensity": 5,
+        "notes": "今天还是很开心(*^▽^*)",
+        "tags": [],
+        "createdAt": "2025-11-19T04:05:29.688Z"
+      },
+      {
+        "id": "cmi5hrqo60005vgdcfcs0voj4",
+        "userId": "cmi3bwk5f0000rzldcmzjngxq",
+        "emotion": "HAPPY",
+        "intensity": 5,
+        "notes": "吃了饭更开心了",
+        "tags": [],
+        "createdAt": "2025-11-19T04:17:50.509Z"
+      },
+      {
+        "id": "cmi8y5upl0002n59638za3b56",
+        "userId": "cmi3ajw2s000014b0gpq1nbh2",
+        "emotion": "ANGRY",
+        "intensity": 5,
+        "notes": "我是sb",
+        "tags": [],
+        "createdAt": "2025-11-21T14:20:01.388Z"
+      },
+      {
+        "id": "cmi8y6men0004n596gmtna9vs",
+        "userId": "cmi3ajw2s000014b0gpq1nbh2",
+        "emotion": "HAPPY",
+        "intensity": 5,
+        "notes": "打飞机",
+        "tags": [],
+        "createdAt": "2025-11-21T14:20:37.282Z"
+      },
+      {
+        "id": "cmi8yalxw0006n596jpz4y9ng",
+        "userId": "cmi3bwk5f0000rzldcmzjngxq",
+        "emotion": "ANGRY",
+        "intensity": 5,
+        "notes": "开心nm呢",
+        "tags": [],
+        "createdAt": "2025-11-21T14:23:43.303Z"
+      }
+    ],
+    "chatSessions": [],
+    "appointments": [],
+    "counselors": [],
+    "journalEntries": [
+      {
+        "id": "cmielcsdv0001f4rxrbub38u8",
+        "userId": "cmi3bwk5f0000rzldcmzjngxq",
+        "title": "测试专用",
+        "content": "如果你能看到这句话，说明数据库调用成功",
+        "mood": "peaceful",
+        "tags": [],
+        "isPrivate": false,
+        "likes": 0,
+        "createdAt": "2025-11-25T13:08:07.219Z",
+        "updatedAt": "2025-11-25T13:08:07.219Z"
+      },
+      {
+        "id": "cmiem7m770001m0tgfhx1sqpv",
+        "userId": "cmi3bwk5f0000rzldcmzjngxq",
+        "title": "测试日记",
+        "content": "这是一个测试日记",
+        "mood": null,
+        "tags": [],
+        "isPrivate": false,
+        "likes": 0,
+        "createdAt": "2025-11-25T13:32:05.539Z",
+        "updatedAt": "2025-11-25T13:32:05.539Z"
+      },
+      {
+        "id": "cmiem88ap0001mtmfxl5r37e5",
+        "userId": "cmi3bwk5f0000rzldcmzjngxq",
+        "title": "测试日记",
+        "content": "这是一个测试日记",
+        "mood": null,
+        "tags": [],
+        "isPrivate": false,
+        "likes": 0,
+        "createdAt": "2025-11-25T13:32:34.178Z",
+        "updatedAt": "2025-11-25T13:32:34.178Z"
+      },
+      {
+        "id": "cmiem9ong0001k8m5076pt1q1",
+        "userId": "cmi3bwk5f0000rzldcmzjngxq",
+        "title": "测试日记",
+        "content": "这是一个测试日记",
+        "mood": null,
+        "tags": [],
+        "isPrivate": false,
+        "likes": 0,
+        "createdAt": "2025-11-25T13:33:42.028Z",
+        "updatedAt": "2025-11-25T13:33:42.028Z"
+      }
+    ],
+    "comments": [
+      {
+        "id": "cmiem2f3e0001f2vx62s8unl5",
+        "content": "测试评论",
+        "userId": "cmi4pmqjo00007qhd0g9uni6v",
+        "journalEntryId": "cmielcsdv0001f4rxrbub38u8",
+        "createdAt": "2025-11-25T13:28:03.050Z"
+      },
+      {
+        "id": "cmiem7mpy0003m0tgw93sczdn",
+        "content": "这是一个测试评论",
+        "userId": "cmi3bwk5f0000rzldcmzjngxq",
+        "journalEntryId": "cmiem7m770001m0tgfhx1sqpv",
+        "createdAt": "2025-11-25T13:32:06.215Z"
+      },
+      {
+        "id": "cmiem895n0003mtmfdjdledt0",
+        "content": "这是一个测试评论",
+        "userId": "cmi3bwk5f0000rzldcmzjngxq",
+        "journalEntryId": "cmiem88ap0001mtmfxl5r37e5",
+        "createdAt": "2025-11-25T13:32:35.292Z"
+      },
+      {
+        "id": "cmiem9p4o0003k8m58vc3l1u0",
+        "content": "这是一个测试评论",
+        "userId": "cmi3bwk5f0000rzldcmzjngxq",
+        "journalEntryId": "cmiem9ong0001k8m5076pt1q1",
+        "createdAt": "2025-11-25T13:33:42.649Z"
+      },
+      {
+        "id": "cmiemmalm0001q6h9y84bc2a5",
+        "content": "你好",
+        "userId": "cmi3bwk5f0000rzldcmzjngxq",
+        "journalEntryId": "cmielcsdv0001f4rxrbub38u8",
+        "createdAt": "2025-11-25T13:43:30.346Z"
+      }
+    ]
+  },
+  "counts": {
+    "users": 8,
+    "systemSettings": 1,
+    "emotionRecords": 5,
+    "chatSessions": 0,
+    "appointments": 0,
+    "counselors": 0,
+    "journalEntries": 4,
+    "comments": 5
+  }
+}
