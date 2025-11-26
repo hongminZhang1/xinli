@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import Card from "@/components/ui/Card";
+import { useJournals, useMutation } from "@/hooks/useQuery";
+import { useAutoPreloadJournals } from "@/hooks/usePreload";
 
 type JournalEntry = {
   id: string;
@@ -48,31 +50,50 @@ const moodOptions = [
 
 export default function JournalWidget() {
   const { data: session } = useSession();
-  const [journals, setJournals] = useState<JournalEntry[]>([]);
+  const { data, isLoading: journalsLoading, error: journalsError, refetch } = useJournals('all');
+  
+  // 从缓存数据中提取journals数组
+  const journals = data?.journals || [];
+  
+  // 预加载前3条文章详情（个人文章页面通常查看较少）
+  useAutoPreloadJournals(journals, {
+    enabled: !!session,
+    count: 3,
+    delay: 200 // 稍长的延迟，因为用户可能在编辑
+  });
+  
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [mood, setMood] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [isPrivate, setIsPrivate] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchJournals();
-  }, []);
-
-  const fetchJournals = async () => {
-    try {
-      const response = await fetch("/api/journal?type=all");
-      if (!response.ok) throw new Error("获取日记失败");
-      const data = await response.json();
-      setJournals(data.journals || []);
-    } catch (error) {
-      console.error("获取日记失败:", error);
-      setError("获取日记失败");
+  // 创建日记的mutation
+  const createJournalMutation = useMutation(
+    (journalData: any) => fetch("/api/journal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(journalData)
+    }),
+    {
+      onSuccess: () => {
+        // 清空表单
+        setTitle("");
+        setContent("");
+        setMood("");
+        setTags([]);
+        setError("");
+        // 刷新日记列表
+        refetch();
+      },
+      onError: (error) => {
+        setError("创建日记失败：" + error.message);
+      },
+      invalidateQueries: ["/api/journal"] // 使相关缓存失效
     }
-  };
+  );
 
   const addTag = (tag: string) => {
     const trimmedTag = tag.trim();
@@ -99,43 +120,18 @@ export default function JournalWidget() {
       return;
     }
 
-    setIsLoading(true);
     setError("");
 
     try {
-      const response = await fetch("/api/journal", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: title.trim() || "无标题",
-          content: content.trim(),
-          mood: mood || null,
-          tags,
-          isPrivate
-        }),
+      await createJournalMutation.mutate({
+        title: title.trim() || "无标题",
+        content: content.trim(),
+        mood: mood || null,
+        tags,
+        isPrivate
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "保存失败");
-      }
-
-      const newJournal = await response.json();
-      setJournals([newJournal, ...journals]);
-      
-      // 重置表单
-      setTitle("");
-      setContent("");
-      setMood("");
-      setTags([]);
-      setTagInput("");
-      setIsPrivate(true);
     } catch (error: any) {
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
+      // 错误处理已在mutation中处理
     }
   };
 
@@ -162,9 +158,9 @@ export default function JournalWidget() {
       <Card className="space-y-4">
         <h3 className="text-lg font-semibold">写情绪日记</h3>
         
-        {error && (
+        {(error || createJournalMutation.error || journalsError) && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
+            {error || createJournalMutation.error || journalsError}
           </div>
         )}
 
@@ -257,10 +253,10 @@ export default function JournalWidget() {
         <div className="flex justify-end">
           <button
             onClick={saveDiary}
-            disabled={isLoading}
+            disabled={createJournalMutation.isLoading}
             className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? "保存中..." : "保存日记"}
+            {createJournalMutation.isLoading ? "保存中..." : "保存日记"}
           </button>
         </div>
       </Card>
@@ -270,7 +266,11 @@ export default function JournalWidget() {
         <h3 className="text-lg font-semibold">我的日记</h3>
         
         <div className="space-y-4">
-          {journals.length === 0 ? (
+          {journalsLoading ? (
+            <div className="text-gray-500 text-center py-8">
+              加载中...
+            </div>
+          ) : journals.length === 0 ? (
             <div className="text-gray-500 text-center py-8">
               还没有日记，试着写下一条吧。
             </div>

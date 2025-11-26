@@ -11,7 +11,7 @@ export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
 
   const getTimeGreeting = () => {
-    const hour = new Date().getHours();
+    const hour = new Date().getUTCHours()+8;
     if (hour < 6) return "夜深了";
     if (hour < 12) return "早上好";
     if (hour < 18) return "下午好";

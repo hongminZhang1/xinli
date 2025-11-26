@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
 import { Clock, MessageCircle, Heart } from "lucide-react";
+import { useJournals } from "@/hooks/useQuery";
+import { useAutoPreloadJournals } from "@/hooks/usePreload";
 
 type JournalEntry = {
   id: string;
@@ -34,31 +36,23 @@ const moodOptions = [
   { value: "peaceful", label: "🕊️ 宁静", color: "text-indigo-500" }
 ];
 
+// 预加载配置
+const PRELOAD_ARTICLE_COUNT = 5; // 预加载前5条文章
+
 export default function ArticleSquare() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [journals, setJournals] = useState<JournalEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { data, isLoading, error, refetch } = useJournals('public');
+  
+  // 从缓存数据中提取journals数组
+  const journals = data?.journals || [];
 
-  useEffect(() => {
-    fetchPublicJournals();
-  }, []);
-
-  const fetchPublicJournals = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch("/api/journal?type=public");
-      if (!response.ok) throw new Error("获取文章失败");
-      const data = await response.json();
-      setJournals(data.journals || []);
-    } catch (error) {
-      console.error("获取文章失败:", error);
-      setError("获取文章失败");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // 自动预加载前5条文章详情和评论
+  useAutoPreloadJournals(journals, {
+    enabled: !!session, // 只有登录用户才预加载
+    count: PRELOAD_ARTICLE_COUNT,
+    delay: 100
+  });
 
   const getMoodDisplay = (moodValue?: string) => {
     const moodOption = moodOptions.find(m => m.value === moodValue);
@@ -107,7 +101,7 @@ export default function ArticleSquare() {
       <Card className="text-center p-8 text-red-600">
         <p>{error}</p>
         <button
-          onClick={fetchPublicJournals}
+          onClick={refetch}
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           重新加载

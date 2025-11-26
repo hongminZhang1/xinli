@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Switch } from "@headlessui/react";
 import { cn } from "@/lib/utils";
+import { useSystemSettings, useMutation } from "@/hooks/useQuery";
 
 interface SystemSetting {
   id: string;
@@ -13,60 +14,44 @@ interface SystemSetting {
 }
 
 export default function AdminSystemSettings() {
-  const [settings, setSettings] = useState<SystemSetting[]>([]);
-  const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
-    try {
-      const response = await fetch('/api/admin/settings');
-      if (response.ok) {
-        const data = await response.json();
-        setSettings(data);
-      } else {
-        console.error('获取系统设置失败');
-      }
-    } catch (error) {
-      console.error('获取系统设置失败:', error);
-    } finally {
-      setLoading(false);
+  
+  // 使用缓存的系统设置查询
+  const { data: settings, isLoading: loading, error, refetch } = useSystemSettings();
+  
+  // 更新设置的mutation
+  const updateSettingMutation = useMutation(
+    ({ key, value }: { key: string; value: string }) =>
+      fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, value })
+      }),
+    {
+      onSuccess: () => {
+        refetch(); // 刷新设置列表
+        setUpdating(null);
+      },
+      onError: (error) => {
+        console.error('更新设置失败:', error);
+        setUpdating(null);
+      },
+      invalidateQueries: ['/api/admin/settings']
     }
-  };
+  );
 
   const updateSetting = async (key: string, value: string) => {
     setUpdating(key);
     try {
-      const response = await fetch('/api/admin/settings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ key, value }),
-      });
-
-      if (response.ok) {
-        const updatedSetting = await response.json();
-        setSettings(settings.map(setting => 
-          setting.key === key ? updatedSetting : setting
-        ));
-      } else {
-        const error = await response.json();
-        alert(error.error || '更新失败');
-      }
+      await updateSettingMutation.mutate({ key, value });
     } catch (error) {
       console.error('更新系统设置失败:', error);
-      alert('更新失败');
-    } finally {
       setUpdating(null);
     }
   };
 
   const getRegistrationSetting = () => {
-    return settings.find(s => s.key === 'registration_enabled');
+    return settings?.find(s => s.key === 'registration_enabled');
   };
 
   const isRegistrationEnabled = () => {
@@ -81,6 +66,14 @@ export default function AdminSystemSettings() {
 
   if (loading) {
     return <div className="text-center py-8">加载中...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-8 text-red-600">加载失败: {error}</div>;
+  }
+
+  if (!settings || settings.length === 0) {
+    return <div className="text-center py-8 text-gray-500">暂无系统设置</div>;
   }
 
   return (
@@ -148,7 +141,7 @@ export default function AdminSystemSettings() {
             <h3 className="text-sm font-medium text-gray-900">所有系统设置</h3>
           </div>
           <div className="divide-y divide-gray-200">
-            {settings.map((setting) => (
+            {settings?.map((setting) => (
               <div key={setting.key} className="px-4 py-3">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
