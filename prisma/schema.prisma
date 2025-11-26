@@ -122,6 +122,8 @@ model JournalEntry {
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments Comment[]
 
+  @@index([isPrivate, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
   @@map("journal_entries")
 }
 

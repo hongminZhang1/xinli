@@ -87,16 +87,12 @@ export default function ArticleSquare() {
   };
 
   const handleJournalClick = (journalId: string) => {
+    if (!session) {
+      alert("请先登录查看文章详情");
+      return;
+    }
     router.push(`/dashboard/square/${journalId}`);
   };
-
-  if (!session) {
-    return (
-      <Card className="text-center p-8">
-        <p>请先登录以查看文章广场</p>
-      </Card>
-    );
-  }
 
   if (isLoading) {
     return (
@@ -200,6 +196,10 @@ export default function ArticleSquare() {
                       <div className="flex items-center gap-1">
                         <Heart className="w-3 h-3" />
                         {journal.likes}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MessageCircle className="w-3 h-3" />
+                        {journal.commentCount || 0}
                       </div>
                     </div>
                   </div>

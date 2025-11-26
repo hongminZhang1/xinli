@@ -6,52 +6,71 @@ import { prisma } from "@/lib/db";
 // 获取日记列表 (支持公开和私密)
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "未登录" }, { status: 401 });
-    }
-
     const searchParams = request.nextUrl.searchParams;
     const type = searchParams.get("type"); // "private" | "public" | "all"
     const page = parseInt(searchParams.get("page") || "1");
-    const pageSize = parseInt(searchParams.get("pageSize") || "10");
+    const pageSize = parseInt(searchParams.get("pageSize") || "20");
 
     let whereCondition: any = {};
+    let requireAuth = true;
 
-    if (type === "private") {
-      // 获取当前用户的私密日记
-      whereCondition = {
-        userId: session.user.id,
-        isPrivate: true
-      };
-    } else if (type === "public") {
-      // 获取所有公开的日记
+    if (type === "public") {
+      // 获取所有公开的日记 - 无需登录
       whereCondition = {
         isPrivate: false
       };
-    } else if (type === "all") {
-      // 获取当前用户的所有日记
-      whereCondition = {
-        userId: session.user.id
-      };
+      requireAuth = false;
     } else {
-      // 默认获取当前用户的私密日记
-      whereCondition = {
-        userId: session.user.id,
-        isPrivate: true
-      };
+      // 需要登录的操作
+      const session = await getServerSession(authOptions);
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: "未登录" }, { status: 401 });
+      }
+
+      if (type === "private") {
+        // 获取当前用户的私密日记
+        whereCondition = {
+          userId: session.user.id,
+          isPrivate: true
+        };
+      } else if (type === "all") {
+        // 获取当前用户的所有日记
+        whereCondition = {
+          userId: session.user.id
+        };
+      } else {
+        // 默认获取当前用户的私密日记
+        whereCondition = {
+          userId: session.user.id,
+          isPrivate: true
+        };
+      }
     }
 
     const [journals, total] = await Promise.all([
       prisma.journalEntry.findMany({
         where: whereCondition,
-        include: {
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          mood: true,
+          tags: true,
+          isPrivate: true,
+          likes: true,
+          createdAt: true,
+          updatedAt: true,
           user: {
             select: {
               id: true,
               username: true,
               name: true,
               avatar: true
+            }
+          },
+          _count: {
+            select: {
+              comments: true
             }
           }
         },
@@ -68,7 +87,7 @@ export async function GET(request: NextRequest) {
       journals: journals.map(journal => ({
         ...journal,
         tags: typeof journal.tags === 'string' ? JSON.parse(journal.tags) : journal.tags || [],
-        commentCount: 0  // 暂时设为0，详情页面会显示真实评论数量
+        commentCount: journal._count.comments
       })),
       pagination: {
         page,

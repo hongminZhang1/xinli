@@ -10,6 +10,24 @@ export async function GET(
   try {
     const journalId = params.id;
 
+    // 先检查日记是否存在且为公开，如果私密则需要权限检查
+    const journal = await prisma.journalEntry.findUnique({
+      where: { id: journalId },
+      select: { isPrivate: true, userId: true }
+    });
+
+    if (!journal) {
+      return NextResponse.json({ error: "日记不存在" }, { status: 404 });
+    }
+
+    // 如果是私密日记，需要检查权限
+    if (journal.isPrivate) {
+      const session = await getServerSession(authOptions);
+      if (!session?.user?.id || journal.userId !== session.user.id) {
+        return NextResponse.json({ error: "无权限查看此日记的评论" }, { status: 403 });
+      }
+    }
+
     const comments = await prisma.comment.findMany({
       where: {
         journalEntryId: journalId

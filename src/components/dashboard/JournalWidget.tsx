@@ -321,7 +321,7 @@ export default function JournalWidget() {
                 <div className="flex items-center justify-between text-sm text-gray-500">
                   <div className="flex items-center gap-4">
                     <span>❤️ {journal.likes}</span>
-                    <span>💬 0</span>
+                    <span>💬 {Array.isArray(journal.comments) ? journal.comments.length : 0}</span>
                   </div>
                 </div>
               </div>
