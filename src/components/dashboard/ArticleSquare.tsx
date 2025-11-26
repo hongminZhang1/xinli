@@ -127,7 +127,7 @@ export default function ArticleSquare() {
             <p className="text-gray-500">还没有公开的文章，快去写下第一篇吧！</p>
           </Card>
         ) : (
-          journals.map((journal) => (
+          journals.map((journal: any) => (
             <div
               key={journal.id}
               onClick={() => handleJournalClick(journal.id)}
@@ -201,7 +201,7 @@ export default function ArticleSquare() {
                   {/* 标签（只显示前3个）*/}
                   {Array.isArray(journal.tags) && journal.tags.length > 0 && (
                     <div className="flex items-center gap-1 mt-2">
-                      {journal.tags.slice(0, 3).map((tag) => (
+                      {journal.tags.slice(0, 3).map((tag: string) => (
                         <span
                           key={tag}
                           className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs"

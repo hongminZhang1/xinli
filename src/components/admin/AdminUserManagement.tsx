@@ -86,7 +86,7 @@ export default function AdminUserManagement() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {users?.map((user) => (
+                {users?.map((user: any) => (
                   <tr key={user.id}>
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
                       <div className="flex items-center">

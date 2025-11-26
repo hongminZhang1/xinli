@@ -51,7 +51,7 @@ export default function AdminSystemSettings() {
   };
 
   const getRegistrationSetting = () => {
-    return settings?.find(s => s.key === 'registration_enabled');
+    return settings?.find((s: any) => s.key === 'registration_enabled');
   };
 
   const isRegistrationEnabled = () => {
@@ -141,7 +141,7 @@ export default function AdminSystemSettings() {
             <h3 className="text-sm font-medium text-gray-900">所有系统设置</h3>
           </div>
           <div className="divide-y divide-gray-200">
-            {settings?.map((setting) => (
+            {settings?.map((setting: any) => (
               <div key={setting.key} className="px-4 py-3">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">

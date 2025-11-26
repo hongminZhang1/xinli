@@ -202,7 +202,7 @@ export default function JournalWidget() {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">标签</label>
           <div className="flex flex-wrap gap-2 mb-2">
-            {tags.map((tag) => (
+            {tags.map((tag: string) => (
               <span
                 key={tag}
                 className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center gap-1"
@@ -275,7 +275,7 @@ export default function JournalWidget() {
               还没有日记，试着写下一条吧。
             </div>
           ) : (
-            journals.map((journal) => (
+            journals.map((journal: any) => (
               <div key={journal.id} className="border rounded-lg p-4 hover:bg-gray-50">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -307,7 +307,7 @@ export default function JournalWidget() {
 
                 {Array.isArray(journal.tags) && journal.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mb-2">
-                    {journal.tags.map((tag) => (
+                    {journal.tags.map((tag: string) => (
                       <span
                         key={tag}
                         className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs"

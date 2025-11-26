@@ -175,7 +175,7 @@ export default function CommentSection({ journalId, comments, onCommentAdded }: 
       {/* 评论列表 */}
       {showComments && displayComments.length > 0 && (
         <div className="mt-3 space-y-2">
-          {displayComments.map((comment) => (
+          {displayComments.map((comment: any) => (
             <div key={comment.id} className="flex gap-3">
               <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
                 {comment.user.avatar ? (

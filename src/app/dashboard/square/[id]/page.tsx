@@ -70,7 +70,7 @@ export default function JournalDetailPage({ params }: { params: { id: string } }
   }, [comments]);
   
   // 预加载其他热门文章（排除当前文章）
-  const otherJournals = allJournalsData?.journals?.filter(j => j.id !== params.id) || [];
+  const otherJournals = allJournalsData?.journals?.filter((j: any) => j.id !== params.id) || [];
   useAutoPreloadJournals(otherJournals.slice(0, 3), {
     enabled: !!session,
     count: 3,
@@ -202,7 +202,7 @@ export default function JournalDetailPage({ params }: { params: { id: string } }
         {/* 标签 */}
         {Array.isArray(journal.tags) && journal.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
-            {journal.tags.map((tag) => (
+            {journal.tags.map((tag: string) => (
               <span
                 key={tag}
                 className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
