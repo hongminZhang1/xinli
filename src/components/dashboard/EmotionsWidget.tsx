@@ -160,7 +160,7 @@ export default function EmotionsWidget() {
         {!loading && entries.length === 0 && (
           <div className="text-gray-500 text-center py-4">还没有记录，开始一次打卡吧。</div>
         )}
-        {entries.map((entry) => (
+        {entries.map((entry: any) => (
           <div key={entry.id} className="flex items-start gap-3 p-3 border rounded-lg bg-gray-50">
             {editingId === entry.id ? (
               // 编辑模式

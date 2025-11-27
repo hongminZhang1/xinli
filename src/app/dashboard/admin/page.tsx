@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import AdminUserManagement from "@/components/admin/AdminUserManagement";
 import AdminSystemSettings from "@/components/admin/AdminSystemSettings";
+import AdminPreloader from "@/components/admin/AdminPreloader";
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
@@ -43,6 +44,8 @@ export default async function AdminPage() {
           <AdminSystemSettings />
         </div>
       </div>
+      
+      <AdminPreloader />
     </div>
   );
 }

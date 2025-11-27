@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
 import CommentSection from "@/components/dashboard/DetailCommentSection";
 import { ArrowLeft, Clock, User } from "lucide-react";
+import { useJournalDetail, useJournalComments, useJournals } from "@/hooks/useQuery";
+import { useAutoPreloadJournals } from "@/hooks/usePreload";
 
 type JournalEntry = {
   id: string;
@@ -51,45 +53,44 @@ const moodOptions = [
 export default function JournalDetailPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
   const router = useRouter();
-  const [journal, setJournal] = useState<JournalEntry | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  
+  // 使用缓存hooks获取数据
+  const { data: journal, isLoading, error: fetchError } = useJournalDetail(params.id);
+  const { data: comments } = useJournalComments(params.id);
+  const { data: allJournalsData } = useJournals('public'); // 获取所有公开文章用于预加载
+  
+  const [localComments, setLocalComments] = useState<Comment[]>([]);
   const [error, setError] = useState("");
-  const [comments, setComments] = useState<Comment[]>([]);
-
+  
+  // 同步comments数据
   useEffect(() => {
-    fetchJournalDetail();
-  }, [params.id]);
-
-  const fetchJournalDetail = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`/api/journal/${params.id}`);
-      if (!response.ok) {
-        if (response.status === 404) {
-          setError("文章不存在");
-        } else if (response.status === 403) {
-          setError("这是私密文章，无法查看");
-        } else {
-          setError("获取文章失败");
-        }
-        return;
-      }
-      const data = await response.json();
-      setJournal(data);
-      
-      // 获取评论
-      const commentsResponse = await fetch(`/api/journal/${params.id}/comments`);
-      if (commentsResponse.ok) {
-        const commentsData = await commentsResponse.json();
-        setComments(commentsData);
-      }
-    } catch (error) {
-      console.error("获取文章失败:", error);
-      setError("获取文章失败");
-    } finally {
-      setIsLoading(false);
+    if (comments) {
+      setLocalComments(comments);
     }
-  };
+  }, [comments]);
+  
+  // 预加载其他热门文章（排除当前文章）
+  const otherJournals = allJournalsData?.journals?.filter((j: any) => j.id !== params.id) || [];
+  useAutoPreloadJournals(otherJournals.slice(0, 3), {
+    enabled: !!session,
+    count: 3,
+    delay: 300 // 稍长延迟，让当前页面先加载完成
+  });
+  
+  // 处理错误状态
+  useEffect(() => {
+    if (fetchError) {
+      if (fetchError.includes('404')) {
+        setError('文章不存在');
+      } else if (fetchError.includes('403')) {
+        setError('这是私密文章，无法查看');
+      } else {
+        setError('获取文章失败');
+      }
+    }
+  }, [fetchError]);
+
+
 
   const getMoodDisplay = (moodValue?: string) => {
     const moodOption = moodOptions.find(m => m.value === moodValue);
@@ -105,13 +106,7 @@ export default function JournalDetailPage({ params }: { params: { id: string } }
   };
 
   const handleCommentAdded = (newComment: Comment) => {
-    setComments([newComment, ...comments]);
-    if (journal) {
-      setJournal({
-        ...journal,
-        commentCount: (journal.commentCount || 0) + 1
-      });
-    }
+    setLocalComments([newComment, ...localComments]);
   };
 
   if (!session) {
@@ -207,7 +202,7 @@ export default function JournalDetailPage({ params }: { params: { id: string } }
         {/* 标签 */}
         {Array.isArray(journal.tags) && journal.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
-            {journal.tags.map((tag) => (
+            {journal.tags.map((tag: string) => (
               <span
                 key={tag}
                 className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
@@ -226,7 +221,7 @@ export default function JournalDetailPage({ params }: { params: { id: string } }
           </div>
           <div className="flex items-center gap-2">
             <span>💬</span>
-            <span>{comments.length} 条评论</span>
+            <span>{localComments.length} 条评论</span>
           </div>
         </div>
       </Card>
@@ -237,7 +232,7 @@ export default function JournalDetailPage({ params }: { params: { id: string } }
           <h3 className="text-lg font-semibold mb-4">评论区</h3>
           <CommentSection
             journalId={journal.id}
-            initialComments={comments}
+            initialComments={localComments}
             onCommentAdded={handleCommentAdded}
           />
         </Card>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useMutation } from "@/hooks/useQuery";
 
 type Comment = {
   id: string;
@@ -24,12 +25,32 @@ interface DetailCommentSectionProps {
 export default function DetailCommentSection({ journalId, initialComments, onCommentAdded }: DetailCommentSectionProps) {
   const { data: session } = useSession();
   const [newComment, setNewComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [comments, setComments] = useState<Comment[]>(initialComments);
 
   useEffect(() => {
     setComments(initialComments);
   }, [initialComments]);
+
+  // 添加评论的mutation
+  const addCommentMutation = useMutation(
+    (commentData: { content: string }) => 
+      fetch(`/api/journal/${journalId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(commentData)
+      }),
+    {
+      onSuccess: (newCommentData) => {
+        // 更新本地状态
+        setComments(prev => [newCommentData, ...prev]);
+        setNewComment("");
+        if (onCommentAdded) {
+          onCommentAdded(newCommentData);
+        }
+      },
+      invalidateQueries: [`/api/journal/${journalId}/comments`]
+    }
+  );
 
   const getUserDisplayName = (user: { username: string; name?: string }) => {
     return user.name || user.username;
@@ -42,29 +63,13 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
   const handleSubmitComment = async () => {
     if (!newComment.trim() || !session?.user?.id) return;
 
-    setIsSubmitting(true);
     try {
-      const response = await fetch(`/api/journal/${journalId}/comments`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: newComment.trim(),
-        }),
+      await addCommentMutation.mutate({
+        content: newComment.trim()
       });
-
-      if (!response.ok) throw new Error("发布评论失败");
-
-      const comment = await response.json();
-      setComments([comment, ...comments]);
-      onCommentAdded(comment);
-      setNewComment("");
     } catch (error) {
       console.error("发布评论失败:", error);
       alert("发布评论失败，请稍后重试");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -96,10 +101,10 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
               <div className="flex justify-end mt-2">
                 <button
                   onClick={handleSubmitComment}
-                  disabled={!newComment.trim() || isSubmitting}
+                  disabled={!newComment.trim() || addCommentMutation.isLoading}
                   className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? "发布中..." : "发布评论"}
+                  {addCommentMutation.isLoading ? "发布中..." : "发布评论"}
                 </button>
               </div>
             </div>

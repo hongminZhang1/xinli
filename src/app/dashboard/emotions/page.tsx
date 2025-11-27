@@ -2,6 +2,7 @@
 
 import EmotionsWidget from "@/components/dashboard/EmotionsWidget";
 import { useEmotions } from "@/hooks/useEmotions";
+import { EmotionEntry } from "@/types/emotions";
 
 export default function EmotionsPage() {
   const { entries, isAuthenticated } = useEmotions();
@@ -9,17 +10,17 @@ export default function EmotionsPage() {
   const getEmotionStats = () => {
     const today = new Date();
     const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-    const thisWeekEntries = entries.filter(entry => 
+    const thisWeekEntries = entries.filter((entry: EmotionEntry) => 
       new Date(entry.createdAt) >= startOfWeek
     );
 
-    const emotionCounts = entries.reduce((acc, entry) => {
+    const emotionCounts = entries.reduce((acc: Record<string, number>, entry: EmotionEntry) => {
       acc[entry.emoji] = (acc[entry.emoji] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
     const mostFrequentEmotion = Object.entries(emotionCounts)
-      .sort(([, a], [, b]) => b - a)[0];
+      .sort(([, a], [, b]) => (b as number) - (a as number))[0] as [string, number] | undefined;
 
     return {
       totalEntries: entries.length,

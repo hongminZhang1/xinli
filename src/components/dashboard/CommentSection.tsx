@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSession } from "next-auth/react";
+import { useJournalComments, useMutation } from "@/hooks/useQuery";
 
 type Comment = {
   id: string;
@@ -24,29 +25,34 @@ interface CommentSectionProps {
 export default function CommentSection({ journalId, comments, onCommentAdded }: CommentSectionProps) {
   const { data: session } = useSession();
   const [newComment, setNewComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [showCommentInput, setShowCommentInput] = useState(false);
-  const [loadedComments, setLoadedComments] = useState<Comment[]>([]);
-  const [isLoadingComments, setIsLoadingComments] = useState(false);
-  const [commentCount, setCommentCount] = useState(0);
-
-  // 在组件加载时获取评论数量
-  useEffect(() => {
-    loadCommentsCount();
-  }, [journalId]);
-
-  const loadCommentsCount = async () => {
-    try {
-      const response = await fetch(`/api/journal/${journalId}/comments`);
-      if (response.ok) {
-        const commentsData = await response.json();
-        setCommentCount(commentsData.length);
-      }
-    } catch (error) {
-      console.error("获取评论数量失败:", error);
+  
+  // 使用缓存的评论查询
+  const { data: loadedComments, isLoading: isLoadingComments, refetch: refetchComments } = useJournalComments(journalId, showComments);
+  
+  const commentCount = loadedComments?.length || comments?.length || 0;
+  
+  // 添加评论的mutation
+  const addCommentMutation = useMutation(
+    (commentData: { content: string }) => 
+      fetch(`/api/journal/${journalId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(commentData)
+      }),
+    {
+      onSuccess: (newComment) => {
+        setNewComment("");
+        setShowCommentInput(false);
+        refetchComments(); // 刷新评论列表
+        if (onCommentAdded) {
+          onCommentAdded(newComment);
+        }
+      },
+      invalidateQueries: [`/api/journal/${journalId}/comments`]
     }
-  };
+  );
 
   const getUserDisplayName = (user: { username: string; name?: string }) => {
     return user.name || user.username;
@@ -71,66 +77,29 @@ export default function CommentSection({ journalId, comments, onCommentAdded }: 
   };
 
   const loadComments = async () => {
-    if (loadedComments.length > 0) return; // 已加载过评论
-    
-    setIsLoadingComments(true);
-    try {
-      const response = await fetch(`/api/journal/${journalId}/comments`);
-      if (response.ok) {
-        const commentsData = await response.json();
-        setLoadedComments(commentsData);
-        setCommentCount(commentsData.length);
-      }
-    } catch (error) {
-      console.error("加载评论失败:", error);
-    } finally {
-      setIsLoadingComments(false);
-    }
+    // 现在由useJournalComments hook处理
+    refetchComments();
   };
 
   const handleToggleComments = () => {
-    if (!showComments && loadedComments.length === 0) {
-      loadComments();
-    }
     setShowComments(!showComments);
   };
 
   const handleSubmitComment = async () => {
     if (!newComment.trim() || !session) return;
 
-    setIsSubmitting(true);
     try {
-      const response = await fetch(`/api/journal/${journalId}/comments`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: newComment.trim()
-        }),
+      await addCommentMutation.mutate({
+        content: newComment.trim()
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "发布评论失败");
-      }
-
-      const comment = await response.json();
-      setLoadedComments([comment, ...loadedComments]);
-      setCommentCount(prev => prev + 1);
-      onCommentAdded(comment);
-      setNewComment("");
-      setShowCommentInput(false); // 隐藏输入框
       setShowComments(true); // 显示评论列表
     } catch (error) {
       console.error("发布评论失败:", error);
       alert("发布评论失败，请稍后重试");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
-  const displayComments = loadedComments.length > 0 ? loadedComments : comments;
+  const displayComments = loadedComments || comments || [];
 
   return (
     <div>
@@ -192,10 +161,10 @@ export default function CommentSection({ journalId, comments, onCommentAdded }: 
                 </button>
                 <button
                   onClick={handleSubmitComment}
-                  disabled={!newComment.trim() || isSubmitting}
+                  disabled={!newComment.trim() || addCommentMutation.isLoading}
                   className="px-4 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? "发布中..." : "发布"}
+                  {addCommentMutation.isLoading ? "发布中..." : "发布"}
                 </button>
               </div>
             </div>
@@ -206,7 +175,7 @@ export default function CommentSection({ journalId, comments, onCommentAdded }: 
       {/* 评论列表 */}
       {showComments && displayComments.length > 0 && (
         <div className="mt-3 space-y-2">
-          {displayComments.map((comment) => (
+          {displayComments.map((comment: any) => (
             <div key={comment.id} className="flex gap-3">
               <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
                 {comment.user.avatar ? (

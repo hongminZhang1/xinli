@@ -1,137 +1,105 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { EmotionEntry, CreateEmotionRequest, UpdateEmotionRequest } from "@/types/emotions";
+import { useEmotionRecords, useMutation } from "./useQuery";
+import { useCacheStore } from "@/store/useCacheStore";
 
 export function useEmotions() {
   const { data: session, status } = useSession();
-  const [entries, setEntries] = useState<EmotionEntry[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // 加载情绪记录
-  const loadEntries = async () => {
-    if (!session) return;
-    
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch("/api/emotions");
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      setEntries(data);
-    } catch (error) {
-      console.error("Failed to load entries:", error);
-      setError("加载记录失败，请稍后再试");
-    } finally {
-      setLoading(false);
+  const cache = useCacheStore();
+  
+  // 使用缓存的情绪记录查询
+  const { data: entries, isLoading: loading, error, refetch: loadEntries } = useEmotionRecords();
+  
+  // 添加情绪记录的mutation
+  const addEntryMutation = useMutation(
+    (data: CreateEmotionRequest) => fetch("/api/emotions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }),
+    {
+      onSuccess: () => {
+        // 刷新数据
+        loadEntries();
+      },
+      invalidateQueries: ["/api/emotions"]
     }
-  };
+  );
+
+  // 更新情绪记录的mutation
+  const updateEntryMutation = useMutation(
+    ({ id, data }: { id: string; data: UpdateEmotionRequest }) => 
+      fetch(`/api/emotions/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }),
+    {
+      onSuccess: () => {
+        // 刷新数据
+        loadEntries();
+      },
+      invalidateQueries: ["/api/emotions"]
+    }
+  );
+
+  // 删除情绪记录的mutation
+  const deleteEntryMutation = useMutation(
+    (id: string) => fetch(`/api/emotions/${id}`, {
+      method: "DELETE",
+    }),
+    {
+      onSuccess: () => {
+        // 刷新数据
+        loadEntries();
+      },
+      invalidateQueries: ["/api/emotions"]
+    }
+  );
 
   // 添加新记录
   const addEntry = async (data: CreateEmotionRequest): Promise<boolean> => {
     if (!session) return false;
-
     try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch("/api/emotions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const newEntry = await response.json();
-      setEntries((prev) => [newEntry, ...prev]);
+      await addEntryMutation.mutate(data);
       return true;
-    } catch (error) {
-      console.error("Failed to add entry:", error);
-      setError("添加记录失败，请稍后再试");
+    } catch {
       return false;
-    } finally {
-      setLoading(false);
     }
   };
 
   // 更新记录
   const updateEntry = async (id: string, data: UpdateEmotionRequest): Promise<boolean> => {
     if (!session) return false;
-
     try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch(`/api/emotions/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const updatedEntry = await response.json();
-      setEntries((prev) => 
-        prev.map((entry) => 
-          entry.id === id ? updatedEntry : entry
-        )
-      );
+      await updateEntryMutation.mutate({ id, data });
       return true;
-    } catch (error) {
-      console.error("Failed to update entry:", error);
-      setError("更新记录失败，请稍后再试");
+    } catch {
       return false;
-    } finally {
-      setLoading(false);
     }
   };
 
   // 删除记录
   const deleteEntry = async (id: string): Promise<boolean> => {
     if (!session) return false;
-
     try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch(`/api/emotions/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      setEntries((prev) => prev.filter((entry) => entry.id !== id));
+      await deleteEntryMutation.mutate(id);
       return true;
-    } catch (error) {
-      console.error("Failed to delete entry:", error);
-      setError("删除记录失败，请稍后再试");
+    } catch {
       return false;
-    } finally {
-      setLoading(false);
     }
   };
 
   // 清除错误
-  const clearError = () => setError(null);
-
-  useEffect(() => {
-    if (status === "authenticated") {
-      loadEntries();
-    }
-  }, [status, session]);
+  const clearError = () => {
+    // 错误状态现在由mutation管理
+  };
 
   return {
-    entries,
-    loading,
-    error,
+    entries: entries || [],
+    loading: loading || addEntryMutation.isLoading || updateEntryMutation.isLoading || deleteEntryMutation.isLoading,
+    error: error || addEntryMutation.error || updateEntryMutation.error || deleteEntryMutation.error,
     isAuthenticated: !!session,
     authLoading: status === "loading",
     addEntry,

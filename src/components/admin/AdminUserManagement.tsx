@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useUsers, useMutation } from "@/hooks/useQuery";
 
 interface User {
   id: string;
@@ -14,63 +15,52 @@ interface User {
 }
 
 export default function AdminUserManagement() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
-    try {
-      const response = await fetch('/api/admin/users');
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data);
-      } else {
-        console.error('获取用户列表失败');
-      }
-    } catch (error) {
-      console.error('获取用户列表失败:', error);
-    } finally {
-      setLoading(false);
+  
+  // 使用缓存的用户查询
+  const { data: users, isLoading: loading, error, refetch } = useUsers();
+  
+  // 更改用户角色的mutation
+  const changeUserRoleMutation = useMutation(
+    ({ userId, action }: { userId: string; action: 'promote' | 'demote' }) =>
+      fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, action })
+      }),
+    {
+      onSuccess: () => {
+        refetch(); // 刷新用户列表
+        setUpdating(null);
+      },
+      onError: (error) => {
+        console.error('更改用户角色失败:', error);
+        setUpdating(null);
+      },
+      invalidateQueries: ['/api/admin/users']
     }
-  };
+  );
 
   const changeUserRole = async (userId: string, action: 'promote' | 'demote') => {
     setUpdating(userId);
     try {
-      const response = await fetch('/api/admin/users', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          action,
-        }),
-      });
-
-      if (response.ok) {
-        const updatedUser = await response.json();
-        setUsers(users.map(user => 
-          user.id === userId ? updatedUser : user
-        ));
-      } else {
-        const error = await response.json();
-        alert(error.error || '操作失败');
-      }
+      await changeUserRoleMutation.mutate({ userId, action });
     } catch (error) {
-      console.error('更新用户角色失败:', error);
-      alert('操作失败');
-    } finally {
+      console.error('更改用户角色失败:', error);
       setUpdating(null);
     }
   };
 
   if (loading) {
     return <div className="text-center py-8">加载中...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-8 text-red-600">加载失败: {error}</div>;
+  }
+
+  if (!users || users.length === 0) {
+    return <div className="text-center py-8 text-gray-500">暂无用户数据</div>;
   }
 
   return (
@@ -96,7 +86,7 @@ export default function AdminUserManagement() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {users.map((user) => (
+                {users?.map((user: any) => (
                   <tr key={user.id}>
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
                       <div className="flex items-center">
