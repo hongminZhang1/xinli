@@ -37,6 +37,22 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
+// 通过用户名查询用户（用于登录）
+app.get('/api/users/username/:username', async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { username: req.params.username }
+    });
+    if (!user) {
+      return res.status(404).json({ error: '用户不存在' });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('通过用户名获取用户失败:', error);
+    res.status(500).json({ error: '通过用户名获取用户失败' });
+  }
+});
+
 app.get('/api/users/:id', async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
