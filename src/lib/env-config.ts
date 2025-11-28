@@ -7,7 +7,7 @@ export const getApiBaseUrl = () => {
   // 在Vercel生产环境中，使用本地HTTPS代理
   if (process.env.NODE_ENV === 'production' && process.env.VERCEL) {
     // 使用本地代理来避免HTTPS混合内容问题
-    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://xinli-pearl.vercel.app';
+    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://xinli-two.vercel.app';
     return `${baseUrl}/api/proxy`;
   }
   
@@ -27,7 +27,7 @@ export const getAuthUrl = () => {
       return `https://${process.env.VERCEL_URL}`;
     }
     // 默认回退URL
-    return 'https://xinli-pearl.vercel.app';
+    return 'https://xinli-two.vercel.app';
   }
   // 开发环境使用localhost
   return process.env.NEXTAUTH_URL || 'http://localhost:3000';
