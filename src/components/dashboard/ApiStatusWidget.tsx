@@ -31,25 +31,25 @@ export default function ApiStatusWidget() {
     const startTime = Date.now();
     
     try {
-      const response = await fetch('http://193.112.165.180:3001/health', {
+      // 使用本地health API路由，它会代理到远程服务器
+      const response = await fetch('/api/health', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
       });
       
-      const endTime = Date.now();
-      const responseTime = endTime - startTime;
+      const data = await response.json();
       
-      if (response.ok) {
+      if (response.ok && data.connected) {
         setStatus({
           isConnected: true,
-          responseTime,
+          responseTime: data.responseTime || (Date.now() - startTime),
           lastCheck: new Date(),
           error: null,
         });
       } else {
-        throw new Error(`HTTP ${response.status}`);
+        throw new Error(data.error || `HTTP ${response.status}`);
       }
     } catch (error) {
       setStatus({
