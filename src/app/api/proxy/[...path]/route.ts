@@ -8,6 +8,12 @@ import { NextRequest, NextResponse } from "next/server";
 async function proxyToRemoteApi(request: NextRequest, endpoint: string) {
   const remoteUrl = `http://193.112.165.180:3001/api${endpoint}`;
   
+  console.log("🔄 代理请求:", {
+    method: request.method,
+    endpoint,
+    remoteUrl
+  });
+  
   try {
     const requestBody = request.method !== 'GET' && request.method !== 'HEAD' 
       ? await request.text().catch(() => '')
@@ -24,6 +30,12 @@ async function proxyToRemoteApi(request: NextRequest, endpoint: string) {
     });
 
     const responseText = await response.text();
+    
+    console.log("✅ 代理响应:", {
+      status: response.status,
+      statusText: response.statusText,
+      hasData: !!responseText
+    });
     
     // 尝试解析为JSON，如果失败则返回原始文本
     let responseData;
@@ -42,7 +54,7 @@ async function proxyToRemoteApi(request: NextRequest, endpoint: string) {
       }
     });
   } catch (error) {
-    console.error('代理API请求失败:', error);
+    console.error('❌ 代理API请求失败:', error);
     return NextResponse.json(
       { 
         error: '远程API不可用',

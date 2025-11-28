@@ -33,15 +33,23 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) {
+          console.log("❌ 登录失败: 缺少用户名或密码");
           return null;
         }
 
         try {
+          console.log("🔐 开始认证用户:", credentials.username);
+          console.log("🌐 当前环境:", process.env.NODE_ENV);
+          console.log("📡 Vercel环境:", !!process.env.VERCEL);
+          
           const user = await db.user.findUnique({
             username: credentials.username
           });
 
+          console.log("👤 查询用户结果:", user ? `找到用户 ${user.username}` : "用户不存在");
+
           if (!user || !user.password) {
+            console.log("❌ 用户不存在或没有密码");
             return null;
           }
 
@@ -51,6 +59,7 @@ export const authOptions: AuthOptions = {
           // }
 
           const isValid = await bcrypt.compare(credentials.password, user.password);
+          console.log("🔑 密码验证:", isValid ? "成功" : "失败");
 
           if (isValid) {
             // Return user data including role
@@ -65,7 +74,7 @@ export const authOptions: AuthOptions = {
             return null;
           }
         } catch (error) {
-          console.error("Authentication error:", error);
+          console.error("❌ Authentication error:", error);
           return null;
         }
       },
