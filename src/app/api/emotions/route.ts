@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { prisma } from "@/lib/db";
+import { db, isApiMode } from "@/lib/db-adapter";
 import { EmotionType } from "@prisma/client";
 
 // 创建新的情绪记录
@@ -27,14 +27,12 @@ export async function POST(request: NextRequest) {
 
     const emotionType = emotionMap[emoji] || "HAPPY";
     
-    const emotionRecord = await prisma.emotionRecord.create({
-      data: {
-        userId: session.user.id,
-        emotion: emotionType,
-        intensity: 5, // 默认强度
-        notes: note || null,
-        tags: [],
-      },
+    const emotionRecord = await db.emotionRecord.create({
+      userId: session.user.id,
+      emotion: emotionType,
+      intensity: 5, // 默认强度
+      notes: note || null,
+      tags: [],
     });
 
     // 返回格式化的数据，与前端期望的格式保持一致
@@ -61,13 +59,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const emotionRecords = await prisma.emotionRecord.findMany({
-      where: {
-        userId: session.user.id,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
+    const emotionRecords = await db.emotionRecord.findMany({
+      userId: session.user.id,
     });
 
     // 将EmotionType映射回emoji
