@@ -25,6 +25,12 @@ export async function GET() {
       const duration = Date.now() - startTime;
       const text = await response.text().catch(() => '');
       
+      // 转换headers为普通对象
+      const headers: Record<string, string> = {};
+      response.headers.forEach((value, key) => {
+        headers[key] = value;
+      });
+      
       results.push({
         url,
         success: response.ok,
@@ -32,7 +38,7 @@ export async function GET() {
         statusText: response.statusText,
         duration: `${duration}ms`,
         responsePreview: text.substring(0, 200),
-        headers: Object.fromEntries(response.headers)
+        headers
       });
     } catch (error) {
       results.push({
