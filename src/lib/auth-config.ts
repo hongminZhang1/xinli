@@ -12,7 +12,7 @@ export function getNextAuthUrl() {
       return process.env.NEXTAUTH_URL ||
              process.env.NEXTAUTH_URL_PROD || 
              (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-             'https://xl.homgzha.cc.vercel.app';
+             'https://xinli-two.vercel.app';
     }
     // 开发环境
     return process.env.NEXTAUTH_URL || 'http://localhost:3000';
