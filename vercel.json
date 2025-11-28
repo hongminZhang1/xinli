@@ -11,7 +11,8 @@
   },
   "env": {
     "NEXT_PUBLIC_DATA_ACCESS_MODE": "api",
-    "PRISMA_GENERATE_DATAPROXY": "true"
+    "PRISMA_GENERATE_DATAPROXY": "true",
+    "NODE_ENV": "production"
   },
   "headers": [
     {
@@ -30,6 +31,13 @@
           "value": "Content-Type, Authorization"
         }
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/api/auth/signin",
+      "destination": "/",
+      "permanent": false
     }
   ]
 }

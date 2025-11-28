@@ -16,9 +16,20 @@ export const getApiBaseUrl = () => {
 };
 
 export const getAuthUrl = () => {
+  // 在Vercel生产环境中自动检测URL
   if (process.env.NODE_ENV === 'production') {
-    return process.env.NEXTAUTH_URL_PROD || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://xinli-pearl.vercel.app';
+    // 优先使用环境变量中的生产URL
+    if (process.env.NEXTAUTH_URL_PROD) {
+      return process.env.NEXTAUTH_URL_PROD;
+    }
+    // 如果有VERCEL_URL，使用它
+    if (process.env.VERCEL_URL) {
+      return `https://${process.env.VERCEL_URL}`;
+    }
+    // 默认回退URL
+    return 'https://xinli-pearl.vercel.app';
   }
+  // 开发环境使用localhost
   return process.env.NEXTAUTH_URL || 'http://localhost:3000';
 };
 

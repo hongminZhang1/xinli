@@ -1,0 +1,37 @@
+/**
+ * NextAuth配置增强
+ * 处理动态URL和环境变量
+ */
+
+export function getNextAuthUrl() {
+  // 在服务端环境中
+  if (typeof window === 'undefined') {
+    // 生产环境
+    if (process.env.NODE_ENV === 'production') {
+      // 优先级：手动设置 > Vercel自动 > 默认值
+      return process.env.NEXTAUTH_URL_PROD || 
+             (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+             'https://xinli-pearl.vercel.app';
+    }
+    // 开发环境
+    return process.env.NEXTAUTH_URL || 'http://localhost:3000';
+  }
+  
+  // 在客户端环境中，使用当前域名
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  
+  return 'http://localhost:3000';
+}
+
+export function logAuthConfig() {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔐 NextAuth配置:');
+    console.log('- NODE_ENV:', process.env.NODE_ENV);
+    console.log('- NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+    console.log('- NEXTAUTH_URL_PROD:', process.env.NEXTAUTH_URL_PROD);
+    console.log('- VERCEL_URL:', process.env.VERCEL_URL);
+    console.log('- 计算的URL:', getNextAuthUrl());
+  }
+}

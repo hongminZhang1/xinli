@@ -3,6 +3,15 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { db, isApiMode } from "@/lib/db-adapter";
 import bcrypt from "bcrypt";
 import { AuthOptions } from "next-auth";
+import { getNextAuthUrl, logAuthConfig } from "@/lib/auth-config";
+
+// 在开发环境中记录配置
+logAuthConfig();
+
+// 设置运行时的NEXTAUTH_URL
+if (!process.env.NEXTAUTH_URL) {
+  process.env.NEXTAUTH_URL = getNextAuthUrl();
+}
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -17,31 +26,36 @@ export const authOptions: AuthOptions = {
           return null;
         }
 
-        const user = await db.user.findUnique({
-          username: credentials.username
-        });
+        try {
+          const user = await db.user.findUnique({
+            username: credentials.username
+          });
 
-        if (!user || !user.password) {
-          return null;
-        }
+          if (!user || !user.password) {
+            return null;
+          }
 
-        // 检查用户是否被禁用
-        // if (!user.isActive) {
-        //   throw new Error('您的账户已被禁用，请联系管理员');
-        // }
+          // 检查用户是否被禁用
+          // if (!user.isActive) {
+          //   throw new Error('您的账户已被禁用，请联系管理员');
+          // }
 
-        const isValid = await bcrypt.compare(credentials.password, user.password);
+          const isValid = await bcrypt.compare(credentials.password, user.password);
 
-        if (isValid) {
-          // Return user data including role
-          return { 
-            id: user.id, 
-            username: user.username,
-            role: user.role,
-            isActive: true, // 暂时默认为true
-            avatar: user.avatar,
-          };
-        } else {
+          if (isValid) {
+            // Return user data including role
+            return { 
+              id: user.id, 
+              username: user.username,
+              role: user.role,
+              isActive: true, // 暂时默认为true
+              avatar: user.avatar,
+            };
+          } else {
+            return null;
+          }
+        } catch (error) {
+          console.error("Authentication error:", error);
           return null;
         }
       },
@@ -93,6 +107,7 @@ export const authOptions: AuthOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
 };
 
 const handler = NextAuth(authOptions);
