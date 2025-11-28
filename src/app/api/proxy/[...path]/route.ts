@@ -34,7 +34,8 @@ async function proxyToRemoteApi(request: NextRequest, endpoint: string) {
     console.log("✅ 代理响应:", {
       status: response.status,
       statusText: response.statusText,
-      hasData: !!responseText
+      hasData: !!responseText,
+      preview: responseText.substring(0, 200)
     });
     
     // 尝试解析为JSON，如果失败则返回原始文本
@@ -42,6 +43,7 @@ async function proxyToRemoteApi(request: NextRequest, endpoint: string) {
     try {
       responseData = JSON.parse(responseText);
     } catch {
+      console.log("⚠️ 响应不是有效的 JSON");
       responseData = { message: responseText };
     }
 
