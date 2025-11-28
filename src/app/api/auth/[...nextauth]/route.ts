@@ -9,11 +9,18 @@ import { getNextAuthUrl, logAuthConfig } from "@/lib/auth-config";
 logAuthConfig();
 
 // 对于Vercel部署，强制设置正确的URL
-if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-  // 在Vercel环境中，总是使用生产URL
-  const productionUrl = process.env.NEXTAUTH_URL || 'https://xl.hongzha.cc.vercel.app';
+if (process.env.VERCEL) {
+  // 在真正的Vercel环境中，使用Vercel提供的URL或手动设置的URL
+  const correctUrl = process.env.NEXTAUTH_URL || 
+                    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+                    'https://xl.homgzha.cc.vercel.app';
+  process.env.NEXTAUTH_URL = correctUrl;
+  console.log('🔧 真实Vercel环境检测，设置NEXTAUTH_URL为:', correctUrl);
+} else if (process.env.NODE_ENV === 'production') {
+  // 本地production构建，使用生产URL
+  const productionUrl = process.env.NEXTAUTH_URL_PROD || 'https://xl.homgzha.cc.vercel.app';
   process.env.NEXTAUTH_URL = productionUrl;
-  console.log('🔧 Vercel环境检测，设置NEXTAUTH_URL为:', productionUrl);
+  console.log('🔧 Production构建环境，设置NEXTAUTH_URL为:', productionUrl);
 }
 
 export const authOptions: AuthOptions = {
