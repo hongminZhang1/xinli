@@ -21,12 +21,11 @@ export default function AdminSystemSettings() {
   
   // 更新设置的mutation
   const updateSettingMutation = useMutation(
-    ({ key, value }: { key: string; value: string }) =>
-      fetch('/api/admin/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key, value })
-      }),
+    async ({ key, value }: { key: string; value: string }) => {
+      // 使用dbAdapter而不是直接API调用
+      const { dbAdapter } = require('@/lib/db-adapter');
+      return dbAdapter.systemSetting.update(key, value);
+    },
     {
       onSuccess: () => {
         refetch(); // 刷新设置列表
@@ -118,55 +117,16 @@ export default function AdminSystemSettings() {
               当前状态
             </h3>
             <div className="mt-2 text-sm text-blue-700">
-              <ul className="list-disc pl-5 space-y-1">
-                <li>
-                  用户注册: {isRegistrationEnabled() ? 
-                    <span className="text-green-600 font-medium">开放</span> : 
-                    <span className="text-red-600 font-medium">关闭</span>
-                  }
-                </li>
-                <li>
-                  总用户数: {updating ? '更新中...' : settings.length > 0 ? '数据已加载' : '暂无数据'}
-                </li>
-              </ul>
+              <p>
+                用户注册: {isRegistrationEnabled() ? 
+                  <span className="text-green-600 font-medium">开放</span> : 
+                  <span className="text-red-600 font-medium">关闭</span>
+                }
+              </p>
             </div>
           </div>
         </div>
       </div>
-
-      {/* 系统设置列表 */}
-      {settings.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-lg">
-          <div className="px-4 py-3 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900">所有系统设置</h3>
-          </div>
-          <div className="divide-y divide-gray-200">
-            {settings?.map((setting: any) => (
-              <div key={setting.key} className="px-4 py-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">{setting.key}</p>
-                    {setting.description && (
-                      <p className="text-xs text-gray-500 mt-1">{setting.description}</p>
-                    )}
-                  </div>
-                  <div className="ml-4">
-                    <span className={cn(
-                      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-                      setting.value === 'true' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                    )}>
-                      {setting.value}
-                    </span>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-400 mt-1">
-                  最后更新: {new Date(setting.updatedAt).toLocaleString('zh-CN')}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

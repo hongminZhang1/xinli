@@ -7,7 +7,7 @@ import Card from "@/components/ui/Card";
 import Avatar from "@/components/ui/Avatar";
 import CommentSection from "@/components/dashboard/DetailCommentSection";
 import { ArrowLeft, Clock, User } from "lucide-react";
-import { useJournalDetail, useJournalComments, useJournals } from "@/hooks/useQuery";
+import { useJournalDetail, useJournalComments } from "@/hooks/useQuery";
 import { useAutoPreloadJournals } from "@/hooks/usePreload";
 
 type JournalEntry = {
@@ -58,7 +58,6 @@ export default function JournalDetailPage({ params }: { params: { id: string } }
   // 使用缓存hooks获取数据
   const { data: journal, isLoading, error: fetchError } = useJournalDetail(params.id);
   const { data: comments } = useJournalComments(params.id);
-  const { data: allJournalsData } = useJournals('public'); // 获取所有公开文章用于预加载
   
   const [localComments, setLocalComments] = useState<Comment[]>([]);
   const [error, setError] = useState("");
@@ -70,13 +69,14 @@ export default function JournalDetailPage({ params }: { params: { id: string } }
     }
   }, [comments]);
   
-  // 预加载其他热门文章（排除当前文章）
-  const otherJournals = allJournalsData?.journals?.filter((j: any) => j.id !== params.id) || [];
-  useAutoPreloadJournals(otherJournals.slice(0, 3), {
-    enabled: !!session,
-    count: 3,
-    delay: 300 // 稍长延迟，让当前页面先加载完成
-  });
+  // 移除预加载逻辑，避免重复请求
+  // const { data: allJournalsData } = useJournals('public');
+  // const otherJournals = allJournalsData?.filter((j: any) => j.id !== params.id) || [];
+  // useAutoPreloadJournals(otherJournals.slice(0, 3), {
+  //   enabled: !!session,
+  //   count: 3,
+  //   delay: 300
+  // });
   
   // 处理错误状态
   useEffect(() => {

@@ -1,6 +1,5 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { getSettings, updateSettings } from "@/lib/settings";
 
@@ -12,12 +11,8 @@ async function checkAdminAuth() {
     return { error: "未授权", status: 401 };
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true }
-  });
-
-  if (!user || user.role !== 'ADMIN') {
+  // 使用session中的角色信息，避免额外的数据库查询
+  if (session.user.role !== 'ADMIN') {
     return { error: "权限不足", status: 403 };
   }
 

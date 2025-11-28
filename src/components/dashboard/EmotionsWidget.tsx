@@ -111,7 +111,7 @@ export default function EmotionsWidget() {
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
           <div className="flex justify-between items-center">
-            <span>{error}</span>
+            <span>{typeof error === 'string' ? error : (error as Error)?.message || '发生错误'}</span>
             <button 
               onClick={clearError}
               className="text-red-500 hover:text-red-700"

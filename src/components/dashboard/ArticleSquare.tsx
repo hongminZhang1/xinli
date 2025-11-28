@@ -7,7 +7,6 @@ import Card from "@/components/ui/Card";
 import Avatar from "@/components/ui/Avatar";
 import { Clock, MessageCircle, Heart } from "lucide-react";
 import { useJournals } from "@/hooks/useQuery";
-import { useAutoPreloadJournals } from "@/hooks/usePreload";
 
 type JournalEntry = {
   id: string;
@@ -37,9 +36,6 @@ const moodOptions = [
   { value: "peaceful", label: "🕊️ 宁静", color: "text-indigo-500" }
 ];
 
-// 预加载配置
-const PRELOAD_ARTICLE_COUNT = 5; // 预加载前5条文章
-
 export default function ArticleSquare() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -48,12 +44,7 @@ export default function ArticleSquare() {
   // 从API数据中提取journals - API直接返回数组
   const journals = Array.isArray(data) ? data.filter(journal => !journal.isPrivate) : [];
 
-  // 自动预加载前5条文章详情和评论
-  useAutoPreloadJournals(journals, {
-    enabled: !!session, // 只有登录用户才预加载
-    count: PRELOAD_ARTICLE_COUNT,
-    delay: 100
-  });
+  // 移除自动预加载，避免重复API请求
 
   const getMoodDisplay = (moodValue?: string) => {
     const moodOption = moodOptions.find(m => m.value === moodValue);

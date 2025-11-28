@@ -28,19 +28,18 @@ export function usePreloadData() {
           const batch = journalIds.slice(i, i + batchSize);
           
           const batchPromises = batch.map(async (journalId) => {
-            const detailCacheKey = `/api/journal/${journalId}`;
-            const commentsCacheKey = `/api/journal/${journalId}/comments`;
+            const detailCacheKey = `journal-detail-${journalId}`;
+            const commentsCacheKey = `journal-comments-${journalId}`;
             
             // 预加载文章详情
             const detailCached = cache.getCacheItem(detailCacheKey);
             if (!detailCached || detailCached.isExpired) {
               try {
-                const response = await fetch(`/api/journal/${journalId}`);
-                if (response.ok) {
-                  const data = await response.json();
-                  cache.setCache(detailCacheKey, data, 5 * 60 * 1000);
-                  console.log(`✓ 预缓存文章详情: ${journalId}`);
-                }
+                // 使用dbAdapter而不是直接API调用
+                const { dbAdapter } = require('@/lib/db-adapter');
+                const data = await dbAdapter.journal.getById(journalId);
+                cache.setCache(detailCacheKey, data, 5 * 60 * 1000);
+                console.log(`✓ 预缓存文章详情: ${journalId}`);
               } catch (error) {
                 console.warn(`预缓存文章详情失败: ${journalId}`, error);
               }
@@ -50,12 +49,11 @@ export function usePreloadData() {
             const commentsCached = cache.getCacheItem(commentsCacheKey);
             if (!commentsCached || commentsCached.isExpired) {
               try {
-                const response = await fetch(`/api/journal/${journalId}/comments`);
-                if (response.ok) {
-                  const data = await response.json();
-                  cache.setCache(commentsCacheKey, data, 3 * 60 * 1000);
-                  console.log(`✓ 预缓存文章评论: ${journalId}`);
-                }
+                // 使用dbAdapter获取评论（目前返回空数组）
+                const { dbAdapter } = require('@/lib/db-adapter');
+                const data = await dbAdapter.comment.getByJournalId(journalId);
+                cache.setCache(commentsCacheKey, data, 3 * 60 * 1000);
+                console.log(`✓ 预缓存文章评论: ${journalId}`);
               } catch (error) {
                 console.warn(`预缓存文章评论失败: ${journalId}`, error);
               }
@@ -91,17 +89,16 @@ export function usePreloadData() {
       if (!enabled) return;
 
       const executePreload = async () => {
-        const cacheKey = '/api/emotions';
+        const cacheKey = 'all-emotions';
         const cached = cache.getCacheItem(cacheKey);
         
         if (!cached || cached.isExpired) {
           try {
-            const response = await fetch('/api/emotions');
-            if (response.ok) {
-              const data = await response.json();
-              cache.setCache(cacheKey, data, 5 * 60 * 1000);
-              console.log('✓ 预缓存情绪记录');
-            }
+            // 使用dbAdapter而不是直接API调用
+            const { dbAdapter } = require('@/lib/db-adapter');
+            const data = await dbAdapter.emotion.getAll();
+            cache.setCache(cacheKey, data, 5 * 60 * 1000);
+            console.log('✓ 预缓存情绪记录');
           } catch (error) {
             console.warn('预缓存情绪记录失败', error);
           }
@@ -126,28 +123,24 @@ export function usePreloadData() {
 
       const executePreload = async () => {
         try {
-          // 预加载用户列表
-          const usersCacheKey = '/api/admin/users';
+          // 使用dbAdapter获取用户列表
+          const usersCacheKey = 'admin-users';
           const usersCached = cache.getCacheItem(usersCacheKey);
           if (!usersCached || usersCached.isExpired) {
-            const usersResponse = await fetch('/api/admin/users');
-            if (usersResponse.ok) {
-              const usersData = await usersResponse.json();
-              cache.setCache(usersCacheKey, usersData, 10 * 60 * 1000);
-              console.log('✓ 预缓存管理员用户数据');
-            }
+            const { dbAdapter } = require('@/lib/db-adapter');
+            const usersData = await dbAdapter.user.getAll();
+            cache.setCache(usersCacheKey, usersData, 10 * 60 * 1000);
+            console.log('✓ 预缓存管理员用户数据');
           }
 
           // 预加载系统设置
-          const settingsCacheKey = '/api/admin/settings';
+          const settingsCacheKey = 'admin-settings';
           const settingsCached = cache.getCacheItem(settingsCacheKey);
           if (!settingsCached || settingsCached.isExpired) {
-            const settingsResponse = await fetch('/api/admin/settings');
-            if (settingsResponse.ok) {
-              const settingsData = await settingsResponse.json();
-              cache.setCache(settingsCacheKey, settingsData, 15 * 60 * 1000);
-              console.log('✓ 预缓存系统设置数据');
-            }
+            const { dbAdapter } = require('@/lib/db-adapter');
+            const settingsData = await dbAdapter.systemSetting.getAll();
+            cache.setCache(settingsCacheKey, settingsData, 15 * 60 * 1000);
+            console.log('✓ 预缓存管理员设置数据');
           }
           
           console.log('🔧 管理员数据预加载完成');

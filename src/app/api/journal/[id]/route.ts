@@ -1,12 +1,17 @@
-             import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { prisma } from "@/lib/db";
+import { checkApiMode } from "@/lib/api-mode-guard";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // API模式保护
+  const apiModeResponse = checkApiMode();
+  if (apiModeResponse) return apiModeResponse;
+
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {

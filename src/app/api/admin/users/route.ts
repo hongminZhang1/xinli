@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import { prisma } from "@/lib/db";
+import { dbAdapter } from "@/lib/db-adapter";
 import { NextResponse } from "next/server";
 
 // 检查用户是否为管理员
@@ -11,12 +11,8 @@ async function checkAdminAuth() {
     return { error: "未授权", status: 401 };
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true }
-  });
-
-  if (!user || user.role !== 'ADMIN') {
+  // 使用session中的角色信息，避免额外的数据库查询
+  if (session.user.role !== 'ADMIN') {
     return { error: "权限不足", status: 403 };
   }
 
@@ -31,22 +27,14 @@ export async function GET() {
   }
 
   try {
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        name: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    const users = await dbAdapter.user.getAll();
+    
+    // 按创建时间倒序排列
+    const sortedUsers = users.sort((a: any, b: any) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
 
-    return NextResponse.json(users);
+    return NextResponse.json(sortedUsers);
   } catch (error) {
     console.error("获取用户列表失败:", error);
     return NextResponse.json({ error: "获取用户列表失败" }, { status: 500 });
@@ -74,11 +62,7 @@ export async function PATCH(request: Request) {
     }
 
     // 检查要更新的用户是否存在
-    const targetUser = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, username: true, role: true }
-    });
-
+    const targetUser = await dbAdapter.user.getById(userId);
     if (!targetUser) {
       return NextResponse.json({ error: "用户不存在" }, { status: 404 });
     }
@@ -86,19 +70,7 @@ export async function PATCH(request: Request) {
     // 简单的角色切换逻辑
     const newRole = action === 'promote' ? 'COUNSELOR' : 'USER';
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { role: newRole },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        name: true,
-        role: true,
-        updatedAt: true,
-      }
-    });
-
+    const updatedUser = await dbAdapter.user.update(userId, { role: newRole });
     return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("更新用户角色失败:", error);

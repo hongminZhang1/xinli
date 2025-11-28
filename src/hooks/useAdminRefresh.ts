@@ -2,8 +2,8 @@ import { useEffect, useCallback } from 'react';
 import { useCacheStore } from '@/store/useCacheStore';
 
 /**
- * 管理员数据自动刷新hook
- * 定期刷新管理员面板数据，确保数据及时性
+ * 管理员数据自动刷新hook（简化版）
+ * 仅在需要时手动刷新，不进行自动定时刷新
  */
 export function useAdminDataRefresh(enabled: boolean = false) {
   const cache = useCacheStore();
@@ -12,41 +12,23 @@ export function useAdminDataRefresh(enabled: boolean = false) {
     if (!enabled) return;
 
     try {
-      console.log('🔄 开始刷新管理员数据...');
+      console.log('🔄 刷新管理员数据...');
       
-      // 刷新用户列表
-      const usersResponse = await fetch('/api/admin/users');
-      if (usersResponse.ok) {
-        const usersData = await usersResponse.json();
-        cache.setCache('/api/admin/users', usersData, 10 * 60 * 1000);
-        console.log('✓ 用户列表数据已更新');
-      }
+      // 使用dbAdapter刷新用户列表
+      const { dbAdapter } = require('@/lib/db-adapter');
+      const usersData = await dbAdapter.user.getAll();
+      cache.setCache('admin-users', usersData, 10 * 60 * 1000);
 
       // 刷新系统设置
-      const settingsResponse = await fetch('/api/admin/settings');
-      if (settingsResponse.ok) {
-        const settingsData = await settingsResponse.json();
-        cache.setCache('/api/admin/settings', settingsData, 15 * 60 * 1000);
-        console.log('✓ 系统设置数据已更新');
-      }
+      const settingsData = await dbAdapter.systemSetting.getAll();
+      cache.setCache('admin-settings', settingsData, 15 * 60 * 1000);
       
-      console.log('🎯 管理员数据刷新完成');
+      console.log('✓ 管理员数据刷新完成');
     } catch (error) {
       console.warn('管理员数据刷新失败:', error);
     }
   }, [cache, enabled]);
 
-  useEffect(() => {
-    if (enabled) {
-      // 立即执行一次刷新
-      refreshAdminData();
-      
-      // 设置定期刷新（每5分钟）
-      const interval = setInterval(refreshAdminData, 5 * 60 * 1000);
-      
-      return () => clearInterval(interval);
-    }
-  }, [enabled, refreshAdminData]);
-
+  // 移除自动定时刷新，只提供手动刷新功能
   return { refreshAdminData };
 }

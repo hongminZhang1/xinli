@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import Card from "@/components/ui/Card";
 import { useJournals, useMutation } from "@/hooks/useQuery";
-import { useAutoPreloadJournals } from "@/hooks/usePreload";
 
 type JournalEntry = {
   id: string;
@@ -57,12 +56,7 @@ export default function JournalWidget() {
     ? data.filter(journal => journal.userId === session?.user?.id)
     : [];
   
-  // 预加载前3条文章详情（个人文章页面通常查看较少）
-  useAutoPreloadJournals(journals, {
-    enabled: !!session,
-    count: 3,
-    delay: 200 // 稍长的延迟，因为用户可能在编辑
-  });
+  // 移除预加载逻辑，避免重复API请求
   
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -168,7 +162,7 @@ export default function JournalWidget() {
         
         {(error || createJournalMutation.error || journalsError) && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error || createJournalMutation.error || journalsError}
+            {(error || createJournalMutation.error?.message || journalsError)}
           </div>
         )}
 

@@ -22,11 +22,17 @@ export default function AdminUserManagement() {
   
   // 更改用户角色的mutation
   const changeUserRoleMutation = useMutation(
-    ({ userId, action }: { userId: string; action: 'promote' | 'demote' }) => {
-      const { dbAdapter } = require("@/lib/db-adapter");
-      // 根据action确定新角色
-      const newRole = action === 'promote' ? 'ADMIN' : 'USER';
-      return dbAdapter.user.update(userId, { role: newRole });
+    async ({ userId, action }: { userId: string; action: 'promote' | 'demote' }) => {
+      const response = await fetch(`/api/admin/users`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, action })
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '更新失败');
+      }
+      return response.json();
     },
     {
       onSuccess: () => {
@@ -64,30 +70,27 @@ export default function AdminUserManagement() {
   }
 
   return (
-    <div className="overflow-hidden">
-      <div className="flow-root">
-        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-            <table className="min-w-full divide-y divide-gray-300">
-              <thead>
-                <tr>
-                  <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
-                    用户名
-                  </th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    角色
-                  </th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    注册时间
-                  </th>
-                  <th className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">
-                    操作
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {users?.map((user: any) => (
-                  <tr key={user.id}>
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-300">
+        <thead>
+          <tr>
+            <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
+              用户名
+            </th>
+            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              角色
+            </th>
+            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              注册时间
+            </th>
+            <th className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">
+              操作
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {users.map((user: any) => (
+            <tr key={user.id}>
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
                       <div className="flex items-center">
                         <div className="h-8 w-8 flex-shrink-0">
@@ -152,15 +155,6 @@ export default function AdminUserManagement() {
                 ))}
               </tbody>
             </table>
-          </div>
-        </div>
-      </div>
-      
-      {users.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          暂无用户数据
-        </div>
-      )}
     </div>
   );
 }

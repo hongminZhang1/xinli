@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db-adapter";
 import { EmotionType } from "@prisma/client";
 
 // 更新情绪记录
-export async function PATCH(
+export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -19,18 +19,6 @@ export async function PATCH(
     const body = await request.json();
     const { emoji, note } = body;
 
-    // 验证记录是否属于当前用户
-    const existingRecord = await prisma.emotionRecord.findFirst({
-      where: {
-        id: params.id,
-        userId: session.user.id,
-      },
-    });
-
-    if (!existingRecord) {
-      return NextResponse.json({ error: "Record not found" }, { status: 404 });
-    }
-
     // 将emoji映射到EmotionType
     const emotionMap: { [key: string]: EmotionType } = {
       "😊": "HAPPY",
@@ -40,22 +28,34 @@ export async function PATCH(
       "😰": "ANXIOUS",
     };
 
-    const emotionType = emotionMap[emoji] || existingRecord.emotion;
+    const emotionType = emotionMap[emoji] || "HAPPY";
     
-    const updatedRecord = await prisma.emotionRecord.update({
-      where: { id: params.id },
-      data: {
+    // 在API模式下，调用远程API更新记录
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://193.112.165.180:3001/api';
+    
+    const response = await fetch(`${baseUrl}/emotions/${params.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         emotion: emotionType,
         notes: note || null,
-      },
+      }),
     });
+
+    if (!response.ok) {
+      throw new Error(`远程API错误: ${response.status}`);
+    }
+
+    const updatedRecord = await response.json();
 
     // 返回格式化的数据
     const formattedRecord = {
       id: updatedRecord.id,
       emoji: emoji,
       note: updatedRecord.notes,
-      createdAt: updatedRecord.createdAt.toISOString(),
+      createdAt: typeof updatedRecord.createdAt === 'string' ? updatedRecord.createdAt : updatedRecord.createdAt ? updatedRecord.createdAt.toISOString() : new Date().toISOString(),
     };
 
     return NextResponse.json(formattedRecord);
@@ -77,23 +77,20 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 验证记录是否属于当前用户
-    const existingRecord = await prisma.emotionRecord.findFirst({
-      where: {
-        id: params.id,
-        userId: session.user.id,
-      },
+    const { id } = params;
+    
+    // 在API模式下，调用远程API删除记录
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://193.112.165.180:3001/api';
+    
+    const response = await fetch(`${baseUrl}/emotions/${id}`, {
+      method: 'DELETE',
     });
 
-    if (!existingRecord) {
-      return NextResponse.json({ error: "Record not found" }, { status: 404 });
+    if (!response.ok) {
+      throw new Error(`远程API错误: ${response.status}`);
     }
 
-    await prisma.emotionRecord.delete({
-      where: { id: params.id },
-    });
-
-    return NextResponse.json({ message: "Record deleted successfully" });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete emotion record:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

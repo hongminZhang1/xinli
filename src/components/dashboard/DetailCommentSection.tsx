@@ -34,12 +34,15 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
 
   // 添加评论的mutation
   const addCommentMutation = useMutation(
-    (commentData: { content: string }) => 
-      fetch(`/api/journal/${journalId}/comments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(commentData)
-      }),
+    async (commentData: { content: string }) => {
+      // 使用dbAdapter而不是直接API调用
+      const { dbAdapter } = require('@/lib/db-adapter');
+      return dbAdapter.comment.create({
+        content: commentData.content,
+        journalId: journalId,
+        userId: 'current-user' // 这里需要传入实际的userId
+      });
+    },
     {
       onSuccess: (newCommentData) => {
         // 更新本地状态
@@ -49,7 +52,7 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
           onCommentAdded(newCommentData);
         }
       },
-      invalidateQueries: [`/api/journal/${journalId}/comments`]
+      invalidateQueries: [`journal-comments-${journalId}`]
     }
   );
 
