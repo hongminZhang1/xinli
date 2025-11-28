@@ -10,9 +10,9 @@ logAuthConfig();
 
 // 对于Vercel部署，强制设置正确的URL
 if (process.env.VERCEL) {
-  // 在真正的Vercel环境中，使用Vercel提供的URL或手动设置的URL
+  // 在真正的Vercel环境中，优先使用手动设置的生产URL
   const correctUrl = process.env.NEXTAUTH_URL || 
-                    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+                    process.env.NEXTAUTH_URL_PROD ||
                     'https://xinli-two.vercel.app';
   process.env.NEXTAUTH_URL = correctUrl;
   console.log('🔧 真实Vercel环境检测，设置NEXTAUTH_URL为:', correctUrl);
