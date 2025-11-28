@@ -1,68 +1,109 @@
-# API请求简化说明
+# API请求配置说明
 
-## 改动概述
+## 问题背景
 
-本次改动简化了API请求逻辑，统一使用IP地址直接请求，无论是本地开发还是部署到Vercel。
+### HTTPS混合内容问题
+当应用部署到Vercel（HTTPS）后，浏览器会阻止从HTTPS网站直接请求HTTP资源（API服务器），这是浏览器的安全策略。
 
-## 主要变更
+**错误表现**：
+- 本地开发（HTTP）一切正常
+- 部署到Vercel（HTTPS）后，API请求失败
+- 浏览器控制台显示 Mixed Content 错误
 
-### 1. 简化 `env-config.ts`
-- **删除**: 复杂的环境判断逻辑（Vercel代理、生产环境检测等）
-- **保留**: 仅保留 `getApiBaseUrl()` 函数
-- **行为**: 统一返回 `http://193.112.165.180:3001/api`
+## 解决方案
 
-### 2. 删除代理相关代码
-- **删除文件**: `src/app/api/proxy/[...path]/route.ts`
-- **删除目录**: `src/app/api/proxy/`
-- **原因**: 不再需要通过Vercel代理转发请求到远程API
+### 智能路由策略
 
-### 3. 删除API模式保护器
-- **删除文件**: `src/lib/api-mode-guard.ts`
-- **原因**: 简化后不再需要模式检查
+根据运行环境自动选择最佳请求方式：
 
-### 4. 更新环境变量说明
-- **文件**: `.env`
-- **改动**: 更新注释，明确说明本地和部署后统一使用IP地址
+1. **Vercel生产环境（HTTPS）**：
+   - 客户端请求 → `/api/proxy` → 代理转发 → `http://193.112.165.180:3001/api`
+   - 避免浏览器混合内容阻止
 
-### 5. 简化Vercel配置
-- **文件**: `vercel.json`
-- **删除**: `headers` 和 `redirects` 配置
-- **保留**: 基础构建和环境变量配置
+2. **本地开发（HTTP）**：
+   - 直接请求 → `http://193.112.165.180:3001/api`
+   - 无需代理，提高开发效率
 
-## API请求方式
+3. **服务端渲染**：
+   - 直接请求 → `http://193.112.165.180:3001/api`
+   - 服务端不受浏览器安全策略限制
 
-### 之前（复杂）
-- **本地**: `http://193.112.165.180:3001/api`
-- **Vercel**: `https://xl.homgzha.cc/api/proxy/...` → 代理到 → `http://193.112.165.180:3001/api`
+## 技术实现
 
-### 现在（简化）
-- **本地**: `http://193.112.165.180:3001/api/users`
-- **Vercel**: `http://193.112.165.180:3001/api/users`
+### 1. 智能配置（env-config.ts）
+
+```typescript
+export const getApiBaseUrl = () => {
+  // 在Vercel生产环境的客户端，使用代理
+  if (typeof window !== 'undefined' && 
+      process.env.NODE_ENV === 'production' && 
+      window.location.protocol === 'https:') {
+    return '/api/proxy';
+  }
+  
+  // 其他情况直接使用IP
+  return 'http://193.112.165.180:3001/api';
+};
+```
+
+### 2. 代理路由（/api/proxy/[...path]/route.ts）
+
+- 接收所有 `/api/proxy/*` 请求
+- 转发到 `http://193.112.165.180:3001/api/*`
+- 返回响应给客户端
+
+## 请求流程对比
+
+## 请求流程对比
+
+### 本地开发
+```
+浏览器 → http://193.112.165.180:3001/api/journals → API服务器
+```
+
+### Vercel部署
+```
+浏览器 → https://your-app.vercel.app/api/proxy/journals 
+       → Vercel代理 
+       → http://193.112.165.180:3001/api/journals 
+       → API服务器
+```
 
 ## 使用示例
 
 ```typescript
-// api-client.ts 自动使用配置的IP地址
+// api-client.ts 自动根据环境选择
 import { apiClient } from '@/lib/api-client';
 
-// 所有请求统一格式
-const users = await apiClient.get('/users');
+// 所有请求代码不变
+const journals = await apiClient.get('/journals');
 const emotions = await apiClient.get('/emotions');
 ```
 
+## 配置文件
+
+### .env
+```bash
+NEXT_PUBLIC_API_BASE_URL="http://193.112.165.180:3001/api"
+```
+
+### vercel.json
+保持基础配置即可，无需特殊CORS或重定向配置
+
 ## 注意事项
 
-1. **HTTPS混合内容警告**: Vercel部署使用HTTPS，请求HTTP API时浏览器可能警告
-2. **CORS配置**: 确保远程API服务器（193.112.165.180:3001）已正确配置CORS
-3. **环境变量**: 部署到Vercel时需在Dashboard中设置 `NEXT_PUBLIC_API_BASE_URL`
+1. ✅ **混合内容问题已解决**：通过代理避免浏览器阻止
+2. ✅ **本地开发不受影响**：直连API，速度更快
+3. ✅ **代码统一**：前端代码无需修改，自动适配环境
+4. ⚠️ **代理延迟**：Vercel环境多一层代理，略有延迟（通常<50ms）
 
-## 好处
+## 最佳实践建议
 
-- ✅ 代码更简洁，易于维护
-- ✅ 本地和生产环境逻辑统一
-- ✅ 减少中间代理层，提高性能
-- ✅ 调试更方便，请求路径清晰
+**长期方案**：为API服务器配置HTTPS证书
+- 使用Let's Encrypt免费证书
+- 配置Nginx反向代理
+- 彻底解决混合内容问题
 
-## 日期
+## 更新日期
 
 2025年11月28日
