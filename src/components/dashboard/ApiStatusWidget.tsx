@@ -7,11 +7,6 @@ import Card from '@/components/ui/Card';
 export default function ApiStatusWidget() {
   const { data: session } = useSession();
   
-  // 只有管理员才能看到API状态
-  if (!session || session.user?.role !== 'ADMIN') {
-    return null;
-  }
-
   const [status, setStatus] = useState<{
     isConnected: boolean;
     responseTime: number | null;
@@ -64,13 +59,21 @@ export default function ApiStatusWidget() {
   };
 
   useEffect(() => {
-    checkApiStatus();
-    
-    // 每30秒自动检查一次
-    const interval = setInterval(checkApiStatus, 30000);
-    
-    return () => clearInterval(interval);
-  }, []);
+    // 只有管理员才检查API状态
+    if (session?.user?.role === 'ADMIN') {
+      checkApiStatus();
+      
+      // 每30秒自动检查一次
+      const interval = setInterval(checkApiStatus, 30000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [session?.user?.role]);
+
+  // 只有管理员才能看到API状态
+  if (!session || session.user?.role !== 'ADMIN') {
+    return null;
+  }
 
   return (
     <Card className="space-y-4">
