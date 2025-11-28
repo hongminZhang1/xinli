@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
+import Avatar from "@/components/ui/Avatar";
 import { Clock, MessageCircle, Heart } from "lucide-react";
 import { useJournals } from "@/hooks/useQuery";
 import { useAutoPreloadJournals } from "@/hooks/usePreload";
@@ -44,8 +45,8 @@ export default function ArticleSquare() {
   const router = useRouter();
   const { data, isLoading, error, refetch } = useJournals('public');
   
-  // 从缓存数据中提取journals数组
-  const journals = data?.journals || [];
+  // 从API数据中提取journals - API直接返回数组
+  const journals = Array.isArray(data) ? data.filter(journal => !journal.isPrivate) : [];
 
   // 自动预加载前5条文章详情和评论
   useAutoPreloadJournals(journals, {
@@ -136,17 +137,12 @@ export default function ArticleSquare() {
               <Card className="p-4 hover:shadow-md transition-shadow">
               <div className="flex items-start gap-4">
                 {/* 用户头像 */}
-                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
-                  {journal.user.avatar ? (
-                    <img 
-                      src={journal.user.avatar} 
-                      alt={getUserDisplayName(journal.user)}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  ) : (
-                    getUserDisplayName(journal.user).charAt(0).toUpperCase()
-                  )}
-                </div>
+                <Avatar 
+                  username={getUserDisplayName(journal.user)} 
+                  avatar={journal.user.avatar}
+                  size="medium"
+                  className="flex-shrink-0"
+                />
 
                 {/* 文章信息 */}
                 <div className="flex-1 min-w-0">

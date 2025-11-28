@@ -6,6 +6,7 @@ import UserRoleCard from "@/components/dashboard/UserRoleCard";
 import UserStatusIndicator from "@/components/dashboard/UserStatusIndicator";
 import QuickActions from "@/components/dashboard/QuickActions";
 import RealTimeDisplay from "@/components/dashboard/RealTimeDisplay";
+import ApiStatusWidget from "@/components/dashboard/ApiStatusWidget";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -111,26 +112,36 @@ export default async function DashboardPage() {
         <QuickActions session={session} />
       </div>
 
-      {/* 统计信息区域 */}
-      <div className="bg-white/50 backdrop-blur-sm border border-white/20 rounded-2xl p-6 shadow-lg">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-          <span>📈</span>
-          使用统计
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-2">0</div>
-            <div className="text-gray-600">本周情绪记录</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-green-600 mb-2">0</div>
-            <div className="text-gray-600">对话次数</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-purple-600 mb-2">0</div>
-            <div className="text-gray-600">日记条数</div>
+      {/* 统计信息和API状态 */}
+      <div className={`grid gap-6 ${session?.user?.role === 'ADMIN' ? 'grid-cols-1 lg:grid-cols-3' : 'grid-cols-1'}`}>
+        {/* 统计信息区域 */}
+        <div className={`bg-white/50 backdrop-blur-sm border border-white/20 rounded-2xl p-6 shadow-lg ${session?.user?.role === 'ADMIN' ? 'lg:col-span-2' : ''}`}>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <span>📈</span>
+            使用统计
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600 mb-2">0</div>
+              <div className="text-gray-600">本周情绪记录</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-600 mb-2">0</div>
+              <div className="text-gray-600">对话次数</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-purple-600 mb-2">0</div>
+              <div className="text-gray-600">日记条数</div>
+            </div>
           </div>
         </div>
+        
+        {/* API状态组件 - 只对管理员显示 */}
+        {session?.user?.role === 'ADMIN' && (
+          <div>
+            <ApiStatusWidget />
+          </div>
+        )}
       </div>
     </div>
   );

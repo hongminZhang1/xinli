@@ -22,12 +22,12 @@ export default function AdminUserManagement() {
   
   // 更改用户角色的mutation
   const changeUserRoleMutation = useMutation(
-    ({ userId, action }: { userId: string; action: 'promote' | 'demote' }) =>
-      fetch('/api/admin/users', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, action })
-      }),
+    ({ userId, action }: { userId: string; action: 'promote' | 'demote' }) => {
+      const { dbAdapter } = require("@/lib/db-adapter");
+      // 根据action确定新角色
+      const newRole = action === 'promote' ? 'ADMIN' : 'USER';
+      return dbAdapter.user.update(userId, { role: newRole });
+    },
     {
       onSuccess: () => {
         refetch(); // 刷新用户列表
@@ -37,7 +37,7 @@ export default function AdminUserManagement() {
         console.error('更改用户角色失败:', error);
         setUpdating(null);
       },
-      invalidateQueries: ['/api/admin/users']
+      invalidateQueries: ['users']
     }
   );
 

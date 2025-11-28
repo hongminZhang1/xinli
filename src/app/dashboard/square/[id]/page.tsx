@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
+import Avatar from "@/components/ui/Avatar";
 import CommentSection from "@/components/dashboard/DetailCommentSection";
 import { ArrowLeft, Clock, User } from "lucide-react";
 import { useJournalDetail, useJournalComments, useJournals } from "@/hooks/useQuery";
@@ -161,17 +162,12 @@ export default function JournalDetailPage({ params }: { params: { id: string } }
         {/* 文章头部信息 */}
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-              {journal.user.avatar ? (
-                <img 
-                  src={journal.user.avatar} 
-                  alt={getUserDisplayName(journal.user)}
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                getUserDisplayName(journal.user).charAt(0).toUpperCase()
-              )}
-            </div>
+            <Avatar 
+              username={getUserDisplayName(journal.user)} 
+              avatar={journal.user.avatar}
+              size="large"
+              className="flex-shrink-0"
+            />
             <div>
               <div className="font-semibold text-gray-800">
                 {getUserDisplayName(journal.user)}

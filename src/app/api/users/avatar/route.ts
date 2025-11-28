@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { prisma } from "@/lib/db";
+import { dbAdapter } from "@/lib/db-adapter";
 
 export async function PATCH(request: NextRequest) {
   try {
@@ -25,16 +25,8 @@ export async function PATCH(request: NextRequest) {
     }
 
     // 更新用户头像
-    const updatedUser = await prisma.user.update({
-      where: { id: session.user.id },
-      data: { avatar: avatarUrl },
-      select: {
-        id: true,
-        username: true,
-        avatar: true,
-        email: true,
-        name: true,
-      }
+    const updatedUser = await dbAdapter.user.update(session.user.id, { 
+      avatar: avatarUrl 
     });
 
     return NextResponse.json({
@@ -63,16 +55,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 删除用户头像（设置为null）
-    const updatedUser = await prisma.user.update({
-      where: { id: session.user.id },
-      data: { avatar: null },
-      select: {
-        id: true,
-        username: true,
-        avatar: true,
-        email: true,
-        name: true,
-      }
+    const updatedUser = await dbAdapter.user.update(session.user.id, { 
+      avatar: null 
     });
 
     return NextResponse.json({
@@ -81,7 +65,7 @@ export async function DELETE(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Avatar delete error:", error);
+    console.error("Avatar deletion error:", error);
     return NextResponse.json(
       { error: "删除头像时发生错误" },
       { status: 500 }

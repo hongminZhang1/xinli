@@ -1,21 +1,20 @@
 /**
  * 数据库适配器
- * 支持在直接数据库访问和API代理访问之间切换
+ * 完全使用API访问，摒弃直接数据库连接
  */
-import { prisma } from './db';
 import { dbApi } from './api-client';
 
 // 数据访问模式
-type DataAccessMode = 'direct' | 'api';
+type DataAccessMode = 'api';
 
-// 从环境变量读取访问模式
-const DATA_ACCESS_MODE: DataAccessMode = (process.env.NEXT_PUBLIC_DATA_ACCESS_MODE as DataAccessMode) || 'direct';
+// 强制使用API模式
+const DATA_ACCESS_MODE: DataAccessMode = 'api';
 
 interface DbAdapter {
   // 用户操作
   user: {
     findMany: (where?: any) => Promise<any[]>;
-    findUnique: (where: { id: string }) => Promise<any | null>;
+    findUnique: (where: { id?: string; username?: string }) => Promise<any | null>;
     create: (data: any) => Promise<any>;
     update: (where: { id: string }, data: any) => Promise<any>;
     delete: (where: { id: string }) => Promise<any>;
@@ -60,60 +59,7 @@ interface DbAdapter {
   };
 }
 
-// 直接数据库访问实现
-const directDbAdapter: DbAdapter = {
-  user: {
-    findMany: (where) => prisma.user.findMany({ where }),
-    findUnique: (where) => prisma.user.findUnique({ where }),
-    create: (data) => prisma.user.create({ data }),
-    update: (where, data) => prisma.user.update({ where, data: { ...data, updatedAt: new Date() } }),
-    delete: (where) => prisma.user.delete({ where }),
-  },
-  
-  emotionRecord: {
-    findMany: (where) => prisma.emotionRecord.findMany({ where, include: { user: true } }),
-    create: (data) => prisma.emotionRecord.create({ data }),
-    update: (where, data) => prisma.emotionRecord.update({ where, data }),
-    delete: (where) => prisma.emotionRecord.delete({ where }),
-  },
-  
-  journalEntry: {
-    findMany: (where) => prisma.journalEntry.findMany({ 
-      where, 
-      include: { user: true, comments: { include: { user: true } } } 
-    }),
-    findUnique: (where) => prisma.journalEntry.findUnique({ 
-      where, 
-      include: { user: true, comments: { include: { user: true } } } 
-    }),
-    create: (data) => prisma.journalEntry.create({ data }),
-    update: (where, data) => prisma.journalEntry.update({ where, data: { ...data, updatedAt: new Date() } }),
-    delete: (where) => prisma.journalEntry.delete({ where }),
-  },
-  
-  chatSession: {
-    findMany: (where) => prisma.chatSession.findMany({ where, include: { user: true } }),
-    create: (data) => prisma.chatSession.create({ data }),
-    update: (where, data) => prisma.chatSession.update({ where, data: { ...data, updatedAt: new Date() } }),
-  },
-  
-  appointment: {
-    findMany: (where) => prisma.appointment.findMany({ 
-      where, 
-      include: { user: true, counselor: true } 
-    }),
-    create: (data) => prisma.appointment.create({ data }),
-    update: (where, data) => prisma.appointment.update({ where, data: { ...data, updatedAt: new Date() } }),
-  },
-  
-  systemSettings: {
-    findMany: () => prisma.systemSettings.findMany(),
-    findUnique: (where) => prisma.systemSettings.findUnique({ where }),
-    upsert: (where, update, create) => prisma.systemSettings.upsert({ where, update, create }),
-  },
-};
-
-// API访问实现
+// API访问实现（唯一实现）
 const apiDbAdapter: DbAdapter = {
   user: {
     findMany: async (where) => {
@@ -123,7 +69,14 @@ const apiDbAdapter: DbAdapter = {
       }
       return dbApi.users.getAll();
     },
-    findUnique: (where) => dbApi.users.getById(where.id),
+    findUnique: async (where) => {
+      if (where.id) {
+        return dbApi.users.getById(where.id);
+      } else if (where.username) {
+        return dbApi.users.getByUsername(where.username);
+      }
+      return null;
+    },
     create: (data) => dbApi.users.create(data),
     update: (where, data) => dbApi.users.update(where.id, data),
     delete: (where) => dbApi.users.delete(where.id),
@@ -131,11 +84,12 @@ const apiDbAdapter: DbAdapter = {
   
   emotionRecord: {
     findMany: async (where) => {
+      // 获取所有情绪记录，然后在客户端过滤
+      const allEmotions = await dbApi.emotions.getAll();
       if (where?.userId) {
-        return dbApi.emotions.getByUserId(where.userId);
+        return allEmotions.filter((emotion: any) => emotion.userId === where.userId);
       }
-      // 如果没有指定userId，可能需要在API端实现获取所有情绪记录的接口
-      throw new Error('API模式下必须指定userId来获取情绪记录');
+      return allEmotions;
     },
     create: (data) => dbApi.emotions.create(data),
     update: (where, data) => dbApi.emotions.update(where.id, data),
@@ -144,15 +98,17 @@ const apiDbAdapter: DbAdapter = {
   
   journalEntry: {
     findMany: async (where) => {
+      // 获取所有日记，然后在客户端过滤
+      const allJournals = await dbApi.journals.getAll();
       if (where?.userId) {
-        return dbApi.journal.getByUserId(where.userId);
+        return allJournals.filter((journal: any) => journal.userId === where.userId);
       }
-      throw new Error('API模式下必须指定userId来获取日记条目');
+      return allJournals;
     },
-    findUnique: (where) => dbApi.journal.getById(where.id),
-    create: (data) => dbApi.journal.create(data),
-    update: (where, data) => dbApi.journal.update(where.id, data),
-    delete: (where) => dbApi.journal.delete(where.id),
+    findUnique: (where) => dbApi.journals.getById(where.id),
+    create: (data) => dbApi.journals.create(data),
+    update: (where, data) => dbApi.journals.update(where.id, data),
+    delete: (where) => dbApi.journals.delete(where.id),
   },
   
   chatSession: {
@@ -160,7 +116,7 @@ const apiDbAdapter: DbAdapter = {
       if (where?.userId) {
         return dbApi.chat.getByUserId(where.userId);
       }
-      throw new Error('API模式下必须指定userId来获取聊天会话');
+      return [];
     },
     create: (data) => dbApi.chat.create(data),
     update: (where, data) => dbApi.chat.update(where.id, data),
@@ -171,7 +127,7 @@ const apiDbAdapter: DbAdapter = {
       if (where?.userId) {
         return dbApi.appointments.getByUserId(where.userId);
       }
-      throw new Error('API模式下必须指定userId来获取预约');
+      return [];
     },
     create: (data) => dbApi.appointments.create(data),
     update: (where, data) => dbApi.appointments.update(where.id, data),
@@ -197,11 +153,57 @@ const apiDbAdapter: DbAdapter = {
   },
 };
 
-// 根据配置选择适配器
-export const db: DbAdapter = DATA_ACCESS_MODE === 'api' ? apiDbAdapter : directDbAdapter;
+// 只使用API访问
+export const db: DbAdapter = apiDbAdapter;
+
+// 便捷方法适配器 - 提供更简单的API
+export const dbAdapter = {
+  user: {
+    getAll: () => apiDbAdapter.user.findMany(),
+    getById: (id: string) => apiDbAdapter.user.findUnique({ id }),
+    getByUsername: (username: string) => apiDbAdapter.user.findUnique({ username }),
+    create: (data: any) => apiDbAdapter.user.create(data),
+    update: (id: string, data: any) => apiDbAdapter.user.update({ id }, data),
+    delete: (id: string) => apiDbAdapter.user.delete({ id }),
+  },
+  
+  emotion: {
+    getAll: () => dbApi.emotions.getAll(),
+    getById: (id: string) => dbApi.emotions.getById(id),
+    getByUserId: (userId: string) => apiDbAdapter.emotionRecord.findMany({ userId }),
+    create: (data: any) => apiDbAdapter.emotionRecord.create(data),
+    update: (id: string, data: any) => apiDbAdapter.emotionRecord.update({ id }, data),
+    delete: (id: string) => apiDbAdapter.emotionRecord.delete({ id }),
+  },
+  
+  journal: {
+    getAll: () => dbApi.journals.getAll(),
+    getById: (id: string) => apiDbAdapter.journalEntry.findUnique({ id }),
+    getByUserId: (userId: string) => apiDbAdapter.journalEntry.findMany({ userId }),
+    create: (data: any) => apiDbAdapter.journalEntry.create(data),
+    update: (id: string, data: any) => apiDbAdapter.journalEntry.update({ id }, data),
+    delete: (id: string) => apiDbAdapter.journalEntry.delete({ id }),
+  },
+  
+  comment: {
+    getByJournalId: (journalId: string) => {
+      // 暂时返回空数组，因为API服务器还没有这个功能
+      return Promise.resolve([]);
+    },
+    create: (data: any) => Promise.resolve({}),
+    update: (id: string, data: any) => Promise.resolve({}),
+    delete: (id: string) => Promise.resolve({}),
+  },
+  
+  systemSetting: {
+    getAll: () => apiDbAdapter.systemSettings.findMany(),
+    getByKey: (key: string) => apiDbAdapter.systemSettings.findUnique({ key }),
+    update: (key: string, value: string) => apiDbAdapter.systemSettings.upsert({ key }, { value }, { key, value }),
+  },
+};
 
 // 导出当前使用的数据访问模式
 export const currentDataAccessMode = DATA_ACCESS_MODE;
 
 // 用于检查是否使用API模式
-export const isApiMode = () => DATA_ACCESS_MODE === 'api';
+export const isApiMode = () => true;

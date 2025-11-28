@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Card from "@/components/ui/Card";
 import { useEmotions } from "@/hooks/useEmotions";
-import { EMOJI_OPTIONS } from "@/types/emotions";
+import { EMOJI_OPTIONS, getEmotionEmoji } from "@/types/emotions";
 
 export default function EmotionsWidget() {
   const {
@@ -42,8 +42,8 @@ export default function EmotionsWidget() {
   // 开始编辑
   const startEdit = (entry: any) => {
     setEditingId(entry.id);
-    setEditEmoji(entry.emoji);
-    setEditNote(entry.note || "");
+    setEditEmoji(entry.emotion || entry.emoji);
+    setEditNote(entry.notes || entry.note || "");
     clearError();
   };
 
@@ -206,12 +206,12 @@ export default function EmotionsWidget() {
             ) : (
               // 显示模式
               <>
-                <div className="text-2xl">{entry.emoji}</div>
+                <div className="text-2xl">{getEmotionEmoji(entry.emotion || entry.emoji)}</div>
                 <div className="flex-1">
                   <div className="text-sm text-gray-600">
                     {new Date(entry.createdAt).toLocaleString('zh-CN')}
                   </div>
-                  {entry.note && <div className="mt-1">{entry.note}</div>}
+                  {(entry.notes || entry.note) && <div className="mt-1">{entry.notes || entry.note}</div>}
                 </div>
                 <div className="flex items-center gap-1">
                   <button

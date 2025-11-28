@@ -6,14 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "build:api": "NEXT_PUBLIC_DATA_ACCESS_MODE=api next build",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "init-admin": "tsx scripts/init-admin.ts",
     "init-settings": "tsx scripts/init-settings.ts",
-    "postbuild": "npm run init-settings",
     "mode:status": "node scripts/switch-mode.js status",
     "mode:direct": "node scripts/switch-mode.js direct",
-    "mode:api": "node scripts/switch-mode.js api"
+    "mode:api": "node scripts/switch-mode.js api",
+    "test:server": "node scripts/test-server-local.js"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",

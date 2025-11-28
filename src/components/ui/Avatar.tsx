@@ -23,15 +23,16 @@ export default function Avatar({ username, avatar, size = "medium", className = 
     large: "w-16 h-16 text-xl"
   };
 
-  if (avatar) {
-    return (
-      <img
-        src={avatar}
-        alt={`${username}'s avatar`}
-        className={`${sizeClasses[size]} rounded-full object-cover ${className}`}
-      />
-    );
-  }
+  // 暂时不渲染URL头像，始终显示默认字母头像
+  // if (avatar) {
+  //   return (
+  //     <img
+  //       src={avatar}
+  //       alt={`${username}'s avatar`}
+  //       className={`${sizeClasses[size]} rounded-full object-cover ${className}`}
+  //     />
+  //   );
+  // }
 
   return (
     <div className={`${sizeClasses[size]} ${colors[colorIndex]} rounded-full flex items-center justify-center text-white font-semibold ${className}`}>

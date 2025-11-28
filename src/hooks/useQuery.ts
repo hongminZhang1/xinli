@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useCacheStore } from '@/store/useCacheStore';
+import { dbAdapter } from '@/lib/db-adapter';
 
 export interface UseQueryOptions {
   enabled?: boolean;
@@ -17,7 +18,7 @@ export interface UseQueryResult<T> {
 
 export function useQuery<T = any>(
   key: string,
-  queryFn: () => Promise<Response>,
+  queryFn: () => Promise<T>,
   options: UseQueryOptions = {}
 ): UseQueryResult<T> {
   const cache = useCacheStore();
@@ -69,13 +70,7 @@ export function useQuery<T = any>(
       setIsLoading(true);
       setError(null);
 
-      const response = await queryFn();
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const result = await response.json();
+      const result = await queryFn();
       
       if (!isMountedRef.current) return;
       
@@ -127,7 +122,7 @@ export function useQuery<T = any>(
 }
 
 export function useMutation<TData = any, TVariables = any>(
-  mutationFn: (variables: TVariables) => Promise<Response>,
+  mutationFn: (variables: TVariables) => Promise<TData>,
   options: {
     onSuccess?: (data: TData, variables: TVariables) => void;
     onError?: (error: Error, variables: TVariables) => void;
@@ -145,13 +140,7 @@ export function useMutation<TData = any, TVariables = any>(
       setIsLoading(true);
       setError(null);
       
-      const response = await mutationFn(variables);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
+      const data = await mutationFn(variables);
       
       invalidateQueries.forEach(pattern => {
         cache.invalidatePattern(pattern);
@@ -183,11 +172,11 @@ export function useMutation<TData = any, TVariables = any>(
   };
 }
 
-// 预定义查询hooks
+// 预定义查询hooks - 使用 db-adapter
 export const useJournals = (type: 'all' | 'public' = 'all') => {
   return useQuery(
-    `/api/journal?type=${type}`,
-    () => fetch(`/api/journal?type=${type}`),
+    `journals-${type}`,
+    () => dbAdapter.journal.getAll(),
     {
       ttl: 2 * 60 * 1000,
       staleWhileRevalidate: true
@@ -197,8 +186,8 @@ export const useJournals = (type: 'all' | 'public' = 'all') => {
 
 export const useJournalDetail = (id: string, enabled = true) => {
   return useQuery(
-    `/api/journal/${id}`,
-    () => fetch(`/api/journal/${id}`),
+    `journal-${id}`,
+    () => dbAdapter.journal.getById(id),
     {
       enabled: enabled && !!id,
       ttl: 5 * 60 * 1000
@@ -208,8 +197,8 @@ export const useJournalDetail = (id: string, enabled = true) => {
 
 export const useJournalComments = (journalId: string, enabled = true) => {
   return useQuery(
-    `/api/journal/${journalId}/comments`,
-    () => fetch(`/api/journal/${journalId}/comments`),
+    `journal-comments-${journalId}`,
+    () => dbAdapter.comment.getByJournalId(journalId),
     {
       enabled: enabled && !!journalId,
       ttl: 3 * 60 * 1000
@@ -219,8 +208,8 @@ export const useJournalComments = (journalId: string, enabled = true) => {
 
 export const useEmotionRecords = () => {
   return useQuery(
-    '/api/emotions',
-    () => fetch('/api/emotions'),
+    'emotions',
+    () => dbAdapter.emotion.getAll(),
     {
       ttl: 5 * 60 * 1000,
       staleWhileRevalidate: true
@@ -230,8 +219,8 @@ export const useEmotionRecords = () => {
 
 export const useUsers = () => {
   return useQuery(
-    '/api/admin/users',
-    () => fetch('/api/admin/users'),
+    'users',
+    () => dbAdapter.user.getAll(),
     {
       ttl: 10 * 60 * 1000
     }
@@ -240,8 +229,8 @@ export const useUsers = () => {
 
 export const useSystemSettings = () => {
   return useQuery(
-    '/api/admin/settings',
-    () => fetch('/api/admin/settings'),
+    'settings',
+    () => dbAdapter.systemSetting.getAll(),
     {
       ttl: 15 * 60 * 1000
     }

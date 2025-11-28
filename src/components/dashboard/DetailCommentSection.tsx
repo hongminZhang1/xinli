@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useMutation } from "@/hooks/useQuery";
+import Avatar from "@/components/ui/Avatar";
 
 type Comment = {
   id: string;
@@ -79,17 +80,12 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
       {session && (
         <div className="bg-gray-50 rounded-lg p-4">
           <div className="flex gap-3">
-            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
-              {session.user?.avatar ? (
-                <img 
-                  src={session.user.avatar} 
-                  alt={session.user.name || session.user.username || ''}
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                (session.user?.name || session.user?.username || 'U').charAt(0).toUpperCase()
-              )}
-            </div>
+            <Avatar 
+              username={session.user?.name || session.user?.username || 'U'} 
+              avatar={session.user?.avatar}
+              size="medium"
+              className="flex-shrink-0"
+            />
             <div className="flex-1">
               <textarea
                 value={newComment}
@@ -117,17 +113,12 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
         <div className="space-y-4">
           {comments.map((comment) => (
             <div key={comment.id} className="flex gap-3">
-              <div className="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
-                {comment.user.avatar ? (
-                  <img 
-                    src={comment.user.avatar} 
-                    alt={getUserDisplayName(comment.user)}
-                    className="w-full h-full rounded-full object-cover"
-                  />
-                ) : (
-                  getUserDisplayName(comment.user).charAt(0).toUpperCase()
-                )}
-              </div>
+              <Avatar 
+                username={getUserDisplayName(comment.user)} 
+                avatar={comment.user.avatar}
+                size="medium"
+                className="flex-shrink-0"
+              />
               <div className="flex-1">
                 <div className="bg-white border rounded-lg px-4 py-3">
                   <div className="flex items-center gap-2 mb-2">

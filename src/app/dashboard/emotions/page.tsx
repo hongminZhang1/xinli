@@ -2,7 +2,7 @@
 
 import EmotionsWidget from "@/components/dashboard/EmotionsWidget";
 import { useEmotions } from "@/hooks/useEmotions";
-import { EmotionEntry } from "@/types/emotions";
+import { EmotionEntry, getEmotionEmoji } from "@/types/emotions";
 
 export default function EmotionsPage() {
   const { entries, isAuthenticated } = useEmotions();
@@ -56,7 +56,7 @@ export default function EmotionsPage() {
           <div className="bg-white p-6 rounded-lg border shadow-sm">
             <div className="text-sm font-medium text-gray-500">常见情绪</div>
             <div className="text-2xl font-bold text-gray-900 mt-2 flex items-center gap-2">
-              <span>{stats.mostFrequentEmotion[0]}</span>
+              <span>{getEmotionEmoji(stats.mostFrequentEmotion[0])}</span>
               <span className="text-sm text-gray-500">
                 ({stats.mostFrequentEmotion[1]}次)
               </span>

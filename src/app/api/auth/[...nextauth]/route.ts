@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "@/lib/db";
+import { db, isApiMode } from "@/lib/db-adapter";
 import bcrypt from "bcrypt";
 import { AuthOptions } from "next-auth";
 
@@ -17,16 +17,8 @@ export const authOptions: AuthOptions = {
           return null;
         }
 
-        const user = await prisma.user.findUnique({
-          where: { username: credentials.username },
-          select: {
-            id: true,
-            username: true,
-            password: true,
-            role: true,
-            isActive: true,
-            avatar: true,
-          },
+        const user = await db.user.findUnique({
+          username: credentials.username
         });
 
         if (!user || !user.password) {
@@ -76,15 +68,8 @@ export const authOptions: AuthOptions = {
       if (session.user && token.id) {
         // 从数据库获取最新的用户信息
         try {
-          const user = await prisma.user.findUnique({
-            where: { id: token.id },
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-              role: true,
-              isActive: true,
-            }
+          const user = await db.user.findUnique({
+            id: token.id as string
           });
           
           if (user) {

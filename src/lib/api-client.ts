@@ -29,11 +29,19 @@ class ApiClient {
         ...this.config.headers,
         ...options.headers,
       },
-      timeout: this.config.timeout,
     };
+
+    // 创建一个带超时的AbortController
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
+    
+    requestOptions.signal = controller.signal;
 
     try {
       const response = await fetch(url, requestOptions);
+      
+      // 清除超时定时器
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         throw new Error(`API请求失败: ${response.status} ${response.statusText}`);
@@ -41,6 +49,13 @@ class ApiClient {
 
       return await response.json();
     } catch (error) {
+      // 清除超时定时器
+      clearTimeout(timeoutId);
+      
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('请求超时');
+      }
+      
       console.error(`API请求错误 ${endpoint}:`, error);
       throw error;
     }
@@ -96,6 +111,7 @@ export const dbApi = {
   users: {
     getAll: () => apiClient.get<any[]>('/users'),
     getById: (id: string) => apiClient.get<any>(`/users/${id}`),
+    getByUsername: (username: string) => apiClient.get<any>(`/users/username/${username}`),
     create: (data: any) => apiClient.post<any>('/users', data),
     update: (id: string, data: any) => apiClient.put<any>(`/users/${id}`, data),
     delete: (id: string) => apiClient.delete<any>(`/users/${id}`),
@@ -103,19 +119,20 @@ export const dbApi = {
   
   // 情绪记录
   emotions: {
-    getByUserId: (userId: string) => apiClient.get<any[]>(`/emotions/user/${userId}`),
+    getAll: () => apiClient.get<any[]>('/emotions'),
+    getById: (id: string) => apiClient.get<any>(`/emotions/${id}`),
     create: (data: any) => apiClient.post<any>('/emotions', data),
     update: (id: string, data: any) => apiClient.put<any>(`/emotions/${id}`, data),
     delete: (id: string) => apiClient.delete<any>(`/emotions/${id}`),
   },
   
   // 日记条目
-  journal: {
-    getByUserId: (userId: string) => apiClient.get<any[]>(`/journal/user/${userId}`),
-    getById: (id: string) => apiClient.get<any>(`/journal/${id}`),
-    create: (data: any) => apiClient.post<any>('/journal', data),
-    update: (id: string, data: any) => apiClient.put<any>(`/journal/${id}`, data),
-    delete: (id: string) => apiClient.delete<any>(`/journal/${id}`),
+  journals: {
+    getAll: () => apiClient.get<any[]>('/journals'),
+    getById: (id: string) => apiClient.get<any>(`/journals/${id}`),
+    create: (data: any) => apiClient.post<any>('/journals', data),
+    update: (id: string, data: any) => apiClient.put<any>(`/journals/${id}`, data),
+    delete: (id: string) => apiClient.delete<any>(`/journals/${id}`),
   },
   
   // 聊天会话
@@ -123,6 +140,15 @@ export const dbApi = {
     getByUserId: (userId: string) => apiClient.get<any[]>(`/chat/user/${userId}`),
     create: (data: any) => apiClient.post<any>('/chat', data),
     update: (id: string, data: any) => apiClient.put<any>(`/chat/${id}`, data),
+  },
+  
+  // 评论
+  comments: {
+    getAll: () => apiClient.get<any[]>('/comments'),
+    getById: (id: string) => apiClient.get<any>(`/comments/${id}`),
+    create: (data: any) => apiClient.post<any>('/comments', data),
+    update: (id: string, data: any) => apiClient.put<any>(`/comments/${id}`, data),
+    delete: (id: string) => apiClient.delete<any>(`/comments/${id}`),
   },
   
   // 预约

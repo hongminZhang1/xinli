@@ -1,26 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import AvatarUpload from "@/components/ui/AvatarUpload";
 
 export default function SettingsPage() {
-  const { data: session, update: updateSession } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
-  const [currentAvatar, setCurrentAvatar] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (session?.user) {
-      setCurrentAvatar(session.user.avatar || null);
-    }
-  }, [session?.user?.avatar, session?.user?.id]);
-
-  const handleAvatarUpdate = (avatarUrl: string | null) => {
-    setCurrentAvatar(avatarUrl);
-    // 强制刷新session
-    updateSession();
-  };
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -42,9 +28,7 @@ export default function SettingsPage() {
           <div className="space-y-6">
             {/* 头像设置 */}
             <AvatarUpload
-              currentAvatar={currentAvatar}
               username={session?.user?.username}
-              onAvatarUpdate={handleAvatarUpdate}
             />
 
             {/* 用户名显示 */}

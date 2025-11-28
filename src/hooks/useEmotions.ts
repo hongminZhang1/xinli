@@ -3,58 +3,63 @@ import { useSession } from "next-auth/react";
 import { EmotionEntry, CreateEmotionRequest, UpdateEmotionRequest } from "@/types/emotions";
 import { useEmotionRecords, useMutation } from "./useQuery";
 import { useCacheStore } from "@/store/useCacheStore";
+import { dbAdapter } from "@/lib/db-adapter";
 
 export function useEmotions() {
   const { data: session, status } = useSession();
   const cache = useCacheStore();
   
   // 使用缓存的情绪记录查询
-  const { data: entries, isLoading: loading, error, refetch: loadEntries } = useEmotionRecords();
+  const { data: allEntries, isLoading: loading, error, refetch: loadEntries } = useEmotionRecords();
+  
+  // 筛选当前用户的记录
+  const entries = allEntries?.filter((entry: any) => 
+    entry.userId === session?.user?.id
+  ) || [];
   
   // 添加情绪记录的mutation
   const addEntryMutation = useMutation(
-    (data: CreateEmotionRequest) => fetch("/api/emotions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+    (data: CreateEmotionRequest) => dbAdapter.emotion.create({
+      userId: session?.user?.id || '',
+      emotion: data.emoji as any,
+      intensity: 5, // 默认强度
+      notes: data.note,
+      tags: []
     }),
     {
       onSuccess: () => {
         // 刷新数据
         loadEntries();
       },
-      invalidateQueries: ["/api/emotions"]
+      invalidateQueries: ["emotions"]
     }
   );
 
   // 更新情绪记录的mutation
   const updateEntryMutation = useMutation(
     ({ id, data }: { id: string; data: UpdateEmotionRequest }) => 
-      fetch(`/api/emotions/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+      dbAdapter.emotion.update(id, {
+        emotion: data.emoji as any,
+        notes: data.note,
       }),
     {
       onSuccess: () => {
         // 刷新数据
         loadEntries();
       },
-      invalidateQueries: ["/api/emotions"]
+      invalidateQueries: ["emotions"]
     }
   );
 
   // 删除情绪记录的mutation
   const deleteEntryMutation = useMutation(
-    (id: string) => fetch(`/api/emotions/${id}`, {
-      method: "DELETE",
-    }),
+    (id: string) => dbAdapter.emotion.delete(id),
     {
       onSuccess: () => {
         // 刷新数据
         loadEntries();
       },
-      invalidateQueries: ["/api/emotions"]
+      invalidateQueries: ["emotions"]
     }
   );
 
@@ -97,7 +102,7 @@ export function useEmotions() {
   };
 
   return {
-    entries: entries || [],
+    entries,
     loading: loading || addEntryMutation.isLoading || updateEntryMutation.isLoading || deleteEntryMutation.isLoading,
     error: error || addEntryMutation.error || updateEntryMutation.error || deleteEntryMutation.error,
     isAuthenticated: !!session,

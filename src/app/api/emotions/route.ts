@@ -63,26 +63,31 @@ export async function GET(request: NextRequest) {
       userId: session.user.id,
     });
 
-    // 将EmotionType映射回emoji
-    const emojiMap: { [key in EmotionType]: string } = {
+    // 将EmotionType映射回emoji - 更完整的映射表
+    const emojiMap: { [key: string]: string } = {
       "HAPPY": "😊",
       "SAD": "😔",
       "ANGRY": "😡", 
       "ANXIOUS": "😰",
       "CALM": "😴",
-      "EXCITED": "😊",
-      "FRUSTRATED": "😡",
-      "CONTENT": "😊",
-      "LONELY": "😔",
-      "GRATEFUL": "😊",
+      "EXCITED": "🤩",
+      "FRUSTRATED": "😤",
+      "CONTENT": "😌",
+      "LONELY": "😢",
+      "GRATEFUL": "🙏",
+      "TIRED": "😴",
+      "PEACEFUL": "🕊️",
+      "STRESSED": "😫",
+      "CONFUSED": "😕",
+      "NEUTRAL": "😐",
     };
 
     // 格式化数据以匹配前端期望的格式
-    const formattedRecords = emotionRecords.map(record => ({
+    const formattedRecords = emotionRecords.map((record: any) => ({
       id: record.id,
-      emoji: emojiMap[record.emotion],
+      emoji: emojiMap[record.emotion] || emojiMap[record.emotion as EmotionType] || "😐", // 默认表情
       note: record.notes,
-      createdAt: record.createdAt.toISOString(),
+      createdAt: record.createdAt ? record.createdAt.toISOString() : new Date().toISOString(),
     }));
 
     return NextResponse.json(formattedRecords);

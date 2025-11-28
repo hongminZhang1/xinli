@@ -52,8 +52,10 @@ export default function JournalWidget() {
   const { data: session } = useSession();
   const { data, isLoading: journalsLoading, error: journalsError, refetch } = useJournals('all');
   
-  // 从缓存数据中提取journals数组
-  const journals = data?.journals || [];
+  // 从API数据中提取journals并筛选当前用户的记录
+  const journals = Array.isArray(data) 
+    ? data.filter(journal => journal.userId === session?.user?.id)
+    : [];
   
   // 预加载前3条文章详情（个人文章页面通常查看较少）
   useAutoPreloadJournals(journals, {
@@ -72,11 +74,17 @@ export default function JournalWidget() {
 
   // 创建日记的mutation
   const createJournalMutation = useMutation(
-    (journalData: any) => fetch("/api/journal", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(journalData)
-    }),
+    (journalData: any) => {
+      const { dbAdapter } = require("@/lib/db-adapter");
+      return dbAdapter.journal.create({
+        userId: session?.user?.id || '',
+        title: journalData.title,
+        content: journalData.content,
+        mood: journalData.mood,
+        tags: journalData.tags,
+        isPrivate: journalData.isPrivate
+      });
+    },
     {
       onSuccess: () => {
         // 清空表单
@@ -91,7 +99,7 @@ export default function JournalWidget() {
       onError: (error) => {
         setError("创建日记失败：" + error.message);
       },
-      invalidateQueries: ["/api/journal"] // 使相关缓存失效
+      invalidateQueries: ["journals-all"] // 使相关缓存失效
     }
   );
 
