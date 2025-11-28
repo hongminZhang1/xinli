@@ -5,12 +5,15 @@ import bcrypt from "bcrypt";
 import { AuthOptions } from "next-auth";
 import { getNextAuthUrl, logAuthConfig } from "@/lib/auth-config";
 
-// 在开发环境中记录配置
+// 在所有环境中记录配置
 logAuthConfig();
 
-// 设置运行时的NEXTAUTH_URL
-if (!process.env.NEXTAUTH_URL) {
-  process.env.NEXTAUTH_URL = getNextAuthUrl();
+// 对于Vercel部署，强制设置正确的URL
+if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+  // 在Vercel环境中，总是使用生产URL
+  const productionUrl = process.env.NEXTAUTH_URL || 'https://xl.hongzha.cc.vercel.app';
+  process.env.NEXTAUTH_URL = productionUrl;
+  console.log('🔧 Vercel环境检测，设置NEXTAUTH_URL为:', productionUrl);
 }
 
 export const authOptions: AuthOptions = {
