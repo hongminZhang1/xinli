@@ -5,6 +5,7 @@
 
 const express = require('express');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
 const { PrismaClient } = require('@prisma/client');
 require('dotenv').config();
 
@@ -82,6 +83,52 @@ app.post('/api/users', async (req, res) => {
   } catch (error) {
     console.error('创建用户失败:', error);
     res.status(500).json({ error: '创建用户失败' });
+  }
+});
+
+// 用户注册端点
+app.post('/api/users/register', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    // 验证输入
+    if (!username || !password || password.length < 6) {
+      return res.status(400).json({ error: '用户名或密码无效' });
+    }
+    
+    // 检查用户是否已存在
+    const existingUser = await prisma.user.findUnique({
+      where: { username }
+    });
+    
+    if (existingUser) {
+      return res.status(409).json({ error: '用户名已存在' });
+    }
+    
+    // 加密密码
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // 检查是否是第一个用户，如果是则设为管理员
+    const userCount = await prisma.user.count();
+    const role = userCount === 0 ? 'ADMIN' : 'USER';
+    
+    // 创建用户
+    const user = await prisma.user.create({
+      data: {
+        username,
+        password: hashedPassword,
+        role: role,
+        isActive: true
+      }
+    });
+    
+    // 不返回密码
+    const { password: _, ...userWithoutPassword } = user;
+    res.status(201).json(userWithoutPassword);
+    
+  } catch (error) {
+    console.error('注册用户失败:', error);
+    res.status(500).json({ error: '注册失败' });
   }
 });
 
