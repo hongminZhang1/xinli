@@ -3,6 +3,8 @@
  * 用于连接轻量应用云服务器的API服务
  */
 
+import { getApiBaseUrl } from './env-config';
+
 interface ApiConfig {
   baseUrl: string;
   timeout: number;
@@ -98,7 +100,7 @@ class ApiClient {
 
 // 创建API客户端实例
 export const apiClient = new ApiClient({
-  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://193.112.165.180:3001/api',
+  baseUrl: getApiBaseUrl(),
   timeout: 10000,
   headers: {
     'Accept': 'application/json',

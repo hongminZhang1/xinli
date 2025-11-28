@@ -1,109 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
-import { prisma } from "@/lib/db";
-import { checkApiMode } from "@/lib/api-mode-guard";
+import { getApiBaseUrl } from "@/lib/env-config";
 
 // 获取日记列表 (支持公开和私密)
 export async function GET(request: NextRequest) {
-  // API模式保护
-  const apiModeResponse = checkApiMode();
-  if (apiModeResponse) return apiModeResponse;
-
   try {
     const searchParams = request.nextUrl.searchParams;
-    const type = searchParams.get("type"); // "private" | "public" | "all"
+    const type = searchParams.get("type") || "private";
     const page = parseInt(searchParams.get("page") || "1");
     const pageSize = parseInt(searchParams.get("pageSize") || "20");
 
-    let whereCondition: any = {};
     let requireAuth = true;
+    let apiEndpoint = '/journals';
 
     if (type === "public") {
-      // 获取所有公开的日记 - 无需登录
-      whereCondition = {
-        isPrivate: false
-      };
       requireAuth = false;
+      apiEndpoint = `/journals?type=public&page=${page}&pageSize=${pageSize}`;
     } else {
-      // 需要登录的操作
       const session = await getServerSession(authOptions);
       if (!session?.user?.id) {
         return NextResponse.json({ error: "未登录" }, { status: 401 });
       }
-
-      if (type === "private") {
-        // 获取当前用户的私密日记
-        whereCondition = {
-          userId: session.user.id,
-          isPrivate: true
-        };
-      } else if (type === "all") {
-        // 获取当前用户的所有日记
-        whereCondition = {
-          userId: session.user.id
-        };
-      } else {
-        // 默认获取当前用户的私密日记
-        whereCondition = {
-          userId: session.user.id,
-          isPrivate: true
-        };
-      }
+      apiEndpoint = `/journals?type=${type}&page=${page}&pageSize=${pageSize}&userId=${session.user.id}`;
     }
 
-    const [journals, total] = await Promise.all([
-      prisma.journalEntry.findMany({
-        where: whereCondition,
-        select: {
-          id: true,
-          title: true,
-          content: true,
-          mood: true,
-          tags: true,
-          isPrivate: true,
-          likes: true,
-          createdAt: true,
-          updatedAt: true,
-          user: {
-            select: {
-              id: true,
-              username: true,
-              name: true,
-              avatar: true
-            }
-          },
-          _count: {
-            select: {
-              comments: true
-            }
-          }
-        },
-        orderBy: { createdAt: "desc" },
-        skip: (page - 1) * pageSize,
-        take: pageSize
-      }),
-      prisma.journalEntry.count({
-        where: whereCondition
-      })
-    ]);
+    // 调用远程API
+    const baseUrl = getApiBaseUrl();
+    const response = await fetch(`${baseUrl}${apiEndpoint}`);
+    
+    if (!response.ok) {
+      console.error(`远程API错误: ${response.status}`);
+      return NextResponse.json([], { status: 200 }); // 降级返回空数组
+    }
 
-    return NextResponse.json({
-      journals: journals.map(journal => ({
-        ...journal,
-        tags: typeof journal.tags === 'string' ? JSON.parse(journal.tags) : journal.tags || [],
-        commentCount: journal._count.comments
-      })),
-      pagination: {
-        page,
-        pageSize,
-        total,
-        totalPages: Math.ceil(total / pageSize)
-      }
-    });
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (error) {
     console.error("获取日记失败:", error);
-    return NextResponse.json({ error: "获取日记失败" }, { status: 500 });
+    return NextResponse.json([], { status: 200 }); // 降级返回空数组
   }
 }
 
@@ -122,32 +57,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "标题和内容不能为空" }, { status: 400 });
     }
 
-    const journal = await prisma.journalEntry.create({
-      data: {
+    // 调用远程API创建日记
+    const baseUrl = getApiBaseUrl();
+    const response = await fetch(`${baseUrl}/journals`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         title,
         content,
         mood: mood || null,
         tags: tags || [],
         isPrivate: isPrivate ?? true,
         userId: session.user.id
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-            avatar: true
-          }
-        }
-      }
+      }),
     });
 
-    return NextResponse.json({
-      ...journal,
-      tags: typeof journal.tags === 'string' ? JSON.parse(journal.tags) : journal.tags || [],
-      comments: []  // 临时添加空数组
-    });
+    if (!response.ok) {
+      throw new Error(`远程API错误: ${response.status}`);
+    }
+
+    const journal = await response.json();
+    return NextResponse.json(journal);
   } catch (error) {
     console.error("创建日记失败:", error);
     return NextResponse.json({ error: "创建日记失败" }, { status: 500 });

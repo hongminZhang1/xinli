@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/lib/db-adapter";
 import { EmotionType } from "@prisma/client";
+import { getApiBaseUrl } from "@/lib/env-config";
 
 // 更新情绪记录
 export async function PUT(
@@ -31,7 +32,7 @@ export async function PUT(
     const emotionType = emotionMap[emoji] || "HAPPY";
     
     // 在API模式下，调用远程API更新记录
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://193.112.165.180:3001/api';
+    const baseUrl = getApiBaseUrl();
     
     const response = await fetch(`${baseUrl}/emotions/${params.id}`, {
       method: 'PUT',
@@ -80,7 +81,7 @@ export async function DELETE(
     const { id } = params;
     
     // 在API模式下，调用远程API删除记录
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://193.112.165.180:3001/api';
+    const baseUrl = getApiBaseUrl();
     
     const response = await fetch(`${baseUrl}/emotions/${id}`, {
       method: 'DELETE',

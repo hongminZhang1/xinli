@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db, isApiMode } from "@/lib/db-adapter";
 import { EmotionType } from "@prisma/client";
+import { getApiBaseUrl } from "@/lib/env-config";
 
 // 创建新的情绪记录
 export async function POST(request: NextRequest) {
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     const emotionType = emotionMap[emoji] || "HAPPY";
     
     // 在API模式下，调用远程API创建记录
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://193.112.165.180:3001/api';
+    const baseUrl = getApiBaseUrl();
     
     const response = await fetch(`${baseUrl}/emotions`, {
       method: 'POST',
@@ -75,7 +76,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 在API模式下，直接从远程API获取数据
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://193.112.165.180:3001/api';
+    const baseUrl = getApiBaseUrl();
     
     try {
       const response = await fetch(`${baseUrl}/emotions`);
