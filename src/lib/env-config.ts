@@ -7,9 +7,19 @@ export const getApiBaseUrl = () => {
   // 检测是否在服务器端运行
   if (typeof window === 'undefined') {
     // 服务器端：根据环境使用不同的完整URL
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? (process.env.NEXTAUTH_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://xl.homgzha.cc')
-      : 'http://localhost:3000';
+    let baseUrl;
+    if (process.env.NODE_ENV === 'production') {
+      if (process.env.NEXTAUTH_URL) {
+        baseUrl = process.env.NEXTAUTH_URL;
+      } else if (process.env.VERCEL_URL) {
+        baseUrl = `https://${process.env.VERCEL_URL}`;
+      } else {
+        baseUrl = 'https://xl.homgzha.cc';
+      }
+    } else {
+      baseUrl = 'http://localhost:3000';
+    }
+    console.log('🌍 Server API Base URL:', `${baseUrl}/api/proxy`);
     return `${baseUrl}/api/proxy`;
   }
   // 客户端：使用相对URL

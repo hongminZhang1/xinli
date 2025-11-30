@@ -3,6 +3,7 @@
  * 完全使用API访问，摒弃直接数据库连接
  */
 import { dbApi } from './api-client';
+import { getApiBaseUrl } from './env-config';
 
 // 数据访问模式
 type DataAccessMode = 'api';
@@ -70,12 +71,18 @@ const apiDbAdapter: DbAdapter = {
       return dbApi.users.getAll();
     },
     findUnique: async (where) => {
-      if (where.id) {
-        return await dbApi.users.getById(where.id);
-      } else if (where.username) {
-        return await dbApi.users.getByUsername(where.username);
+      console.log('🔍 用户查找:', where, 'API Base URL:', getApiBaseUrl());
+      try {
+        if (where.id) {
+          return await dbApi.users.getById(where.id);
+        } else if (where.username) {
+          return await dbApi.users.getByUsername(where.username);
+        }
+        return null;
+      } catch (error) {
+        console.error('❌ 用户查找失败:', error);
+        return null;
       }
-      return null;
     },
     create: (data) => dbApi.users.create(data),
     update: (where, data) => dbApi.users.update(where.id, data),
