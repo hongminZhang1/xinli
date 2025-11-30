@@ -12,9 +12,10 @@ interface AssessmentCardProps {
     duration: string;
     questions: number;
     participants: number;
-    difficulty: "easy" | "medium" | "hard";
+    difficulty: string; // 改为 string 类型，更灵活
     category: string;
     tags: string[];
+    completed?: boolean; // 添加可选的 completed 属性
   };
   onStartTest: () => void;
   isCompleted?: boolean;
