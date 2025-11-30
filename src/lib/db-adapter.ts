@@ -196,16 +196,12 @@ export const dbAdapter = {
       return response.json();
     },
     getPublic: async () => {
-      // 通过API代理调用公开日记API
-      const response = await fetch('/api/proxy', {
-        method: 'POST',
+      // 通过API代理调用公开日记API - 使用GET方法
+      const response = await fetch('/api/proxy/journals?public=true', {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: '/api/journals?public=true',
-          method: 'GET'
-        })
+        }
       });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -221,7 +217,7 @@ export const dbAdapter = {
   
   comment: {
     getByJournalId: async (journalId: string) => {
-      const response = await fetch(`${getApiUrl()}/api/comments?journalEntryId=${journalId}`, {
+      const response = await fetch(`/api/proxy/comments?journalEntryId=${journalId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -233,7 +229,7 @@ export const dbAdapter = {
       return response.json();
     },
     create: async (data: { content: string; journalId: string; userId: string }) => {
-      const response = await fetch(`${getApiUrl()}/api/comments`, {
+      const response = await fetch('/api/proxy/comments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -250,7 +246,7 @@ export const dbAdapter = {
       return response.json();
     },
     update: async (id: string, data: any) => {
-      const response = await fetch(`${getApiUrl()}/api/comments/${id}`, {
+      const response = await fetch(`/api/proxy/comments/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -263,7 +259,7 @@ export const dbAdapter = {
       return response.json();
     },
     delete: async (id: string) => {
-      const response = await fetch(`${getApiUrl()}/api/comments/${id}`, {
+      const response = await fetch(`/api/proxy/comments/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

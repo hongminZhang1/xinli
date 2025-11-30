@@ -40,28 +40,13 @@ export default function CommentSection({ journalId, comments, onCommentAdded }: 
       if (!session?.user?.id) {
         throw new Error('用户未登录');
       }
-      // 使用API客户端进行评论创建
-      const response = await fetch('/api/proxy', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: '/api/comments',
-          method: 'POST',
-          data: {
-            content: commentData.content,
-            journalEntryId: journalId, // 使用正确的字段名
-            userId: session.user.id // 使用实际的用户ID
-          }
-        })
+      // 使用db-adapter进行评论创建
+      const { dbAdapter } = await import('@/lib/db-adapter');
+      return dbAdapter.comment.create({
+        content: commentData.content,
+        journalId: journalId, // 这会在db-adapter中转换为journalEntryId
+        userId: session.user.id
       });
-      
-      if (!response.ok) {
-        throw new Error('创建评论失败');
-      }
-      
-      return response.json();
     },
     {
       onSuccess: (newComment) => {
