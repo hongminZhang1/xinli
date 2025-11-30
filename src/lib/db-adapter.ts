@@ -5,6 +5,9 @@
 import { dbApi } from './api-client';
 import { getApiBaseUrl } from './env-config';
 
+// 便捷函数
+const getApiUrl = getApiBaseUrl;
+
 // 数据访问模式
 type DataAccessMode = 'api';
 
@@ -193,8 +196,17 @@ export const dbAdapter = {
       return response.json();
     },
     getPublic: async () => {
-      // 调用新的公开日记API
-      const response = await fetch('/api/journals/public');
+      // 通过API代理调用公开日记API
+      const response = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: '/api/journals?public=true',
+          method: 'GET'
+        })
+      });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
@@ -208,13 +220,60 @@ export const dbAdapter = {
   },
   
   comment: {
-    getByJournalId: (journalId: string) => {
-      // 暂时返回空数组，因为API服务器还没有这个功能
-      return Promise.resolve([]);
+    getByJournalId: async (journalId: string) => {
+      const response = await fetch(`${getApiUrl()}/api/comments?journalEntryId=${journalId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      if (!response.ok) {
+        throw new Error('获取评论失败');
+      }
+      return response.json();
     },
-    create: (data: any) => Promise.resolve({}),
-    update: (id: string, data: any) => Promise.resolve({}),
-    delete: (id: string) => Promise.resolve({}),
+    create: async (data: { content: string; journalId: string; userId: string }) => {
+      const response = await fetch(`${getApiUrl()}/api/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: data.content,
+          journalEntryId: data.journalId, // 使用正确的字段名
+          userId: data.userId
+        })
+      });
+      if (!response.ok) {
+        throw new Error('创建评论失败');
+      }
+      return response.json();
+    },
+    update: async (id: string, data: any) => {
+      const response = await fetch(`${getApiUrl()}/api/comments/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error('更新评论失败');
+      }
+      return response.json();
+    },
+    delete: async (id: string) => {
+      const response = await fetch(`${getApiUrl()}/api/comments/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      if (!response.ok) {
+        throw new Error('删除评论失败');
+      }
+      return response.json();
+    },
   },
   
   systemSetting: {

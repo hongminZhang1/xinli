@@ -460,13 +460,19 @@ app.delete('/api/journals/:id', async (req, res) => {
 // 评论API
 app.get('/api/comments', async (req, res) => {
   try {
+    const { journalEntryId } = req.query;
+    const whereClause = journalEntryId ? { journalEntryId } : {};
+    
     const comments = await prisma.comment.findMany({
+      where: whereClause,
       include: {
         user: {
           select: {
             id: true,
             username: true,
-            email: true
+            email: true,
+            name: true,
+            avatar: true
           }
         },
         journalEntry: {
@@ -490,7 +496,24 @@ app.get('/api/comments', async (req, res) => {
 app.post('/api/comments', async (req, res) => {
   try {
     const comment = await prisma.comment.create({
-      data: req.body
+      data: req.body,
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            name: true,
+            avatar: true
+          }
+        },
+        journalEntry: {
+          select: {
+            id: true,
+            title: true
+          }
+        }
+      }
     });
     res.status(201).json(comment);
   } catch (error) {

@@ -19,7 +19,6 @@ export const getApiBaseUrl = () => {
     } else {
       baseUrl = 'http://localhost:3000';
     }
-    console.log('🌍 Server API Base URL:', `${baseUrl}/api/proxy`);
     return `${baseUrl}/api/proxy`;
   }
   // 客户端：使用相对URL
