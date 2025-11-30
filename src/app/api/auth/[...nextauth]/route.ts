@@ -18,18 +18,11 @@ export const authOptions: AuthOptions = {
         }
 
         try {
-          console.log('🔐 认证尝试:', { 
-            username: credentials.username,
-            env: process.env.NODE_ENV,
-            url: process.env.NEXTAUTH_URL || 'undefined'
-          });
-          
           const user = await db.user.findUnique({
             username: credentials.username
           });
 
           if (!user || !user.password) {
-            console.log('❌ 用户不存在或没有密码');
             return null;
           }
 
@@ -47,7 +40,6 @@ export const authOptions: AuthOptions = {
           
           return null;
         } catch (error) {
-          console.error("认证错误:", error);
           return null;
         }
       },

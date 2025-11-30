@@ -31,7 +31,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'registration_disabled' }, { status: 403 });
       }
     } catch (error) {
-      console.warn('无法获取系统设置，默认允许注册:', error);
+      // Unable to get system settings, default allow registration
     }
 
     // 通过API服务器创建用户
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('注册API错误:', errorData);
+      // Registration API error
       
       if (response.status === 409) {
         return NextResponse.json({ error: 'exists' }, { status: 409 });

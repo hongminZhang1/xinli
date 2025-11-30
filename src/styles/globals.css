@@ -1,60 +1,252 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&family=Inter:wght@100..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 205 90% 45%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.75rem;
+    /* 青少年心理健康平台专用色彩系统 */
+    --sky-blue: 203 85% 69%; /* #6FBFF2 天空蓝 - 主色调 */
+    --warm-orange: 20 100% 71%; /* #FF9E6D 暖橙色 - 活力色 */
+    --soft-green: 103 48% 66%; /* #8CD47E 嫩绿色 - 成功色 */
+    --cloud-white: 216 33% 98%; /* #F7F9FC 云白色 - 主背景 */
+    --pure-white: 0 0% 100%; /* #FFFFFF 纯白色 - 卡片背景 */
+    --gentle-gray: 210 20% 94%; /* #EBEEF3 柔和灰 - 边框色 */
+    --text-primary: 215 25% 27%; /* #3D4852 深蓝灰 - 主要文字 */
+    --text-secondary: 215 14% 54%; /* #75808A 中性灰 - 次要文字 */
+    --text-muted: 215 10% 71%; /* #A0ABB5 浅灰 - 辅助文字 */
+
+    /* 基础变量 */
+    --background: var(--cloud-white);
+    --foreground: var(--text-primary);
+    --card: var(--pure-white);
+    --card-foreground: var(--text-primary);
+    --popover: var(--pure-white);
+    --popover-foreground: var(--text-primary);
+    --primary: var(--sky-blue);
+    --primary-foreground: var(--pure-white);
+    --secondary: var(--gentle-gray);
+    --secondary-foreground: var(--text-primary);
+    --muted: var(--gentle-gray);
+    --muted-foreground: var(--text-secondary);
+    --accent: var(--warm-orange);
+    --accent-foreground: var(--pure-white);
+    --success: var(--soft-green);
+    --success-foreground: var(--pure-white);
+    --destructive: 0 84% 60%;
+    --destructive-foreground: var(--pure-white);
+    --border: var(--gentle-gray);
+    --input: var(--gentle-gray);
+    --ring: var(--sky-blue);
+    --radius: 1rem;
+
+    /* 阴影系统 */
+    --shadow-soft: 0 2px 8px rgba(111, 191, 242, 0.08);
+    --shadow-medium: 0 4px 16px rgba(111, 191, 242, 0.12);
+    --shadow-large: 0 8px 24px rgba(111, 191, 242, 0.16);
+    --shadow-xl: 0 16px 32px rgba(111, 191, 242, 0.20);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 205 90% 55%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    /* 暗色模式保持温暖感 */
+    --background: 215 25% 15%; /* 深蓝灰背景 */
+    --foreground: 216 33% 97%; /* 浅色文字 */
+    --card: 215 25% 18%;
+    --card-foreground: 216 33% 97%;
+    --popover: 215 25% 18%;
+    --popover-foreground: 216 33% 97%;
+    --primary: var(--sky-blue);
+    --primary-foreground: 215 25% 15%;
+    --secondary: 215 25% 25%;
+    --secondary-foreground: 216 33% 97%;
+    --muted: 215 25% 25%;
+    --muted-foreground: 215 14% 70%;
+    --accent: var(--warm-orange);
+    --accent-foreground: 215 25% 15%;
+    --success: var(--soft-green);
+    --destructive: 0 62% 50%;
+    --border: 215 25% 25%;
+    --input: 215 25% 25%;
+    --ring: var(--sky-blue);
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
+  
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* 字体层级系统 */
+  .font-display {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .font-heading {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+  }
+
+  .font-body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.5;
+  }
+
+  /* 标题层级 */
+  h1 {
+    @apply font-display text-4xl md:text-5xl lg:text-6xl text-foreground;
+  }
+
+  h2 {
+    @apply font-display text-3xl md:text-4xl text-foreground;
+  }
+
+  h3 {
+    @apply font-heading text-2xl md:text-3xl text-foreground;
+  }
+
+  h4 {
+    @apply font-heading text-xl md:text-2xl text-foreground;
+  }
+
+  p {
+    @apply font-body text-base text-muted-foreground;
+  }
+
+  /* 选择状态样式 */
+  ::selection {
+    background: hsl(var(--primary) / 0.2);
+    color: hsl(var(--primary-foreground));
+  }
+
+  /* 焦点状态 */
+  *:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* 天空渐变背景 */
+  .sky-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(203 85% 90% / 0.3) 0%,
+      hsl(203 85% 85% / 0.15) 25%,
+      hsl(216 33% 98% / 0.8) 50%,
+      hsl(0 0% 100% / 0.95) 100%
+    );
+  }
+
+  .sky-gradient-dynamic {
+    background: linear-gradient(
+      135deg,
+      hsl(203 85% 90% / 0.4) 0%,
+      hsl(203 85% 85% / 0.2) 30%,
+      hsl(20 100% 90% / 0.1) 70%,
+      hsl(216 33% 98% / 0.9) 100%
+    );
+    animation: skyShift 20s ease-in-out infinite;
+  }
+
+  @keyframes skyShift {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.9; }
+  }
+
+  /* 毛玻璃效果 */
+  .glass-effect {
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid hsl(var(--border) / 0.2);
+  }
+
+  /* 现代卡片样式 */
+  .modern-card {
+    @apply bg-card/80 backdrop-blur-sm border border-border/40 rounded-2xl;
+    box-shadow: var(--shadow-soft), inset 0 1px 0 hsl(var(--pure-white) / 0.5);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .modern-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium), inset 0 1px 0 hsl(var(--pure-white) / 0.5);
+    border-color: hsl(var(--primary) / 0.2);
+  }
+
+  /* 友好按钮样式 */
+  .btn-primary {
+    @apply bg-primary/90 hover:bg-primary text-primary-foreground font-heading font-medium;
+    @apply px-6 py-3 rounded-xl transition-all duration-300 ease-out;
+    @apply shadow-lg hover:shadow-xl transform hover:scale-105;
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.9) 100%);
+  }
+
+  .btn-primary:active {
+    transform: scale(0.98);
+  }
+
+  .btn-secondary {
+    @apply bg-secondary/80 hover:bg-secondary/90 text-secondary-foreground font-heading;
+    @apply px-6 py-3 rounded-xl transition-all duration-300 ease-out;
+    @apply border border-border/40 hover:border-border/60;
+  }
+
+  .btn-accent {
+    @apply bg-accent hover:bg-accent/90 text-accent-foreground font-heading font-medium;
+    @apply px-6 py-3 rounded-xl transition-all duration-300 ease-out;
+    @apply shadow-lg hover:shadow-xl transform hover:scale-105;
+    background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent) / 0.9) 100%);
+  }
+
+  /* AI消息气泡样式 */
+  .ai-bubble {
+    @apply bg-card/95 backdrop-blur-sm rounded-2xl border-l-4;
+    border-left-color: hsl(var(--accent));
+    box-shadow: var(--shadow-soft);
+  }
+
+  .user-bubble {
+    @apply bg-primary/95 text-primary-foreground rounded-2xl;
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.9) 100%);
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* 输入框样式 */
+  .modern-input {
+    @apply bg-background/80 backdrop-blur-sm border border-border/40 rounded-xl;
+    @apply px-4 py-3 font-body placeholder:text-muted-foreground/70;
+    @apply focus:border-primary/50 focus:ring-2 focus:ring-primary/20 focus:bg-background;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .large-input {
+    @apply modern-input text-lg px-6 py-4 rounded-2xl;
+    min-height: 56px;
   }
 }
 
@@ -70,13 +262,93 @@
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
   
-  .card-hover {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  .text-shadow-lg {
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
-  
-  .card-hover:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+
+  /* 呼吸动画 */
+  .animate-breathe {
+    animation: breathe 3s ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 1; }
+  }
+
+  /* 温和的浮动效果 */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  /* 打字机效果 */
+  .typing-animation {
+    animation: typing 0.8s steps(20, end) forwards;
+  }
+
+  @keyframes typing {
+    0% { opacity: 0; transform: translateX(-10px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+
+  /* 平滑出现动画 */
+  .fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* 交错动画 */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+
+  /* 可访问性增强 */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
+  /* 媒体查询优化 */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* 高对比度支持 */
+  @media (prefers-contrast: high) {
+    .modern-card {
+      border-width: 2px;
+    }
+    
+    .btn-primary, .btn-accent {
+      box-shadow: none;
+      border: 2px solid currentColor;
+    }
   }
 }
 

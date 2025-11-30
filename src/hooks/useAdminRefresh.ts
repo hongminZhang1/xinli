@@ -12,7 +12,7 @@ export function useAdminDataRefresh(enabled: boolean = false) {
     if (!enabled) return;
 
     try {
-      console.log('🔄 刷新管理员数据...');
+      // Refreshing admin data
       
       // 使用dbAdapter刷新用户列表
       const { dbAdapter } = require('@/lib/db-adapter');
@@ -23,9 +23,9 @@ export function useAdminDataRefresh(enabled: boolean = false) {
       const settingsData = await dbAdapter.systemSetting.getAll();
       cache.setCache('admin-settings', settingsData, 15 * 60 * 1000);
       
-      console.log('✓ 管理员数据刷新完成');
+      // Admin data refresh completed
     } catch (error) {
-      console.warn('管理员数据刷新失败:', error);
+      // Admin data refresh failed
     }
   }, [cache, enabled]);
 

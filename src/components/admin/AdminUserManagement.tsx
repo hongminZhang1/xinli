@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useUsers, useMutation } from "@/hooks/useQuery";
+import Avatar from "@/components/ui/Avatar";
 
 interface User {
   id: string;
@@ -93,12 +94,11 @@ export default function AdminUserManagement() {
             <tr key={user.id}>
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
                       <div className="flex items-center">
-                        <div className="h-8 w-8 flex-shrink-0">
-                          <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                            <span className="text-xs font-medium text-gray-700">
-                              {user.username.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
+                        <div className="flex-shrink-0">
+                          <Avatar 
+                            username={user.username}
+                            size="small"
+                          />
                         </div>
                         <div className="ml-4">
                           <div className="font-medium text-gray-900">{user.username}</div>

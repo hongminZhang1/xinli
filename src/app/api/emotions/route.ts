@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json(formattedRecords);
     } catch (remoteError) {
-      console.error("远程API调用失败:", remoteError);
+      // Remote API call failed
       // 返回空数组作为降级处理
       return NextResponse.json([]);
     }

@@ -8,9 +8,7 @@ export async function GET(request: NextRequest) {
   try {
     const testUsername = "admin"; // 测试用户名
     
-    console.log("🧪 开始测试认证流程");
-    console.log("📍 环境:", process.env.NODE_ENV);
-    console.log("🌐 Vercel:", !!process.env.VERCEL);
+    // Testing authentication flow
     
     // 测试查询用户
     const user = await db.user.findUnique({

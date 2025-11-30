@@ -39,9 +39,9 @@ export function usePreloadData() {
                 const { dbAdapter } = require('@/lib/db-adapter');
                 const data = await dbAdapter.journal.getById(journalId);
                 cache.setCache(detailCacheKey, data, 5 * 60 * 1000);
-                console.log(`✓ 预缓存文章详情: ${journalId}`);
+                // Precache article detail
               } catch (error) {
-                console.warn(`预缓存文章详情失败: ${journalId}`, error);
+                // Failed to precache article detail
               }
             }
 
@@ -53,9 +53,9 @@ export function usePreloadData() {
                 const { dbAdapter } = require('@/lib/db-adapter');
                 const data = await dbAdapter.comment.getByJournalId(journalId);
                 cache.setCache(commentsCacheKey, data, 3 * 60 * 1000);
-                console.log(`✓ 预缓存文章评论: ${journalId}`);
+                // Precache article comments
               } catch (error) {
-                console.warn(`预缓存文章评论失败: ${journalId}`, error);
+                // Failed to precache article comments
               }
             }
           });
@@ -69,7 +69,7 @@ export function usePreloadData() {
           }
         }
         
-        console.log(`🎉 预加载完成: ${journalIds.length} 篇文章`);
+        // Preload completed
       };
 
       if (delay > 0) {
@@ -98,9 +98,9 @@ export function usePreloadData() {
             const { dbAdapter } = require('@/lib/db-adapter');
             const data = await dbAdapter.emotion.getAll();
             cache.setCache(cacheKey, data, 5 * 60 * 1000);
-            console.log('✓ 预缓存情绪记录');
+            // Precache emotion records
           } catch (error) {
-            console.warn('预缓存情绪记录失败', error);
+            // Failed to precache emotion records
           }
         }
       };
@@ -130,7 +130,7 @@ export function usePreloadData() {
             const { dbAdapter } = require('@/lib/db-adapter');
             const usersData = await dbAdapter.user.getAll();
             cache.setCache(usersCacheKey, usersData, 10 * 60 * 1000);
-            console.log('✓ 预缓存管理员用户数据');
+            // Precache admin user data
           }
 
           // 预加载系统设置
@@ -140,12 +140,12 @@ export function usePreloadData() {
             const { dbAdapter } = require('@/lib/db-adapter');
             const settingsData = await dbAdapter.systemSetting.getAll();
             cache.setCache(settingsCacheKey, settingsData, 15 * 60 * 1000);
-            console.log('✓ 预缓存管理员设置数据');
+            // Precache admin settings data
           }
           
-          console.log('🔧 管理员数据预加载完成');
+          // Admin data preload completed
         } catch (error) {
-          console.warn('管理员数据预加载失败:', error);
+          // Admin data preload failed
         }
       };
 

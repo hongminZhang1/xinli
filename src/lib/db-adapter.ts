@@ -74,7 +74,7 @@ const apiDbAdapter: DbAdapter = {
       return dbApi.users.getAll();
     },
     findUnique: async (where) => {
-      console.log('🔍 用户查找:', where, 'API Base URL:', getApiBaseUrl());
+      // User lookup
       try {
         if (where.id) {
           return await dbApi.users.getById(where.id);

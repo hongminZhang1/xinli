@@ -27,11 +27,6 @@ export function getNextAuthUrl() {
 }
 
 export function logAuthConfig() {
-  console.log('🔐 NextAuth配置检查:');
-  console.log('- NODE_ENV:', process.env.NODE_ENV);
-  console.log('- NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
-  console.log('- NEXTAUTH_URL_PROD:', process.env.NEXTAUTH_URL_PROD);
-  console.log('- VERCEL_URL:', process.env.VERCEL_URL);
-  console.log('- 实际使用的URL:', getNextAuthUrl());
-  console.log('- NEXTAUTH_SECRET存在:', !!process.env.NEXTAUTH_SECRET);
+  // Debug function for auth configuration
+  // Logging removed for production
 }

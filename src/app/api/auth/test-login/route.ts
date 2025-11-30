@@ -7,14 +7,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { username, password } = body;
     
-    console.log("🔐 测试登录 - 用户名:", username);
-    
     // 测试数据库连接
     const user = await db.user.findUnique({
       username: username
     });
-    
-    console.log("👤 找到用户:", !!user);
     
     if (!user) {
       return NextResponse.json({
@@ -34,7 +30,6 @@ export async function POST(request: NextRequest) {
     }
     
     const isValid = await bcrypt.compare(password, user.password);
-    console.log("🔑 密码验证结果:", isValid);
     
     return NextResponse.json({
       success: isValid,
@@ -49,7 +44,6 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error("❌ 登录测试错误:", error);
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

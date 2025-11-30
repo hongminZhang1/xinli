@@ -72,10 +72,7 @@ export default function LoginForm() {
         
         <div className="text-center pt-4">
           <p className="text-sm text-gray-600">
-            还没有账户？
-            <Link href="/register" className="ml-1 text-blue-500 hover:text-blue-600 font-medium">
-              立即注册
-            </Link>
+            还没有账户？请返回首页注册
           </p>
         </div>
       </form>

@@ -34,7 +34,7 @@ async function ensureSettingsInitialized(): Promise<void> {
       );
       
       await Promise.all(createPromises);
-      console.log('已自动初始化系统设置');
+      // Auto-initialized system settings
     }
     
     initialized = true;

@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     const baseUrl = getApiBaseUrl();
     
-    console.log("🔗 测试API连接 - Base URL:", baseUrl);
+    // Testing API connection
     
     // 测试基本连接
     const testUrls = [
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     
     for (const url of testUrls) {
       try {
-        console.log(`📡 测试连接: ${url}`);
+        // Testing connection
         
         const response = await fetch(url, {
           method: 'GET',

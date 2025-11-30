@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const response = await fetch(`${baseUrl}${apiEndpoint}`);
     
     if (!response.ok) {
-      console.error(`远程API错误: ${response.status}`);
+      // Remote API error
       return NextResponse.json([], { status: 200 }); // 降级返回空数组
     }
 

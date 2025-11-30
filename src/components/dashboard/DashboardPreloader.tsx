@@ -12,7 +12,7 @@ export default function DashboardPreloader() {
 
   useEffect(() => {
     if (session) {
-      console.log('✓ Dashboard已加载，预加载已简化');
+      // Dashboard loaded, preload simplified
     }
   }, [session]);
 

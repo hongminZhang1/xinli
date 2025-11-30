@@ -77,12 +77,20 @@ export default function JournalPage() {
     }
   };
 
-  const handleEdit = (journalId: string) => {
+  const handleCardClick = (journalId: string) => {
+    console.log('Card clicked, journal ID:', journalId);
+    console.log('Navigating to:', `/dashboard/square/${journalId}`);
+    router.push(`/dashboard/square/${journalId}`);
+  };
+
+  const handleEdit = (journalId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     router.push(`/dashboard/journal/edit/${journalId}`);
   };
 
-  const handleDelete = async (journalId: string, title: string) => {
-    if (confirm(`确定要删除日记"${title}"吗？此操作不可恢复。`)) {
+  const handleDelete = async (journalId: string, title: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (confirm(`确定要删除日记“${title}”吗？此操作不可恢复。`)) {
       try {
         await deleteMutation.mutate(journalId);
       } catch (error) {
@@ -160,7 +168,11 @@ export default function JournalPage() {
           </Card>
         ) : (
           userJournals.map((journal: JournalEntry) => (
-            <Card key={journal.id} className="p-6 hover:shadow-md transition-shadow">
+            <Card 
+              key={journal.id} 
+              className="hover:shadow-md transition-shadow"
+              onClick={() => handleCardClick(journal.id)}
+            >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3 flex-1">
                   <Avatar 
@@ -191,13 +203,13 @@ export default function JournalPage() {
                 {/* 操作按钮 */}
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handleEdit(journal.id)}
+                    onClick={(e) => handleEdit(journal.id, e)}
                     className="p-1 text-gray-400 hover:text-blue-600 rounded"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(journal.id, journal.title)}
+                    onClick={(e) => handleDelete(journal.id, journal.title, e)}
                     disabled={deleteMutation.isLoading}
                     className="p-1 text-gray-400 hover:text-red-600 rounded"
                   >
@@ -237,16 +249,6 @@ export default function JournalPage() {
                   </div>
                 </div>
               )}
-
-              {/* 查看详情 */}
-              <div className="pt-4 border-t">
-                <button
-                  onClick={() => router.push(`/dashboard/square/${journal.id}`)}
-                  className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                >
-                  查看详情 →
-                </button>
-              </div>
             </Card>
           ))
         )}
