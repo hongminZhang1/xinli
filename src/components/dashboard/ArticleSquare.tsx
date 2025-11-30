@@ -41,8 +41,8 @@ export default function ArticleSquare() {
   const router = useRouter();
   const { data, isLoading, error, refetch } = useJournals('public');
   
-  // 从API数据中提取journals - API直接返回数组
-  const journals = Array.isArray(data) ? data.filter(journal => !journal.isPrivate) : [];
+  // 从API数据中提取journals - 现在API已经只返回公开的日记
+  const journals = Array.isArray(data) ? data : [];
 
   // 移除自动预加载，避免重复API请求
 

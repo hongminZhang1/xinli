@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
 import { useJournals, useMutation } from "@/hooks/useQuery";
 
@@ -49,6 +50,7 @@ const moodOptions = [
 
 export default function JournalWidget() {
   const { data: session } = useSession();
+  const router = useRouter();
   const { data, isLoading: journalsLoading, error: journalsError, refetch } = useJournals('all');
   
   // 从API数据中提取journals并筛选当前用户的记录
@@ -144,6 +146,10 @@ export default function JournalWidget() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString("zh-CN");
+  };
+
+  const handleJournalClick = (journalId: string) => {
+    router.push(`/dashboard/square/${journalId}`);
   };
 
   if (!session) {
@@ -278,7 +284,11 @@ export default function JournalWidget() {
             </div>
           ) : (
             journals.map((journal: any) => (
-              <div key={journal.id} className="border rounded-lg p-4 hover:bg-gray-50">
+              <div 
+                key={journal.id} 
+                className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                onClick={() => handleJournalClick(journal.id)}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <h4 className="font-semibold">{journal.title}</h4>

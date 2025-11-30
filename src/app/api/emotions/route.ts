@@ -79,16 +79,14 @@ export async function GET(request: NextRequest) {
     const baseUrl = getApiBaseUrl();
     
     try {
-      const response = await fetch(`${baseUrl}/emotions`);
+      // 添加用户ID参数到查询字符串，让远程API只返回当前用户的数据
+      const response = await fetch(`${baseUrl}/emotions?userId=${session.user.id}`);
       
       if (!response.ok) {
         throw new Error(`远程API错误: ${response.status}`);
       }
       
-      const allEmotions = await response.json();
-      
-      // 过滤当前用户的记录
-      const userEmotions = allEmotions.filter((emotion: any) => emotion.userId === session.user.id);
+      const userEmotions = await response.json();
       
       // 将EmotionType映射回emoji - 更完整的映射表
       const emojiMap: { [key: string]: string } = {

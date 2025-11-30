@@ -1,40 +1,35 @@
-/**
- * 轻量应用云服务器API服务
- * 作为数据库访问的代理层
- */
-
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const { PrismaClient } = require('@prisma/client');
-require('dotenv').config();
 
 const app = express();
 const prisma = new PrismaClient();
+const port = 3001;
 
 // 中间件
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use(express.json({ limit: '10mb' }));
 
 // 健康检查
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({ status: 'OK', message: 'API服务器运行正常', timestamp: new Date().toISOString() });
 });
 
 // 用户相关API
 app.get('/api/users', async (req, res) => {
   try {
-    const users = await prisma.user.findMany({
-      include: {
-        emotionRecords: true,
-        journalEntries: true,
-        appointments: true,
-      }
-    });
+    const users = await prisma.user.findMany();
     res.json(users);
   } catch (error) {
-    console.error('获取用户列表失败:', error);
-    res.status(500).json({ error: '获取用户列表失败' });
+    console.error('获取用户列表错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
@@ -54,23 +49,22 @@ app.get('/api/users/username/:username', async (req, res) => {
   }
 });
 
+
 app.get('/api/users/:id', async (req, res) => {
   try {
+    const { id } = req.params;
     const user = await prisma.user.findUnique({
-      where: { id: req.params.id },
-      include: {
-        emotionRecords: true,
-        journalEntries: true,
-        appointments: true,
-      }
+      where: { id }
     });
+
     if (!user) {
       return res.status(404).json({ error: '用户不存在' });
     }
+
     res.json(user);
   } catch (error) {
-    console.error('获取用户详情失败:', error);
-    res.status(500).json({ error: '获取用户详情失败' });
+    console.error('获取用户错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
@@ -81,8 +75,8 @@ app.post('/api/users', async (req, res) => {
     });
     res.status(201).json(user);
   } catch (error) {
-    console.error('创建用户失败:', error);
-    res.status(500).json({ error: '创建用户失败' });
+    console.error('创建用户错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
@@ -90,28 +84,28 @@ app.post('/api/users', async (req, res) => {
 app.post('/api/users/register', async (req, res) => {
   try {
     const { username, password } = req.body;
-    
+
     // 验证输入
     if (!username || !password || password.length < 6) {
       return res.status(400).json({ error: '用户名或密码无效' });
     }
-    
+
     // 检查用户是否已存在
     const existingUser = await prisma.user.findUnique({
       where: { username }
     });
-    
+
     if (existingUser) {
       return res.status(409).json({ error: '用户名已存在' });
     }
-    
+
     // 加密密码
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     // 检查是否是第一个用户，如果是则设为管理员
     const userCount = await prisma.user.count();
     const role = userCount === 0 ? 'ADMIN' : 'USER';
-    
+
     // 创建用户
     const user = await prisma.user.create({
       data: {
@@ -121,11 +115,11 @@ app.post('/api/users/register', async (req, res) => {
         isActive: true
       }
     });
-    
+
     // 不返回密码
     const { password: _, ...userWithoutPassword } = user;
     res.status(201).json(userWithoutPassword);
-    
+
   } catch (error) {
     console.error('注册用户失败:', error);
     res.status(500).json({ error: '注册失败' });
@@ -134,41 +128,88 @@ app.post('/api/users/register', async (req, res) => {
 
 app.put('/api/users/:id', async (req, res) => {
   try {
+    const { id } = req.params;
     const user = await prisma.user.update({
-      where: { id: req.params.id },
-      data: { ...req.body, updatedAt: new Date() }
+      where: { id },
+      data: req.body
     });
     res.json(user);
   } catch (error) {
-    console.error('更新用户失败:', error);
-    res.status(500).json({ error: '更新用户失败' });
+    console.error('更新用户错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
 app.delete('/api/users/:id', async (req, res) => {
   try {
+    const { id } = req.params;
     await prisma.user.delete({
-      where: { id: req.params.id }
+      where: { id }
     });
-    res.status(204).send();
+    res.json({ message: '用户删除成功' });
   } catch (error) {
-    console.error('删除用户失败:', error);
-    res.status(500).json({ error: '删除用户失败' });
+    console.error('删除用户错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
-// 情绪记录相关API
-app.get('/api/emotions/user/:userId', async (req, res) => {
+// 情绪记录API - 使用正确的模型名 EmotionRecord
+app.get('/api/emotions', async (req, res) => {
   try {
+    const { userId } = req.query;
+    
+    let whereClause = {};
+    if (userId) {
+      whereClause.userId = userId;
+    }
+    
     const emotions = await prisma.emotionRecord.findMany({
-      where: { userId: req.params.userId },
-      include: { user: true },
-      orderBy: { createdAt: 'desc' }
+      where: whereClause,
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            avatar: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
     });
     res.json(emotions);
   } catch (error) {
-    console.error('获取情绪记录失败:', error);
-    res.status(500).json({ error: '获取情绪记录失败' });
+    console.error('获取情绪记录错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
+  }
+});
+
+app.get('/api/emotions/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const emotion = await prisma.emotionRecord.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            email: true
+          }
+        }
+      }
+    });
+
+    if (!emotion) {
+      return res.status(404).json({ error: '情绪记录不存在' });
+    }
+
+    res.json(emotion);
+  } catch (error) {
+    console.error('获取情绪记录错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
@@ -179,257 +220,369 @@ app.post('/api/emotions', async (req, res) => {
     });
     res.status(201).json(emotion);
   } catch (error) {
-    console.error('创建情绪记录失败:', error);
-    res.status(500).json({ error: '创建情绪记录失败' });
+    console.error('创建情绪记录错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
 app.put('/api/emotions/:id', async (req, res) => {
   try {
+    const { id } = req.params;
     const emotion = await prisma.emotionRecord.update({
-      where: { id: req.params.id },
+      where: { id },
       data: req.body
     });
     res.json(emotion);
   } catch (error) {
-    console.error('更新情绪记录失败:', error);
-    res.status(500).json({ error: '更新情绪记录失败' });
+    console.error('更新情绪记录错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
 app.delete('/api/emotions/:id', async (req, res) => {
   try {
+    const { id } = req.params;
     await prisma.emotionRecord.delete({
-      where: { id: req.params.id }
+      where: { id }
     });
-    res.status(204).send();
+    res.json({ message: '情绪记录删除成功' });
   } catch (error) {
-    console.error('删除情绪记录失败:', error);
-    res.status(500).json({ error: '删除情绪记录失败' });
+    console.error('删除情绪记录错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
-// 日记条目相关API
-app.get('/api/journal/user/:userId', async (req, res) => {
+// 日记API - 使用正确的模型名 JournalEntry
+app.get('/api/journals', async (req, res) => {
   try {
-    const journalEntries = await prisma.journalEntry.findMany({
-      where: { userId: req.params.userId },
-      include: { 
-        user: true, 
-        comments: { include: { user: true } } 
+    const { public: isPublic, userId } = req.query;
+    
+    let whereClause = {};
+    if (isPublic === 'true') {
+      // 只获取公开的日记
+      whereClause.isPrivate = false;
+    }
+    if (userId) {
+      whereClause.userId = userId;
+    }
+    
+    const journals = await prisma.journalEntry.findMany({
+      where: whereClause,
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            avatar: true
+          }
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                avatar: true
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        }
       },
-      orderBy: { createdAt: 'desc' }
-    });
-    res.json(journalEntries);
-  } catch (error) {
-    console.error('获取日记条目失败:', error);
-    res.status(500).json({ error: '获取日记条目失败' });
-  }
-});
-
-app.get('/api/journal/:id', async (req, res) => {
-  try {
-    const journalEntry = await prisma.journalEntry.findUnique({
-      where: { id: req.params.id },
-      include: { 
-        user: true, 
-        comments: { include: { user: true } } 
+      orderBy: {
+        createdAt: 'desc'
       }
     });
-    if (!journalEntry) {
-      return res.status(404).json({ error: '日记条目不存在' });
-    }
-    res.json(journalEntry);
+    res.json(journals);
   } catch (error) {
-    console.error('获取日记详情失败:', error);
-    res.status(500).json({ error: '获取日记详情失败' });
+    console.error('获取日记列表错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
+  }
+});
+
+app.get('/api/journals/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const journal = await prisma.journalEntry.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            avatar: true
+          }
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                avatar: true
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        }
+      }
+    });
+
+    if (!journal) {
+      return res.status(404).json({ error: '日记不存在' });
+    }
+
+    res.json(journal);
+  } catch (error) {
+    console.error('获取日记错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
+  }
+});
+
+// 兼容性路由 - 支持单数形式的journal路由
+app.get('/api/journal/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const journal = await prisma.journalEntry.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            avatar: true
+          }
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                avatar: true
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        }
+      }
+    });
+
+    if (!journal) {
+      return res.status(404).json({ error: '日记不存在' });
+    }
+
+    res.json(journal);
+  } catch (error) {
+    console.error('获取日记错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
 app.post('/api/journal', async (req, res) => {
   try {
-    const journalEntry = await prisma.journalEntry.create({
+    const journal = await prisma.journalEntry.create({
       data: req.body
     });
-    res.status(201).json(journalEntry);
+    res.status(201).json(journal);
   } catch (error) {
-    console.error('创建日记条目失败:', error);
-    res.status(500).json({ error: '创建日记条目失败' });
+    console.error('创建日记错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
 app.put('/api/journal/:id', async (req, res) => {
   try {
-    const journalEntry = await prisma.journalEntry.update({
-      where: { id: req.params.id },
-      data: { ...req.body, updatedAt: new Date() }
+    const { id } = req.params;
+    const journal = await prisma.journalEntry.update({
+      where: { id },
+      data: req.body
     });
-    res.json(journalEntry);
+    res.json(journal);
   } catch (error) {
-    console.error('更新日记条目失败:', error);
-    res.status(500).json({ error: '更新日记条目失败' });
+    console.error('更新日记错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
 app.delete('/api/journal/:id', async (req, res) => {
   try {
+    const { id } = req.params;
     await prisma.journalEntry.delete({
-      where: { id: req.params.id }
+      where: { id }
     });
-    res.status(204).send();
+    res.json({ message: '日记删除成功' });
   } catch (error) {
-    console.error('删除日记条目失败:', error);
-    res.status(500).json({ error: '删除日记条目失败' });
+    console.error('删除日记错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
-// 聊天会话相关API
-app.get('/api/chat/user/:userId', async (req, res) => {
+app.put('/api/journals/:id', async (req, res) => {
   try {
-    const chatSessions = await prisma.chatSession.findMany({
-      where: { userId: req.params.userId },
-      include: { user: true },
-      orderBy: { updatedAt: 'desc' }
-    });
-    res.json(chatSessions);
-  } catch (error) {
-    console.error('获取聊天会话失败:', error);
-    res.status(500).json({ error: '获取聊天会话失败' });
-  }
-});
-
-app.post('/api/chat', async (req, res) => {
-  try {
-    const chatSession = await prisma.chatSession.create({
+    const { id } = req.params;
+    const journal = await prisma.journalEntry.update({
+      where: { id },
       data: req.body
     });
-    res.status(201).json(chatSession);
+    res.json(journal);
   } catch (error) {
-    console.error('创建聊天会话失败:', error);
-    res.status(500).json({ error: '创建聊天会话失败' });
+    console.error('更新日记错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
-app.put('/api/chat/:id', async (req, res) => {
+app.delete('/api/journals/:id', async (req, res) => {
   try {
-    const chatSession = await prisma.chatSession.update({
-      where: { id: req.params.id },
-      data: { ...req.body, updatedAt: new Date() }
+    const { id } = req.params;
+    await prisma.journalEntry.delete({
+      where: { id }
     });
-    res.json(chatSession);
+    res.json({ message: '日记删除成功' });
   } catch (error) {
-    console.error('更新聊天会话失败:', error);
-    res.status(500).json({ error: '更新聊天会话失败' });
+    console.error('删除日记错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
-// 预约相关API
-app.get('/api/appointments/user/:userId', async (req, res) => {
+// 评论API
+app.get('/api/comments', async (req, res) => {
   try {
-    const appointments = await prisma.appointment.findMany({
-      where: { userId: req.params.userId },
-      include: { user: true, counselor: true },
-      orderBy: { scheduledDateTime: 'desc' }
+    const comments = await prisma.comment.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            email: true
+          }
+        },
+        journalEntry: {
+          select: {
+            id: true,
+            title: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
     });
-    res.json(appointments);
+    res.json(comments);
   } catch (error) {
-    console.error('获取预约失败:', error);
-    res.status(500).json({ error: '获取预约失败' });
+    console.error('获取评论列表错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
-app.post('/api/appointments', async (req, res) => {
+app.post('/api/comments', async (req, res) => {
   try {
-    const appointment = await prisma.appointment.create({
+    const comment = await prisma.comment.create({
       data: req.body
     });
-    res.status(201).json(appointment);
+    res.status(201).json(comment);
   } catch (error) {
-    console.error('创建预约失败:', error);
-    res.status(500).json({ error: '创建预约失败' });
+    console.error('创建评论错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
-app.put('/api/appointments/:id', async (req, res) => {
-  try {
-    const appointment = await prisma.appointment.update({
-      where: { id: req.params.id },
-      data: { ...req.body, updatedAt: new Date() }
-    });
-    res.json(appointment);
-  } catch (error) {
-    console.error('更新预约失败:', error);
-    res.status(500).json({ error: '更新预约失败' });
-  }
-});
-
-// 系统设置相关API
+// 系统设置API - 使用正确的模型名 SystemSettings
 app.get('/api/settings', async (req, res) => {
   try {
     const settings = await prisma.systemSettings.findMany();
     res.json(settings);
   } catch (error) {
-    console.error('获取系统设置失败:', error);
-    res.status(500).json({ error: '获取系统设置失败' });
+    console.error('获取系统设置错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
 app.get('/api/settings/:key', async (req, res) => {
   try {
+    const { key } = req.params;
     const setting = await prisma.systemSettings.findUnique({
-      where: { key: req.params.key }
+      where: { key }
     });
+
     if (!setting) {
       return res.status(404).json({ error: '设置项不存在' });
     }
+
     res.json(setting);
   } catch (error) {
-    console.error('获取设置项失败:', error);
-    res.status(500).json({ error: '获取设置项失败' });
+    console.error('获取设置项错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
+  }
+});
+
+app.post('/api/settings', async (req, res) => {
+  try {
+    const setting = await prisma.systemSettings.create({
+      data: req.body
+    });
+    res.status(201).json(setting);
+  } catch (error) {
+    console.error('创建设置项错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
 app.put('/api/settings/:key', async (req, res) => {
   try {
+    const { key } = req.params;
     const setting = await prisma.systemSettings.upsert({
-      where: { key: req.params.key },
-      update: { value: req.body.value, updatedAt: new Date() },
-      create: { key: req.params.key, value: req.body.value }
+      where: { key },
+      create: { key, ...req.body },
+      update: req.body
     });
     res.json(setting);
   } catch (error) {
-    console.error('更新设置项失败:', error);
-    res.status(500).json({ error: '更新设置项失败' });
+    console.error('更新设置项错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
   }
 });
 
-// 错误处理中间件
-app.use((error, req, res, next) => {
-  console.error('服务器错误:', error);
-  res.status(500).json({ error: '服务器内部错误' });
-});
-
-// 404处理
-app.use((req, res) => {
-  res.status(404).json({ error: '接口不存在' });
+app.delete('/api/settings/:key', async (req, res) => {
+  try {
+    const { key } = req.params;
+    await prisma.systemSettings.delete({
+      where: { key }
+    });
+    res.json({ message: '设置项删除成功' });
+  } catch (error) {
+    console.error('删除设置项错误:', error);
+    res.status(500).json({ error: '服务器内部错误' });
+  }
 });
 
 // 启动服务器
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`API服务器运行在端口 ${PORT}`);
-  console.log(`健康检查: http://localhost:${PORT}/health`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`API服务器运行在 http://0.0.0.0:${port}`);
+  console.log('健康检查: http://0.0.0.0:' + port + '/health');
 });
 
 // 优雅关闭
-process.on('SIGINT', async () => {
-  console.log('正在关闭服务器...');
+process.on('SIGTERM', async () => {
+  console.log('接收到SIGTERM信号，正在关闭服务器...');
   await prisma.$disconnect();
   process.exit(0);
 });
 
-process.on('SIGTERM', async () => {
-  console.log('正在关闭服务器...');
+process.on('SIGINT', async () => {
+  console.log('接收到SIGINT信号，正在关闭服务器...');
   await prisma.$disconnect();
   process.exit(0);
 });

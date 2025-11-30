@@ -5,7 +5,14 @@ import Card from "@/components/ui/Card";
 import { useEmotions } from "@/hooks/useEmotions";
 import { EMOJI_OPTIONS, getEmotionEmoji } from "@/types/emotions";
 
-export default function EmotionsWidget() {
+interface EmotionsWidgetProps {
+  emotionsData?: ReturnType<typeof useEmotions>;
+}
+
+export default function EmotionsWidget({ emotionsData }: EmotionsWidgetProps) {
+  // 始终调用hook以符合React rules of hooks，但可以选择使用哪个数据源
+  const internalEmotions = useEmotions();
+  const emotions = emotionsData || internalEmotions;
   const {
     entries,
     loading,
@@ -16,7 +23,7 @@ export default function EmotionsWidget() {
     updateEntry,
     deleteEntry,
     clearError,
-  } = useEmotions();
+  } = emotions;
 
   const [note, setNote] = useState("");
   const [emoji, setEmoji] = useState<string>(EMOJI_OPTIONS[0].value);

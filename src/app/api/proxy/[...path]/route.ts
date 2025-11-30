@@ -1,7 +1,6 @@
 /**
  * API代理处理器
- * 用于在Vercel部署时解决HTTPS混合内容问题
- * Vercel (HTTPS) -> 本代理 -> API服务器 (HTTP)
+ * 统一处理所有API请求的代理转发
  */
 import { NextRequest, NextResponse } from "next/server";
 
@@ -9,13 +8,11 @@ const API_BASE_URL = 'http://193.112.165.180:3001/api';
 
 // 代理到远程API服务器
 async function proxyToRemoteApi(request: NextRequest, endpoint: string) {
-  const remoteUrl = `${API_BASE_URL}${endpoint}`;
+  // 获取查询参数
+  const url = new URL(request.url);
+  const queryParams = url.search; // 包含 '?' 的完整查询字符串
   
-  console.log("🔄 代理请求:", {
-    method: request.method,
-    endpoint,
-    remoteUrl
-  });
+  const remoteUrl = `${API_BASE_URL}${endpoint}${queryParams}`;
   
   try {
     const requestBody = request.method !== 'GET' && request.method !== 'HEAD' 
@@ -27,25 +24,17 @@ async function proxyToRemoteApi(request: NextRequest, endpoint: string) {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'User-Agent': 'Vercel-Proxy/1.0',
       },
       body: requestBody,
     });
 
     const responseText = await response.text();
     
-    console.log("✅ 代理响应:", {
-      status: response.status,
-      statusText: response.statusText,
-      hasData: !!responseText
-    });
-    
-    // 尝试解析为JSON，如果失败则返回原始文本
+    // 尝试解析为JSON
     let responseData;
     try {
       responseData = JSON.parse(responseText);
     } catch {
-      console.log("⚠️ 响应不是有效的 JSON");
       responseData = { message: responseText };
     }
 
@@ -58,7 +47,6 @@ async function proxyToRemoteApi(request: NextRequest, endpoint: string) {
       }
     });
   } catch (error) {
-    console.error('❌ 代理API请求失败:', error);
     return NextResponse.json(
       { 
         error: '远程API不可用',

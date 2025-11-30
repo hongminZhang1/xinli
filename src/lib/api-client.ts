@@ -131,10 +131,10 @@ export const dbApi = {
   // 日记条目
   journals: {
     getAll: () => apiClient.get<any[]>('/journals'),
-    getById: (id: string) => apiClient.get<any>(`/journals/${id}`),
-    create: (data: any) => apiClient.post<any>('/journals', data),
-    update: (id: string, data: any) => apiClient.put<any>(`/journals/${id}`, data),
-    delete: (id: string) => apiClient.delete<any>(`/journals/${id}`),
+    getById: (id: string) => apiClient.get<any>(`/journal/${id}`),
+    create: (data: any) => apiClient.post<any>('/journal', data),
+    update: (id: string, data: any) => apiClient.put<any>(`/journal/${id}`, data),
+    delete: (id: string) => apiClient.delete<any>(`/journal/${id}`),
   },
   
   // 聊天会话

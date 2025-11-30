@@ -10,6 +10,7 @@ import {
   Library,
   Settings,
   MessageSquare,
+  Brain,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -18,6 +19,7 @@ import { useSession } from "next-auth/react";
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "我的主页" },
   { href: "/dashboard/emotions", icon: HeartPulse, label: "情绪追踪" },
+  { href: "/dashboard/assessment", icon: Brain, label: "心理评估" },
   { href: "/dashboard/chat", icon: Bot, label: "AI 倾诉" },
   { href: "/dashboard/journal", icon: Book, label: "情绪日记" },
   { href: "/dashboard/square", icon: MessageSquare, label: "文章广场" },

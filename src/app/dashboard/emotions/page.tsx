@@ -5,7 +5,8 @@ import { useEmotions } from "@/hooks/useEmotions";
 import { EmotionEntry, getEmotionEmoji } from "@/types/emotions";
 
 export default function EmotionsPage() {
-  const { entries, isAuthenticated } = useEmotions();
+  const emotions = useEmotions();
+  const { entries, isAuthenticated } = emotions;
   
   const getEmotionStats = () => {
     const today = new Date();
@@ -66,7 +67,7 @@ export default function EmotionsPage() {
       )}
 
       {/* 主要组件 */}
-      <EmotionsWidget />
+      <EmotionsWidget emotionsData={emotions} />
       
       {/* 提示信息 */}
       {isAuthenticated && (

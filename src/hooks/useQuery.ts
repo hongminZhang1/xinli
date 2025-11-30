@@ -107,10 +107,15 @@ export function useMutation<TData = any, TVariables = any>(
 }
 
 // 简化的查询hooks - 无缓存版本
-export const useJournals = (type: 'all' | 'public' = 'all') => {
+export const useJournals = (type: 'all' | 'public' = 'public') => {
   return useQuery(
     `journals-${type}`,
-    () => dbAdapter.journal.getAll(),
+    () => {
+      if (type === 'public') {
+        return dbAdapter.journal.getPublic();
+      }
+      return dbAdapter.journal.getAll();
+    },
     { enabled: true }
   );
 };

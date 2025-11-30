@@ -71,9 +71,9 @@ const apiDbAdapter: DbAdapter = {
     },
     findUnique: async (where) => {
       if (where.id) {
-        return dbApi.users.getById(where.id);
+        return await dbApi.users.getById(where.id);
       } else if (where.username) {
-        return dbApi.users.getByUsername(where.username);
+        return await dbApi.users.getByUsername(where.username);
       }
       return null;
     },
@@ -177,7 +177,22 @@ export const dbAdapter = {
   },
   
   journal: {
-    getAll: () => dbApi.journals.getAll(),
+    getAll: async () => {
+      // 使用前端API路由，带认证和过滤
+      const response = await fetch('/api/journal');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    },
+    getPublic: async () => {
+      // 调用新的公开日记API
+      const response = await fetch('/api/journals/public');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    },
     getById: (id: string) => apiDbAdapter.journalEntry.findUnique({ id }),
     getByUserId: (userId: string) => apiDbAdapter.journalEntry.findMany({ userId }),
     create: (data: any) => apiDbAdapter.journalEntry.create(data),
