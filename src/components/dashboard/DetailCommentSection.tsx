@@ -35,22 +35,37 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
   // 添加评论的mutation
   const addCommentMutation = useMutation(
     async (commentData: { content: string }) => {
+      if (!session?.user?.id) {
+        throw new Error('用户未登录');
+      }
+      
+      console.log('🔖 DetailComment评论创建调试信息:', {
+        content: commentData.content,
+        journalId: journalId,
+        userId: session.user.id,
+        username: session.user.username
+      });
+      
       // 使用dbAdapter而不是直接API调用
       const { dbAdapter } = require('@/lib/db-adapter');
       return dbAdapter.comment.create({
         content: commentData.content,
         journalId: journalId,
-        userId: 'current-user' // 这里需要传入实际的userId
+        userId: session.user.id // 使用实际的用户ID
       });
     },
     {
       onSuccess: (newCommentData) => {
+        console.log('✅ DetailComment评论创建成功:', newCommentData);
         // 更新本地状态
         setComments(prev => [newCommentData, ...prev]);
         setNewComment("");
         if (onCommentAdded) {
           onCommentAdded(newCommentData);
         }
+      },
+      onError: (error) => {
+        console.error('❌ DetailComment评论创建失败:', error);
       },
       invalidateQueries: [`journal-comments-${journalId}`]
     }
@@ -65,7 +80,12 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
   };
 
   const handleSubmitComment = async () => {
-    if (!newComment.trim() || !session?.user?.id) return;
+    if (!newComment.trim()) return;
+    
+    if (!session?.user?.id) {
+      alert("请先登录后再发表评论");
+      return;
+    }
 
     try {
       await addCommentMutation.mutate({
