@@ -495,8 +495,39 @@ app.get('/api/comments', async (req, res) => {
 
 app.post('/api/comments', async (req, res) => {
   try {
+    console.log('创建评论请求:', req.body);
+    
+    // 验证必需字段
+    const { content, userId, journalEntryId } = req.body;
+    if (!content || !userId || !journalEntryId) {
+      console.error('缺少必需字段:', { content: !!content, userId: !!userId, journalEntryId: !!journalEntryId });
+      return res.status(400).json({ error: '缺少必需字段' });
+    }
+    
+    // 验证用户是否存在
+    const userExists = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+    if (!userExists) {
+      console.error('用户不存在:', userId);
+      return res.status(404).json({ error: '用户不存在' });
+    }
+    
+    // 验证日记是否存在
+    const journalExists = await prisma.journalEntry.findUnique({
+      where: { id: journalEntryId }
+    });
+    if (!journalExists) {
+      console.error('日记不存在:', journalEntryId);
+      return res.status(404).json({ error: '日记不存在' });
+    }
+    
     const comment = await prisma.comment.create({
-      data: req.body,
+      data: {
+        content,
+        userId,
+        journalEntryId
+      },
       include: {
         user: {
           select: {
@@ -515,10 +546,11 @@ app.post('/api/comments', async (req, res) => {
         }
       }
     });
+    console.log('评论创建成功:', comment.id);
     res.status(201).json(comment);
   } catch (error) {
     console.error('创建评论错误:', error);
-    res.status(500).json({ error: '服务器内部错误' });
+    res.status(500).json({ error: '服务器内部错误', details: error.message });
   }
 });
 

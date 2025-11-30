@@ -40,6 +40,14 @@ export default function CommentSection({ journalId, comments, onCommentAdded }: 
       if (!session?.user?.id) {
         throw new Error('用户未登录');
       }
+      
+      console.log('🔖 评论创建调试信息:', {
+        content: commentData.content,
+        journalId: journalId,
+        userId: session.user.id,
+        username: session.user.username
+      });
+      
       // 使用db-adapter进行评论创建
       const { dbAdapter } = await import('@/lib/db-adapter');
       return dbAdapter.comment.create({
@@ -50,12 +58,16 @@ export default function CommentSection({ journalId, comments, onCommentAdded }: 
     },
     {
       onSuccess: (newComment) => {
+        console.log('✅ 评论创建成功:', newComment);
         setNewComment("");
         setShowCommentInput(false);
         refetchComments(); // 刷新评论列表
         if (onCommentAdded) {
           onCommentAdded(newComment);
         }
+      },
+      onError: (error) => {
+        console.error('❌ 评论创建失败:', error);
       },
       invalidateQueries: [`journal-comments-${journalId}`]
     }

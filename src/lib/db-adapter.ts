@@ -229,21 +229,33 @@ export const dbAdapter = {
       return response.json();
     },
     create: async (data: { content: string; journalId: string; userId: string }) => {
+      const requestData = {
+        content: data.content,
+        journalEntryId: data.journalId, // 使用正确的字段名
+        userId: data.userId
+      };
+      
+      console.log('📝 评论创建请求数据:', requestData);
+      
       const response = await fetch('/api/proxy/comments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          content: data.content,
-          journalEntryId: data.journalId, // 使用正确的字段名
-          userId: data.userId
-        })
+        body: JSON.stringify(requestData)
       });
+      
+      console.log('📡 评论创建响应状态:', response.status, response.statusText);
+      
       if (!response.ok) {
-        throw new Error('创建评论失败');
+        const errorText = await response.text();
+        console.error('❌ 评论创建失败响应:', errorText);
+        throw new Error(`创建评论失败: ${response.status} ${response.statusText}`);
       }
-      return response.json();
+      
+      const result = await response.json();
+      console.log('✅ 评论创建成功响应:', result);
+      return result;
     },
     update: async (id: string, data: any) => {
       const response = await fetch(`/api/proxy/comments/${id}`, {
