@@ -39,13 +39,6 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
         throw new Error('用户未登录');
       }
       
-      console.log('🔖 DetailComment评论创建调试信息:', {
-        content: commentData.content,
-        journalId: journalId,
-        userId: session.user.id,
-        username: session.user.username
-      });
-      
       // 使用dbAdapter而不是直接API调用
       const { dbAdapter } = require('@/lib/db-adapter');
       return dbAdapter.comment.create({
@@ -56,16 +49,12 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
     },
     {
       onSuccess: (newCommentData) => {
-        console.log('✅ DetailComment评论创建成功:', newCommentData);
         // 更新本地状态
         setComments(prev => [newCommentData, ...prev]);
         setNewComment("");
         if (onCommentAdded) {
           onCommentAdded(newCommentData);
         }
-      },
-      onError: (error) => {
-        console.error('❌ DetailComment评论创建失败:', error);
       },
       invalidateQueries: [`journal-comments-${journalId}`]
     }

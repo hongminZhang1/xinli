@@ -21,7 +21,7 @@ const navItems = [
   { href: "/dashboard/emotions", icon: HeartPulse, label: "情绪追踪" },
   { href: "/dashboard/assessment", icon: Brain, label: "心理评估" },
   { href: "/dashboard/chat", icon: Bot, label: "AI 倾诉" },
-  { href: "/dashboard/journal", icon: Book, label: "情绪日记" },
+  { href: "/dashboard/journal", icon: Book, label: "我的日记" },
   { href: "/dashboard/square", icon: MessageSquare, label: "文章广场" },
   { href: "/dashboard/resources", icon: Library, label: "疗愈资源" },
   { href: "/dashboard/appointments", icon: CalendarCheck, label: "咨询预约" },

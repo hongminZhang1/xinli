@@ -208,11 +208,48 @@ export const dbAdapter = {
       }
       return response.json();
     },
-    getById: (id: string) => apiDbAdapter.journalEntry.findUnique({ id }),
-    getByUserId: (userId: string) => apiDbAdapter.journalEntry.findMany({ userId }),
-    create: (data: any) => apiDbAdapter.journalEntry.create(data),
-    update: (id: string, data: any) => apiDbAdapter.journalEntry.update({ id }, data),
-    delete: (id: string) => apiDbAdapter.journalEntry.delete({ id }),
+    getById: async (id: string) => {
+      const response = await fetch(`/api/proxy/journals/${id}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) throw new Error('获取日记失败');
+      return response.json();
+    },
+    getByUserId: async (userId: string) => {
+      const response = await fetch(`/api/proxy/journals?userId=${userId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) throw new Error('获取用户日记失败');
+      return response.json();
+    },
+    create: async (data: any) => {
+      const response = await fetch('/api/proxy/journal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('创建日记失败');
+      return response.json();
+    },
+    update: async (id: string, data: any) => {
+      const response = await fetch(`/api/proxy/journal/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('更新日记失败');
+      return response.json();
+    },
+    delete: async (id: string) => {
+      const response = await fetch(`/api/proxy/journal/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) throw new Error('删除日记失败');
+      return response.json();
+    },
   },
   
   comment: {
@@ -235,8 +272,6 @@ export const dbAdapter = {
         userId: data.userId
       };
       
-      console.log('📝 评论创建请求数据:', requestData);
-      
       const response = await fetch('/api/proxy/comments', {
         method: 'POST',
         headers: {
@@ -245,17 +280,12 @@ export const dbAdapter = {
         body: JSON.stringify(requestData)
       });
       
-      console.log('📡 评论创建响应状态:', response.status, response.statusText);
-      
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ 评论创建失败响应:', errorText);
         throw new Error(`创建评论失败: ${response.status} ${response.statusText}`);
       }
       
-      const result = await response.json();
-      console.log('✅ 评论创建成功响应:', result);
-      return result;
+      return response.json();
     },
     update: async (id: string, data: any) => {
       const response = await fetch(`/api/proxy/comments/${id}`, {

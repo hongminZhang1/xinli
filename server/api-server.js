@@ -495,12 +495,9 @@ app.get('/api/comments', async (req, res) => {
 
 app.post('/api/comments', async (req, res) => {
   try {
-    console.log('创建评论请求:', req.body);
-    
     // 验证必需字段
     const { content, userId, journalEntryId } = req.body;
     if (!content || !userId || !journalEntryId) {
-      console.error('缺少必需字段:', { content: !!content, userId: !!userId, journalEntryId: !!journalEntryId });
       return res.status(400).json({ error: '缺少必需字段' });
     }
     
@@ -509,7 +506,6 @@ app.post('/api/comments', async (req, res) => {
       where: { id: userId }
     });
     if (!userExists) {
-      console.error('用户不存在:', userId);
       return res.status(404).json({ error: '用户不存在' });
     }
     
@@ -518,7 +514,6 @@ app.post('/api/comments', async (req, res) => {
       where: { id: journalEntryId }
     });
     if (!journalExists) {
-      console.error('日记不存在:', journalEntryId);
       return res.status(404).json({ error: '日记不存在' });
     }
     
@@ -546,7 +541,6 @@ app.post('/api/comments', async (req, res) => {
         }
       }
     });
-    console.log('评论创建成功:', comment.id);
     res.status(201).json(comment);
   } catch (error) {
     console.error('创建评论错误:', error);
