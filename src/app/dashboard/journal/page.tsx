@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
 import Avatar from "@/components/ui/Avatar";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import { Plus, Edit, Trash2, Calendar, Tag, Eye, EyeOff } from "lucide-react";
 import { useQuery, useMutation } from "@/hooks/useQuery";
 import { dbAdapter } from "@/lib/db-adapter";
@@ -80,6 +81,10 @@ export default function JournalPage() {
   const handleCardClick = (journalId: string) => {
     console.log('Card clicked, journal ID:', journalId);
     console.log('Navigating to:', `/dashboard/square/${journalId}`);
+    // 设置标记表示从我的日记页面来
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('fromJournalPage', 'true');
+    }
     router.push(`/dashboard/square/${journalId}`);
   };
 
@@ -224,14 +229,16 @@ export default function JournalPage() {
 
               {/* 内容预览 */}
               <div className="mb-3 sm:mb-4">
-                <p className="text-gray-700 text-sm sm:text-base leading-relaxed" style={{
+                <div className="text-gray-700 text-sm sm:text-base leading-relaxed overflow-hidden" style={{
                   display: '-webkit-box',
                   WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden'
+                  WebkitBoxOrient: 'vertical'
                 }}>
-                  {journal.content}
-                </p>
+                  <MarkdownRenderer 
+                    content={journal.content.length > 200 ? journal.content.substring(0, 200) + '...' : journal.content} 
+                    className="prose-sm"
+                  />
+                </div>
               </div>
 
               {/* 标签 */}

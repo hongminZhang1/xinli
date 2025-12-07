@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
 import Avatar from "@/components/ui/Avatar";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import { Clock, MessageCircle, Heart } from "lucide-react";
 import { useJournals } from "@/hooks/useQuery";
 
@@ -76,6 +77,10 @@ export default function ArticleSquare() {
     if (!session) {
       alert("请先登录查看文章详情");
       return;
+    }
+    // 清除日记页面标记，表示从文章广场来
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('fromJournalPage');
     }
     router.push(`/dashboard/square/${journalId}`);
   };
@@ -162,16 +167,19 @@ export default function ArticleSquare() {
                   </div>
 
                   {/* 内容预览 */}
-                  <p className="text-gray-600 text-sm mb-2 overflow-hidden" style={{
+                  <div className="text-gray-600 text-sm mb-2 overflow-hidden" style={{
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical'
                   }}>
-                    {journal.content.length > 100 
-                      ? `${journal.content.substring(0, 100)}...`
-                      : journal.content
-                    }
-                  </p>
+                    <MarkdownRenderer 
+                      content={journal.content.length > 100 
+                        ? `${journal.content.substring(0, 100)}...`
+                        : journal.content
+                      } 
+                      className="prose-sm"
+                    />
+                  </div>
 
                   {/* 底部信息栏 */}
                   <div className="flex items-center justify-between text-xs text-gray-500">

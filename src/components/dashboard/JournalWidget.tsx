@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
+import MarkdownEditor from "@/components/ui/MarkdownEditor";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import { useJournals, useMutation } from "@/hooks/useQuery";
 
 type JournalEntry = {
@@ -149,6 +151,10 @@ export default function JournalWidget() {
   };
 
   const handleJournalClick = (journalId: string) => {
+    // 设置标记表示从日记相关页面来
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('fromJournalPage', 'true');
+    }
     router.push(`/dashboard/square/${journalId}`);
   };
 
@@ -179,12 +185,15 @@ export default function JournalWidget() {
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="写下今天的感受..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-md h-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">内容</label>
+          <MarkdownEditor
+            value={content}
+            onChange={setContent}
+            placeholder="写下今天的感受... 支持 Markdown 格式"
+            height={400}
+          />
+        </div>
 
         {/* 心情选择 */}
         <div>
@@ -345,8 +354,12 @@ export default function JournalWidget() {
                   </div>
                 )}
 
-                <div className="text-gray-700 mb-2 line-clamp-2 sm:line-clamp-3 text-sm sm:text-base">
-                  {journal.content}
+                <div className="text-gray-700 mb-2 text-sm sm:text-base overflow-hidden" style={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical'
+                }}>
+                  <MarkdownRenderer content={journal.content.length > 150 ? journal.content.substring(0, 150) + '...' : journal.content} className="prose-sm" />
                 </div>
 
                 {/* 桌面端显示标签 */}

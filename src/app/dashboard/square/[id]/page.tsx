@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
 import Avatar from "@/components/ui/Avatar";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import CommentSection from "@/components/dashboard/DetailCommentSection";
 import { ArrowLeft, Clock, User } from "lucide-react";
 import { useJournalDetail, useJournalComments } from "@/hooks/useQuery";
@@ -61,6 +62,20 @@ export default function JournalDetailPage({ params }: { params: { id: string } }
   
   const [localComments, setLocalComments] = useState<Comment[]>([]);
   const [error, setError] = useState("");
+  
+  const getBackText = () => {
+    // 检查当前路径，如果直接访问或者从我的日记来，显示返回我的日记
+    if (typeof window !== 'undefined') {
+      const referrer = document.referrer;
+      const hasJournalInHistory = sessionStorage.getItem('fromJournalPage');
+      
+      // 如果有sessionStorage标记或者referrer包含journal路径
+      if (hasJournalInHistory || referrer.includes('/dashboard/journal')) {
+        return '返回我的日记';
+      }
+    }
+    return '返回文章广场';
+  };
   
   // 同步comments数据
   useEffect(() => {
@@ -146,15 +161,24 @@ export default function JournalDetailPage({ params }: { params: { id: string } }
     );
   }
 
+  const handleBackClick = () => {
+    // 清除标记
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('fromJournalPage');
+    }
+    router.back();
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6">
+
       {/* 返回按钮 */}
       <button
-        onClick={() => router.back()}
+        onClick={handleBackClick}
         className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
-        返回文章广场
+        {getBackText()}
       </button>
 
       {/* 文章详情 */}
@@ -186,13 +210,13 @@ export default function JournalDetailPage({ params }: { params: { id: string } }
         </div>
 
         {/* 文章标题 */}
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-blue-700 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
           {journal.title}
         </h1>
 
         {/* 文章内容 */}
-        <div className="text-gray-700 mb-6 whitespace-pre-wrap leading-relaxed">
-          {journal.content}
+        <div className="mb-6">
+          <MarkdownRenderer content={journal.content} />
         </div>
 
         {/* 标签 */}

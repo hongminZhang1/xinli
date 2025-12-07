@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
+import MarkdownEditor from "@/components/ui/MarkdownEditor";
 import { ArrowLeft, Save, Eye, EyeOff } from "lucide-react";
 import { dbAdapter } from "@/lib/db-adapter";
 
@@ -62,14 +63,16 @@ export default function NewJournalPage() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          返回
-        </button>
-        <h1 className="text-2xl font-bold text-gray-900">新建日记</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">新建日记</h1>
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            返回
+          </button>
+        </div>
       </div>
 
       <Card className="p-6">
@@ -115,15 +118,13 @@ export default function NewJournalPage() {
           {/* 内容 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              内容 *
+              内容 *（支持 Markdown 格式）
             </label>
-            <textarea
+            <MarkdownEditor
               value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="写下你的想法和感受..."
-              rows={12}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              required
+              onChange={setContent}
+              placeholder="写下你的想法和感受...  支持 Markdown 格式"
+              height={450}
             />
           </div>
 
