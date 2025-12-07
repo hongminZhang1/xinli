@@ -1,61 +1,34 @@
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { EmotionEntry, CreateEmotionRequest, UpdateEmotionRequest } from "@/types/emotions";
+import { useCacheStore, CACHE_TTL } from '@/store/useCacheStore';
 
-// 全局缓存，避免多个组件重复请求
-let globalEmotionsCache: {
-  data: any[] | null;
-  timestamp: number;
-  loading: boolean;
-} = {
-  data: null,
-  timestamp: 0,
-  loading: false
-};
-
-const CACHE_DURATION = 30000; // 30秒缓存
+const EMOTIONS_CACHE_KEY = 'emotions-records';
 
 export function useEmotions() {
   const { data: session, status } = useSession();
+  const { getCache, setCache, invalidateCache } = useCacheStore();
   
-  const [entries, setEntries] = useState<any[]>([]);
+  const [entries, setEntries] = useState<any[]>(() => {
+    // 初始化时尝试从缓存获取
+    return getCache<any[]>(EMOTIONS_CACHE_KEY) || [];
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const loadingRef = useRef(false);
-
-  // 检查缓存是否有效
-  const isCacheValid = () => {
-    const now = Date.now();
-    return globalEmotionsCache.data !== null && 
-           (now - globalEmotionsCache.timestamp) < CACHE_DURATION;
-  };
 
   // 加载情绪记录
   const loadEntries = async () => {
     if (!session?.user?.id || loadingRef.current) return;
     
     // 检查缓存
-    if (isCacheValid()) {
-      setEntries(globalEmotionsCache.data || []);
-      return;
-    }
-
-    // 检查是否已经有其他组件在加载
-    if (globalEmotionsCache.loading) {
-      // 等待其他组件完成加载
-      const checkLoading = () => {
-        if (!globalEmotionsCache.loading) {
-          setEntries(globalEmotionsCache.data || []);
-        } else {
-          setTimeout(checkLoading, 100);
-        }
-      };
-      checkLoading();
+    const cachedData = getCache<any[]>(EMOTIONS_CACHE_KEY);
+    if (cachedData) {
+      setEntries(cachedData);
       return;
     }
 
     loadingRef.current = true;
-    globalEmotionsCache.loading = true;
     setLoading(true);
     setError(null);
     
@@ -66,15 +39,11 @@ export function useEmotions() {
       }
       const data = await response.json();
       
-      // 更新全局缓存
-      globalEmotionsCache.data = data || [];
-      globalEmotionsCache.timestamp = Date.now();
-      globalEmotionsCache.loading = false;
-      
+      // 更新缓存
+      setCache(EMOTIONS_CACHE_KEY, data || [], CACHE_TTL.EMOTIONS);
       setEntries(data || []);
     } catch (err) {
       console.error('Failed to load emotions:', err);
-      globalEmotionsCache.loading = false;
       setError(err instanceof Error ? err.message : '加载情绪记录失败');
     } finally {
       setLoading(false);
@@ -104,11 +73,10 @@ export function useEmotions() {
       
       const newEntry = await response.json();
       
-      // 更新本地状态和全局缓存
+      // 更新本地状态和缓存
       const updatedEntries = [newEntry, ...entries];
       setEntries(updatedEntries);
-      globalEmotionsCache.data = updatedEntries;
-      globalEmotionsCache.timestamp = Date.now();
+      setCache(EMOTIONS_CACHE_KEY, updatedEntries, CACHE_TTL.EMOTIONS);
       
       return true;
     } catch (err) {
@@ -142,13 +110,12 @@ export function useEmotions() {
       
       const updatedEntry = await response.json();
       
-      // 更新本地状态和全局缓存
+      // 更新本地状态和缓存
       const updatedEntries = entries.map(entry => 
         entry.id === id ? updatedEntry : entry
       );
       setEntries(updatedEntries);
-      globalEmotionsCache.data = updatedEntries;
-      globalEmotionsCache.timestamp = Date.now();
+      setCache(EMOTIONS_CACHE_KEY, updatedEntries, CACHE_TTL.EMOTIONS);
       
       return true;
     } catch (err) {
@@ -176,11 +143,10 @@ export function useEmotions() {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
-      // 更新本地状态和全局缓存
+      // 更新本地状态和缓存
       const updatedEntries = entries.filter(entry => entry.id !== id);
       setEntries(updatedEntries);
-      globalEmotionsCache.data = updatedEntries;
-      globalEmotionsCache.timestamp = Date.now();
+      setCache(EMOTIONS_CACHE_KEY, updatedEntries, CACHE_TTL.EMOTIONS);
       
       return true;
     } catch (err) {

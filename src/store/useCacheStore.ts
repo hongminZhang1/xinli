@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 // 缓存项的接口
 interface CacheItem<T = any> {
@@ -25,10 +26,24 @@ interface CacheState {
   
   // 获取所有缓存键
   getCacheKeys: () => string[];
+  
+  // 清理过期缓存
+  cleanExpiredCache: () => void;
 }
 
 // 默认TTL: 5分钟
 const DEFAULT_TTL = 5 * 60 * 1000;
+
+// 不同数据类型的缓存时间配置（毫秒）
+export const CACHE_TTL = {
+  ARTICLES: 2 * 60 * 1000,      // 文章列表: 2分钟
+  ARTICLE_DETAIL: 5 * 60 * 1000, // 文章详情: 5分钟
+  COMMENTS: 3 * 60 * 1000,       // 评论: 3分钟
+  EMOTIONS: 5 * 60 * 1000,       // 情绪记录: 5分钟
+  USERS: 10 * 60 * 1000,         // 用户列表: 10分钟
+  SETTINGS: 15 * 60 * 1000,      // 系统设置: 15分钟
+  DEFAULT: DEFAULT_TTL,          // 默认: 5分钟
+};
 
 export const useCacheStore = create<CacheState>((set, get) => ({
   cache: new Map(),
@@ -121,5 +136,20 @@ export const useCacheStore = create<CacheState>((set, get) => ({
   getCacheKeys: () => {
     const { cache } = get();
     return Array.from(cache.keys());
+  },
+  
+  cleanExpiredCache: () => {
+    set((state) => {
+      const newCache = new Map(state.cache);
+      const now = Date.now();
+      
+      for (const [key, item] of newCache.entries()) {
+        if (item.expiry && now > item.expiry) {
+          newCache.delete(key);
+        }
+      }
+      
+      return { cache: newCache };
+    });
   }
 }));
