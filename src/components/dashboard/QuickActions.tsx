@@ -79,24 +79,24 @@ export default function QuickActions({ session }: QuickActionsProps) {
   const actions = getActions();
 
   return (
-    <div className="bg-white/50 backdrop-blur-sm border border-white/20 rounded-2xl p-6 shadow-lg">
-      <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <span>⚡</span>
-        快速操作
+    <div className="bg-white/50 backdrop-blur-sm border border-white/20 rounded-xl lg:rounded-2xl p-4 sm:p-5 lg:p-6 shadow-lg">
+      <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+        <span className="text-lg sm:text-xl">⚡</span>
+        <span className="truncate">快速操作</span>
       </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         {actions.map((action, index) => (
           <Link
             key={index}
             href={action.href}
-            className="group p-4 bg-white rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all duration-200"
+            className="group p-3 sm:p-4 bg-white rounded-lg sm:rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all duration-200"
           >
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 bg-gradient-to-r ${action.color} rounded-lg flex items-center justify-center text-white text-lg shadow-sm`}>
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+              <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r ${action.color} rounded-lg flex items-center justify-center text-white text-base sm:text-lg shadow-sm flex-shrink-0`}>
                 {action.icon}
               </div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+              <div className="flex-1 text-center sm:text-left min-w-0">
+                <h4 className="font-semibold text-xs sm:text-sm lg:text-base text-gray-800 group-hover:text-blue-600 transition-colors truncate">
                   {action.title}
                 </h4>
                 <p className="text-sm text-gray-500">{action.description}</p>

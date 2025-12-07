@@ -14,8 +14,8 @@ export default function RealTimeDisplay() {
   }, []);
 
   return (
-    <div className="text-right ml-4">
-      <div className="text-sm text-gray-500 mb-1">
+    <div className="text-center lg:text-right w-full lg:w-auto">
+      <div className="text-xs sm:text-sm text-muted-foreground mb-1">
         {currentTime.toLocaleDateString('zh-CN', { 
           year: 'numeric', 
           month: 'long', 
@@ -23,7 +23,7 @@ export default function RealTimeDisplay() {
           weekday: 'long'
         })}
       </div>
-      <div className="text-2xl font-bold text-gray-700">
+      <div className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
         {currentTime.toLocaleTimeString('zh-CN', { 
           hour: '2-digit', 
           minute: '2-digit',

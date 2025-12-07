@@ -94,6 +94,13 @@
     overflow-x: hidden;
   }
 
+  /* 移动端优化 */
+  @media (max-width: 768px) {
+    body {
+      font-size: 14px;
+    }
+  }
+
   /* 字体层级系统 */
   .font-display {
     font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -336,6 +343,32 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* 移动端优化 */
+  @media (max-width: 1024px) {
+    .modern-card {
+      padding: 1rem;
+    }
+    
+    h1 {
+      font-size: 1.5rem;
+    }
+    
+    h2 {
+      font-size: 1.25rem;
+    }
+    
+    h3 {
+      font-size: 1.125rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .modern-card {
+      padding: 0.75rem;
+      border-radius: 0.75rem;
     }
   }
 
