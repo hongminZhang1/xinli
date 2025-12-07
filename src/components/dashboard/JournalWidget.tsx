@@ -189,12 +189,12 @@ export default function JournalWidget() {
         {/* 心情选择 */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">今天的心情</label>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
             {moodOptions.map((option) => (
               <button
                 key={option.value}
                 onClick={() => setMood(mood === option.value ? "" : option.value)}
-                className={`px-3 py-1 rounded-full text-sm border transition-colors ${
+                className={`px-2 sm:px-3 py-2 sm:py-1 rounded-full text-xs sm:text-sm border transition-colors ${
                   mood === option.value
                     ? "border-blue-500 bg-blue-50 text-blue-700"
                     : "border-gray-300 hover:bg-gray-50"
@@ -207,7 +207,7 @@ export default function JournalWidget() {
         </div>
 
         {/* 标签输入 */}
-        <div>
+        <div className="hidden sm:block">
           <label className="block text-sm font-medium text-gray-700 mb-2">标签</label>
           <div className="flex flex-wrap gap-2 mb-2">
             {tags.map((tag: string) => (
@@ -233,10 +233,42 @@ export default function JournalWidget() {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+        
+        {/* 移动端简化版标签 */}
+        <div className="block sm:hidden">
+          {tags.length > 0 && (
+            <div className="mb-3">
+              <div className="text-sm text-gray-600 mb-1">标签：</div>
+              <div className="flex flex-wrap gap-1">
+                {tags.map((tag: string) => (
+                  <span
+                    key={tag}
+                    className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs flex items-center gap-1"
+                  >
+                    #{tag}
+                    <button
+                      onClick={() => removeTag(tag)}
+                      className="text-blue-600 hover:text-blue-800 text-xs"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          <input
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyPress={handleTagInputKeyPress}
+            placeholder="添加标签 (可选)"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          />
+        </div>
 
         {/* 可见性选择 */}
-        <div className="flex items-center space-x-4">
-          <label className="flex items-center">
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+          <label className="flex items-center text-sm">
             <input
               type="radio"
               name="visibility"
@@ -246,7 +278,7 @@ export default function JournalWidget() {
             />
             🔒 仅自己可见
           </label>
-          <label className="flex items-center">
+          <label className="flex items-center text-sm">
             <input
               type="radio"
               name="visibility"
@@ -254,7 +286,7 @@ export default function JournalWidget() {
               onChange={() => setIsPrivate(false)}
               className="mr-2"
             />
-            🌍 发布到文章广场
+            🌍 发布到广场
           </label>
         </div>
 
@@ -286,23 +318,23 @@ export default function JournalWidget() {
             journals.map((journal: any) => (
               <div 
                 key={journal.id} 
-                className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                className="border rounded-lg p-3 sm:p-4 hover:bg-gray-50 cursor-pointer transition-colors"
                 onClick={() => handleJournalClick(journal.id)}
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 space-y-1 sm:space-y-0">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-semibold">{journal.title}</h4>
+                    <h4 className="font-semibold text-sm sm:text-base truncate">{journal.title}</h4>
                     {journal.isPrivate ? (
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
-                        🔒 私密
+                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded flex-shrink-0">
+                        🔒
                       </span>
                     ) : (
-                      <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">
-                        🌍 公开
+                      <span className="text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded flex-shrink-0">
+                        🌍
                       </span>
                     )}
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-xs sm:text-sm text-gray-500">
                     {formatDate(journal.createdAt)}
                   </div>
                 </div>
@@ -313,13 +345,14 @@ export default function JournalWidget() {
                   </div>
                 )}
 
-                <div className="text-gray-700 mb-2 line-clamp-3">
+                <div className="text-gray-700 mb-2 line-clamp-2 sm:line-clamp-3 text-sm sm:text-base">
                   {journal.content}
                 </div>
 
+                {/* 桌面端显示标签 */}
                 {Array.isArray(journal.tags) && journal.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-2">
-                    {journal.tags.map((tag: string) => (
+                  <div className="hidden sm:flex flex-wrap gap-1 mb-2">
+                    {journal.tags.slice(0, 3).map((tag: string) => (
                       <span
                         key={tag}
                         className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs"
@@ -327,14 +360,23 @@ export default function JournalWidget() {
                         #{tag}
                       </span>
                     ))}
+                    {journal.tags.length > 3 && (
+                      <span className="text-gray-400 text-xs">+{journal.tags.length - 3}</span>
+                    )}
                   </div>
                 )}
 
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <div className="flex items-center gap-4">
+                <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <span>❤️ {journal.likes}</span>
                     <span>💬 {Array.isArray(journal.comments) ? journal.comments.length : 0}</span>
                   </div>
+                  {/* 移动端显示标签数量 */}
+                  {Array.isArray(journal.tags) && journal.tags.length > 0 && (
+                    <span className="sm:hidden text-xs text-gray-400">
+                      🏷️ {journal.tags.length}
+                    </span>
+                  )}
                 </div>
               </div>
             ))

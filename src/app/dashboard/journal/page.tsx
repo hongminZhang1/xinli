@@ -132,35 +132,36 @@ export default function JournalPage() {
   const userJournals = Array.isArray(journals) ? journals : [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* 页面头部 */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">我的日记</h1>
-          <p className="text-gray-600">记录生活点滴，追踪内心成长</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">我的日记</h1>
+          <p className="text-gray-600 text-sm sm:text-base">记录生活点滴，追踪内心成长</p>
         </div>
         <button
           onClick={() => router.push("/dashboard/journal/new")}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
-          新建日记
+          <span className="hidden sm:inline">新建日记</span>
+          <span className="sm:hidden">写日记</span>
         </button>
       </div>
 
       {/* 日记列表 */}
       <div className="space-y-4">
         {userJournals.length === 0 ? (
-          <Card className="text-center p-12">
+          <Card className="text-center p-6 sm:p-12">
             <div className="mb-4">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Plus className="w-8 h-8 text-blue-600" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Plus className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">还没有日记</h3>
-              <p className="text-gray-500 mb-6">开始记录你的第一篇日记吧</p>
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">还没有日记</h3>
+              <p className="text-gray-500 mb-4 sm:mb-6 text-sm sm:text-base">开始记录你的第一篇日记吧</p>
               <button
                 onClick={() => router.push("/dashboard/journal/new")}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
               >
                 写第一篇日记
               </button>
@@ -170,59 +171,62 @@ export default function JournalPage() {
           userJournals.map((journal: JournalEntry) => (
             <Card 
               key={journal.id} 
-              className="hover:shadow-md transition-shadow"
+              className="hover:shadow-md transition-shadow p-4 sm:p-6"
               onClick={() => handleCardClick(journal.id)}
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3 flex-1">
+              <div className="flex items-start justify-between mb-3 sm:mb-4">
+                <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
                   <Avatar 
                     username={journal.user.name || journal.user.username} 
                     avatar={journal.user.avatar}
                     size="small"
+                    className="flex-shrink-0"
                   />
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 truncate">
                       {journal.title}
                     </h3>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-gray-500">
                       <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {formatDate(journal.createdAt)}
+                        <Calendar className="w-3 h-3 flex-shrink-0" />
+                        <span>{formatDate(journal.createdAt)}</span>
                       </div>
-                      {journal.mood && (
-                        <span>{getMoodDisplay(journal.mood)}</span>
-                      )}
-                      <div className="flex items-center gap-1">
-                        {journal.isPrivate ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                        {journal.isPrivate ? "私密" : "公开"}
+                      <div className="flex items-center gap-2 sm:gap-4">
+                        {journal.mood && (
+                          <span className="flex-shrink-0">{getMoodDisplay(journal.mood)}</span>
+                        )}
+                        <div className="flex items-center gap-1">
+                          {journal.isPrivate ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                          <span>{journal.isPrivate ? "私密" : "公开"}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
                 
                 {/* 操作按钮 */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                   <button
                     onClick={(e) => handleEdit(journal.id, e)}
-                    className="p-1 text-gray-400 hover:text-blue-600 rounded"
+                    className="p-1 sm:p-2 text-gray-400 hover:text-blue-600 rounded"
                   >
-                    <Edit className="w-4 h-4" />
+                    <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                   <button
                     onClick={(e) => handleDelete(journal.id, journal.title, e)}
                     disabled={deleteMutation.isLoading}
-                    className="p-1 text-gray-400 hover:text-red-600 rounded"
+                    className="p-1 sm:p-2 text-gray-400 hover:text-red-600 rounded"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                 </div>
               </div>
 
               {/* 内容预览 */}
-              <div className="mb-4">
-                <p className="text-gray-700 text-sm leading-relaxed" style={{
+              <div className="mb-3 sm:mb-4">
+                <p className="text-gray-700 text-sm sm:text-base leading-relaxed" style={{
                   display: '-webkit-box',
-                  WebkitLineClamp: 3,
+                  WebkitLineClamp: 2,
                   WebkitBoxOrient: 'vertical',
                   overflow: 'hidden'
                 }}>
@@ -232,10 +236,10 @@ export default function JournalPage() {
 
               {/* 标签 */}
               {Array.isArray(journal.tags) && journal.tags.length > 0 && (
-                <div className="flex items-center gap-2 mb-4">
-                  <Tag className="w-3 h-3 text-gray-400" />
+                <div className="flex items-center gap-2">
+                  <Tag className="w-3 h-3 text-gray-400 flex-shrink-0" />
                   <div className="flex items-center gap-1 flex-wrap">
-                    {journal.tags.slice(0, 3).map((tag: string) => (
+                    {journal.tags.slice(0, 2).map((tag: string) => (
                       <span
                         key={tag}
                         className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs"
@@ -243,8 +247,8 @@ export default function JournalPage() {
                         #{tag}
                       </span>
                     ))}
-                    {journal.tags.length > 3 && (
-                      <span className="text-gray-400 text-xs">+{journal.tags.length - 3}</span>
+                    {journal.tags.length > 2 && (
+                      <span className="text-gray-400 text-xs">+{journal.tags.length - 2}</span>
                     )}
                   </div>
                 </div>

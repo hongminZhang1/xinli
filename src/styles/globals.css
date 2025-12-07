@@ -370,6 +370,46 @@
       padding: 0.75rem;
       border-radius: 0.75rem;
     }
+
+    /* 移动端文字优化 */
+    body {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* 移动端按钮优化 */
+    .btn-primary, .btn-secondary, .btn-accent {
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      min-height: 44px; /* 确保触摸目标足够大 */
+    }
+
+    /* 移动端输入框优化 */
+    .modern-input {
+      padding: 0.75rem;
+      font-size: 16px; /* 防止iOS Safari缩放 */
+      min-height: 44px;
+    }
+
+    /* 移动端卡片间距优化 */
+    .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+      margin-top: 1rem;
+    }
+
+    .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+      margin-top: 0.75rem;
+    }
+
+    /* 移动端头像优化 */
+    .avatar-small {
+      width: 32px;
+      height: 32px;
+    }
+
+    .avatar-medium {
+      width: 40px;
+      height: 40px;
+    }
   }
 
   /* 高对比度支持 */

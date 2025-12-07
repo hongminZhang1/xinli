@@ -104,11 +104,12 @@ export default function ArticleSquare() {
 
   return (
     <div className="space-y-6">
-      <Card className="p-4">
+      <Card className="p-3 sm:p-4">
         <div className="text-center">
-          <h3 className="text-lg font-semibold mb-2">文章广场</h3>
-          <p className="text-gray-600">
-            这里是大家分享心情和感受的地方，互相支持，共同成长 💝
+          <h3 className="text-base sm:text-lg font-semibold mb-2">文章广场</h3>
+          <p className="text-gray-600 text-sm sm:text-base">
+            <span className="hidden sm:inline">这里是大家分享心情和感受的地方，互相支持，共同成长 💝</span>
+            <span className="sm:hidden">分享你的心情，互相支持 💝</span>
           </p>
         </div>
       </Card>
@@ -125,25 +126,36 @@ export default function ArticleSquare() {
               onClick={() => handleJournalClick(journal.id)}
               className="cursor-pointer"
             >
-              <Card className="p-4 hover:shadow-md transition-shadow">
-              <div className="flex items-start gap-4">
-                {/* 用户头像 */}
-                <Avatar 
-                  username={getUserDisplayName(journal.user)} 
-                  avatar={journal.user.avatar}
-                  size="medium"
-                  className="flex-shrink-0"
-                />
+              <Card className="p-3 sm:p-4 hover:shadow-md transition-shadow">
+              <div className="flex items-start gap-3">
+                {/* 桌面端显示头像 */}
+                <div className="hidden sm:block flex-shrink-0">
+                  <Avatar 
+                    username={getUserDisplayName(journal.user)} 
+                    avatar={journal.user.avatar}
+                    size="medium"
+                    className="flex-shrink-0"
+                  />
+                </div>
+                
+                {/* 移动端小头像 */}
+                <div className="sm:hidden flex-shrink-0">
+                  <Avatar 
+                    username={getUserDisplayName(journal.user)} 
+                    avatar={journal.user.avatar}
+                    size="small"
+                  />
+                </div>
 
                 {/* 文章信息 */}
                 <div className="flex-1 min-w-0">
                   {/* 标题和心情 */}
                   <div className="flex items-start justify-between mb-2">
-                    <h4 className="text-lg font-semibold text-gray-800 truncate">
+                    <h4 className="text-sm sm:text-lg font-semibold text-gray-800 truncate">
                       {journal.title}
                     </h4>
                     {journal.mood && (
-                      <span className="ml-2 text-lg flex-shrink-0">
+                      <span className="ml-2 text-base sm:text-lg flex-shrink-0">
                         {getMoodDisplay(journal.mood)}
                       </span>
                     )}
@@ -163,32 +175,35 @@ export default function ArticleSquare() {
 
                   {/* 底部信息栏 */}
                   <div className="flex items-center justify-between text-xs text-gray-500">
-                    <div className="flex items-center gap-4">
-                      <span className="font-medium">
+                    <div className="flex items-center gap-2 sm:gap-4">
+                      <span className="font-medium text-xs sm:text-sm">
                         {getUserDisplayName(journal.user)}
                       </span>
-                      <div className="flex items-center gap-1">
+                      <div className="hidden sm:flex items-center gap-1">
                         <Clock className="w-3 h-3" />
+                        {formatDate(journal.createdAt)}
+                      </div>
+                      <div className="sm:hidden text-xs">
                         {formatDate(journal.createdAt)}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <div className="flex items-center gap-1">
                         <Heart className="w-3 h-3" />
-                        {journal.likes}
+                        <span className="text-xs">{journal.likes}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <MessageCircle className="w-3 h-3" />
-                        {journal.commentCount || 0}
+                        <span className="text-xs">{journal.commentCount || 0}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* 标签（只显示前3个）*/}
                   {Array.isArray(journal.tags) && journal.tags.length > 0 && (
-                    <div className="flex items-center gap-1 mt-2">
-                      {journal.tags.slice(0, 3).map((tag: string) => (
+                    <div className="hidden sm:flex items-center gap-1 mt-2">
+                      {journal.tags.slice(0, 2).map((tag: string) => (
                         <span
                           key={tag}
                           className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs"
@@ -196,8 +211,8 @@ export default function ArticleSquare() {
                           #{tag}
                         </span>
                       ))}
-                      {journal.tags.length > 3 && (
-                        <span className="text-gray-400 text-xs">+{journal.tags.length - 3}</span>
+                      {journal.tags.length > 2 && (
+                        <span className="text-gray-400 text-xs">+{journal.tags.length - 2}</span>
                       )}
                     </div>
                   )}
