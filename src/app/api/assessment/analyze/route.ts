@@ -15,37 +15,44 @@ export async function POST(req: Request) {
 
   try {
     const jsonBody = await req.json();
-    const { messages, model = 'deepseek-chat', temperature } = jsonBody;
+    const { assessment, answers, questions } = jsonBody;
 
-    // 定义默认系统提示词 (小晴的人设)
-    const defaultSystemPrompt = {
+    // 构建通过 Prompt 传入的问卷详情
+    let assessmentContext = `问卷名称：${assessment.title}\n描述：${assessment.description}\n\n`;
+    
+    // 构建答题详情
+    let answersContext = "用户的答题情况：\n";
+    questions.forEach((q: any, index: number) => {
+        const answerValue = answers[index]; // 假设 answers 是 key-value: {0: "A", 1: "B"}
+        const selectedOption = q.options.find((opt: any) => opt.value === answerValue);
+        answersContext += `${index + 1}. 问题：${q.text}\n   用户选择：${selectedOption ? selectedOption.text : answerValue}\n`;
+    });
+
+    const systemPrompt = {
       role: "system",
-      content: `你叫“小晴”，是一位专业、温柔且富有同理心的 AI 心理咨询伙伴。
-你的职责是：
-1. **倾听与共情**：耐心倾听用户的烦恼，用温暖、不评判的语言表达理解和接纳（例如：“听到你这么说，我能感觉到你现在很难过...”）。
-2. **专业引导**：运用心理学知识（如认知行为疗法 CBT、正念等）引导用户探索情绪背后的原因，提供建设性的建议，但不要生硬说教。
-3. **安全底线**：如果用户表达出严重的自伤、自杀或伤害他人的倾向，请务必温柔且坚定地建议寻求线下专业医生或危机干预热线的帮助。
-4. **风格要求**：回答要自然、口语化，像朋友一样交谈，避免机器味过重的排比句。不要总是用“首先、其次、最后”，除非在这个场景下非常必要。
-请始终保持“小晴”的身份，用温暖的语气与用户交流。`
+      content: `你是一位专业的心理评估师。用户刚刚完成了一份心理测试。
+你的任务是根据用户的答题情况，生成一份精简的评估报告（300字以内）。
+重点直接给出：
+1. 核心结论（一句话）
+2. 关键特征分析（3点）
+3. 一个最重要的建议
+不要使用复杂的格式，保持简洁明了。`
     };
 
-    // 检查 messages 中是否已经包含 system 角色
-    const hasSystemMessage = messages.some((msg: any) => msg.role === 'system');
+    const userMessage = {
+        role: "user",
+        content: assessmentContext + answersContext
+    };
 
-    // 如果前端没有传 system，则使用默认的
-    const finalMessages = hasSystemMessage ? messages : [defaultSystemPrompt, ...messages];
-
-    // 默认参数
     const requestBody = {
-      model: model,
-      messages: finalMessages,
+      model: 'deepseek-chat', // 默认不使用深度思考
+      messages: [systemPrompt, userMessage],
       stream: true,
-      // 如果是通用对话建议 1.3，代码/数学用 0.0。这里给个默认值，也可以从前端传
-      temperature: temperature ?? 1.3, 
+      temperature: 1.0,
       max_tokens: 4000
     };
 
-    console.log(`Sending request to DeepSeek API: ${DEEPSEEK_BASE_URL}/chat/completions`, { model });
+    console.log(`Sending assessment analysis to DeepSeek API...`);
 
     const response = await fetch(`${DEEPSEEK_BASE_URL}/chat/completions`, {
       method: 'POST',

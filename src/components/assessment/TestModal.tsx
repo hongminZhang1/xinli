@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, ArrowLeft, ArrowRight, CheckCircle, Clock, Target, Sparkles } from "lucide-react";
-import { mbtiQuestions } from "@/lib/assessment-data";
+import { useState, useEffect, useRef } from "react";
+import { X, ArrowLeft, ArrowRight, CheckCircle, Clock, Target, Sparkles, MessageSquare, Send, Brain } from "lucide-react";
+import { getQuestions } from "@/lib/assessment-data";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface TestModalProps {
   test: {
@@ -16,15 +18,34 @@ interface TestModalProps {
   onClose: () => void;
 }
 
+// 定义聊天消息类型
+type ChatMsg = {
+    role: "user" | "assistant" | "system";
+    content: string;
+};
+
 export default function TestModal({ test, onClose }: TestModalProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
   const [showResult, setShowResult] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // 分析相关
+  const [analysisResult, setAnalysisResult] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  // 使用MBTI题目作为示例，限制题目数量用于演示
-  const questions = mbtiQuestions.slice(0, Math.min(test.questions, mbtiQuestions.length));
+  // 对话相关
+  const [chatMessages, setChatMessages] = useState<ChatMsg[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const [useDeepThought, setUseDeepThought] = useState(false); // 是否使用深度思考
+  const chatBottomRef = useRef<HTMLDivElement>(null);
+
+  // 获取对应测试的题目
+  const allQuestions = getQuestions(test.id);
+  const questions = allQuestions.slice(0, Math.min(test.questions, allQuestions.length));
+  
   const progress = ((currentQuestion + 1) / questions.length) * 100;
   const answeredCount = Object.keys(answers).length;
 
@@ -34,6 +55,13 @@ export default function TestModal({ test, onClose }: TestModalProps) {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // 自动滚动到底部
+  useEffect(() => {
+    if (showResult && chatMessages.length > 0) {
+        chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatMessages, showResult, analysisResult]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -52,25 +80,190 @@ export default function TestModal({ test, onClose }: TestModalProps) {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
     } else {
-      // 完成测试
-      setIsSubmitting(true);
-      setTimeout(() => {
-        setIsSubmitting(false);
-        setShowResult(true);
-      }, 1500);
+      handleSubmit();
     }
   };
 
   const handlePrevious = () => {
     if (currentQuestion > 0) {
-      setCurrentQuestion(prev => prev - 1);
+        setCurrentQuestion(prev => prev - 1);
     }
   };
 
-  const handleSubmit = () => {
-    // 这里处理提交逻辑，展示友好的完成消息
-    alert("🎉 测试完成！结果已保存到您的个人档案中。感谢您的参与，祝您心情愉快！");
-    onClose();
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setIsAnalyzing(true);
+    
+    // 构建初始上下文
+    let assessmentContext = `问卷名称：${test.title}\n描述：${test.description}\n\n`;
+    let answersContext = "用户的答题情况：\n";
+    questions.forEach((q: any, index: number) => {
+        const answerValue = answers[index];
+        const selectedOption = q.options.find((opt: any) => opt.value === answerValue);
+        answersContext += `${index + 1}. 问题：${q.text}\n   用户选择：${selectedOption ? selectedOption.text : answerValue}\n`;
+    });
+    
+    // 初始 System Prompt
+    const systemMsg: ChatMsg = {
+        role: "system",
+        content: `你是一位专业的心理评估师。用户刚刚完成了一份心理测试。
+你的任务是根据用户的答题情况，生成一份精简的评估报告。
+随后，你需要作为咨询师与用户进行对话，解答他们的疑问，或者根据他们的请求进行更深入的分析（如果用户开启了深度思考）。`
+    };
+
+    const userMsg: ChatMsg = {
+        role: "user",
+        content: assessmentContext + answersContext
+    };
+
+    // 初始化聊天记录
+    setChatMessages([systemMsg, userMsg]);
+
+    try {
+        const res = await fetch("/api/assessment/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                assessment: test,
+                answers: answers,
+                questions: questions
+            }),
+        });
+
+        if (!res.ok) {
+            throw new Error(`API Error: ${res.statusText}`);
+        }
+
+        setShowResult(true);
+        setIsSubmitting(false);
+
+        const reader = res.body?.getReader();
+        const decoder = new TextDecoder();
+        
+        let fullResult = "";
+
+        if (reader) {
+            let buffer = "";
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                const chunk = decoder.decode(value, { stream: true });
+                buffer += chunk;
+                
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || "";
+                
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed || trimmed === "data: [DONE]") continue;
+                    if (trimmed.startsWith("data: ")) {
+                        try {
+                            const json = JSON.parse(trimmed.slice(6));
+                            const content = json.choices?.[0]?.delta?.content || "";
+                            if (content) {
+                                fullResult += content;
+                                setAnalysisResult(prev => prev + content);
+                            }
+                        } catch (e) {}
+                    }
+                }
+            }
+        }
+        
+        // 分析完成后，将 AI 的回复加入到聊天记录中
+        setChatMessages(prev => [...prev, { role: "assistant", content: fullResult }]);
+
+    } catch (error) {
+        console.error("Analysis failed:", error);
+        alert("分析生成失败，请稍后重试。");
+        onClose();
+    } finally {
+        setIsAnalyzing(false);
+    }
+  };
+
+  const handleSendMessage = async () => {
+      if (!chatInput.trim() || isChatLoading) return;
+      
+      const userInput = chatInput;
+      setChatInput("");
+      setIsChatLoading(true);
+
+      // 添加用户消息
+      const newUserMsg: ChatMsg = { role: "user", content: userInput };
+      const newMessages = [...chatMessages, newUserMsg];
+      setChatMessages(newMessages);
+
+      try {
+        const res = await fetch("/api/chat/deepseek", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                messages: newMessages,
+                model: useDeepThought ? "deepseek-reasoner" : "deepseek-chat"
+            }),
+        });
+
+        if (!res.ok) throw new Error("Chat failed");
+
+        // 创建临时消息用于流式显示
+        const assistantMsgId = String(Date.now());
+        // 我们可以在这里临时增加一个空消息，或者直接用最后一条消息的状态来渲染
+        // 这里简化处理：直接累积到最后一条消息（如果是 assistant）或者新增一条
+        
+        // 为了简单，我们先不实时流式显示到 UI 的对话框中，而是等有了 chunk 就更新
+        // 但是为了体验，我们需要实时更新 chatMessages 末尾的消息
+        
+        // 先加一个空的占位
+        setChatMessages(prev => [...prev, { role: "assistant", content: "" }]);
+
+        const reader = res.body?.getReader();
+        const decoder = new TextDecoder();
+        let assistantContent = "";
+
+        if (reader) {
+             let buffer = "";
+             while(true) {
+                 const { done, value } = await reader.read();
+                 if (done) break;
+                 
+                 const chunk = decoder.decode(value, { stream: true });
+                 buffer += chunk;
+                 const lines = buffer.split('\n');
+                 buffer = lines.pop() || "";
+                 
+                 for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed || trimmed === "data: [DONE]") continue;
+                    if (trimmed.startsWith("data: ")) {
+                        try {
+                            const json = JSON.parse(trimmed.slice(6));
+                            const content = json.choices?.[0]?.delta?.content || "";
+                             // DeepSeek R1 reasoning_content (忽略思考过程的展示，或者直接拼接到最后？这里先只展示 final content)
+                             // 如果需要展示思考过程，需根据 API 返回结构调整
+                            if (content) {
+                                assistantContent += content;
+                                setChatMessages(prev => {
+                                    const last = prev[prev.length - 1];
+                                    if (last.role === "assistant") {
+                                         return [...prev.slice(0, -1), { ...last, content: assistantContent }];
+                                    }
+                                    return prev;
+                                });
+                            }
+                        } catch(e) {}
+                    }
+                 }
+             }
+        }
+
+      } catch (error) {
+          console.error("Chat error:", error);
+          setChatMessages(prev => [...prev, { role: "assistant", content: "抱歉，出错了，请重试。" }]);
+      } finally {
+          setIsChatLoading(false);
+      }
   };
 
   // 加载状态
@@ -96,85 +289,116 @@ export default function TestModal({ test, onClose }: TestModalProps) {
   if (showResult) {
     return (
       <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div className="bg-card/95 backdrop-blur-md rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-xl border border-border/20">
-          {/* 结果页面头部 */}
-          <div className="relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-success/10"></div>
-            <div className="relative p-8 text-center">
-              <div className="mb-6">
-                <div className="relative inline-block">
-                  <div className="w-24 h-24 bg-gradient-to-br from-success to-success/80 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-4 shadow-lg">
-                    <CheckCircle className="w-12 h-12" />
-                  </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-accent rounded-full flex items-center justify-center animate-bounce">
-                    <Sparkles className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-                <h2 className="font-display text-3xl text-foreground mb-3">测试完成！</h2>
-                <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-primary" />
-                    <span>用时 {formatTime(timeElapsed)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Target className="w-4 h-4 text-success" />
-                    <span>完成度 100%</span>
-                  </div>
-                </div>
+        <div className="bg-white/95 backdrop-blur-md rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-xl border border-gray-200">
+          
+          {/* Header */}
+          <div className="flex-shrink-0 flex items-center justify-between p-6 border-b border-gray-100 bg-white/50">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{test.icon}</span>
+              <div>
+                <h2 className="text-xl font-bold text-gray-800">评估分析报告</h2>
+                <p className="text-sm text-gray-500">{test.title}</p>
               </div>
             </div>
+            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+              <X className="w-6 h-6 text-gray-500" />
+            </button>
           </div>
 
-          {/* 结果内容 */}
-          <div className="p-8 space-y-6">
-            <div className="modern-card p-6 space-y-4">
-              <div className="text-center">
-                <h3 className="font-heading text-xl text-foreground mb-3">
-                  {test.title} - 专业分析报告
-                </h3>
-                <div className="text-6xl mb-4 animate-float">{test.icon}</div>
-                <p className="text-muted-foreground leading-relaxed">
-                  感谢您完成心理测评！我们的AI系统已经分析了您的答案，
-                  生成了专属的个性化报告。报告包含您的性格特质分析、优势发现、
-                  成长建议以及个性化的心理健康维护方案。
-                </p>
-              </div>
-            </div>
+          {/* Content Scroll Area */}
+          <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-slate-50/50">
+             
+             {/* 初始分析报告 */}
+             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+                 {analysisResult ? (
+                    <div className="prose prose-blue max-w-none">
+                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {analysisResult}
+                         </ReactMarkdown>
+                    </div>
+                 ) : (
+                    <div className="flex items-center justify-center h-40 text-gray-500">
+                        <span className="animate-pulse">报告生成中...</span>
+                    </div>
+                 )}
+                 {isAnalyzing && (
+                     <div className="mt-4 text-center text-sm text-gray-400 animate-pulse">
+                         正在生成分析...
+                     </div>
+                 )}
+             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-4 modern-card">
-                <div className="font-display text-2xl text-primary mb-1">{questions.length}</div>
-                <div className="text-sm text-muted-foreground">题目总数</div>
-              </div>
-              <div className="text-center p-4 modern-card">
-                <div className="font-display text-2xl text-success mb-1">{answeredCount}</div>
-                <div className="text-sm text-muted-foreground">已完成</div>
-              </div>
-              <div className="text-center p-4 modern-card">
-                <div className="font-display text-2xl text-accent mb-1">A+</div>
-                <div className="text-sm text-muted-foreground">准确度</div>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={onClose}
-                className="flex-1 btn-secondary"
-              >
-                稍后查看
-              </button>
-              <button
-                onClick={handleSubmit}
-                className="flex-1 btn-primary"
-              >
-                查看详细报告
-              </button>
-            </div>
+             {/* 后续对话记录 (跳过前3条: system, user-context, assistant-initial-report) */}
+             {chatMessages.slice(3).map((msg, idx) => (
+                 <div key={idx} className={`flex mb-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                     <div className={`max-w-[80%] p-4 rounded-2xl ${
+                         msg.role === 'user' 
+                         ? 'bg-blue-600 text-white rounded-br-none' 
+                         : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none shadow-sm'
+                     }`}>
+                         <div className={`prose prose-sm max-w-none ${msg.role === 'user' ? 'prose-invert' : ''}`}>
+                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                 {msg.content}
+                             </ReactMarkdown>
+                         </div>
+                     </div>
+                 </div>
+             ))}
+             
+             {isChatLoading && (
+                 <div className="flex justify-start mb-4">
+                     <div className="bg-white p-4 rounded-2xl rounded-bl-none border border-gray-200 shadow-sm flex items-center gap-2">
+                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                     </div>
+                 </div>
+             )}
+             
+             <div ref={chatBottomRef} />
           </div>
+          
+          {/* Chat Input Area */}
+          <div className="flex-shrink-0 p-6 border-t border-gray-100 bg-white">
+              <div className="flex items-center justify-between mb-3 px-1">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full cursor-pointer hover:bg-gray-200 transition-colors"
+                         onClick={() => setUseDeepThought(!useDeepThought)}>
+                        <Brain className={`w-4 h-4 ${useDeepThought ? 'text-purple-600' : 'text-gray-400'}`} />
+                        <span className={`text-xs font-medium ${useDeepThought ? 'text-purple-700' : 'text-gray-500'}`}>
+                            深度思考 {useDeepThought ? '已开启' : '已关闭'}
+                        </span>
+                    </div>
+                  </div>
+              </div>
+              
+              <div className="relative">
+                  <input
+                    type="text"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && !isChatLoading && handleSendMessage()}
+                    placeholder="对结果有疑问？可以继续向我提问..."
+                    className="w-full pl-4 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    disabled={isChatLoading || isAnalyzing}
+                  />
+                  <button
+                    onClick={handleSendMessage}
+                    disabled={!chatInput.trim() || isChatLoading || isAnalyzing}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+              </div>
+          </div>
+
         </div>
       </div>
     );
   }
+
+
+
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">

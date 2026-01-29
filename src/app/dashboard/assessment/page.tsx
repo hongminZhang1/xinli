@@ -32,25 +32,6 @@ export default function AssessmentPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* 顶部欢迎区 */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl text-white">
-              <Brain className="w-8 h-8" />
-            </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
-              心理评估
-            </h1>
-          </div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            探索内心世界，遇见更好的自己 ✨
-          </p>
-          <p className="text-sm text-gray-500 mt-2">
-            科学的心理测评工具，帮助你更深入地了解自己的性格、情绪和潜能
-          </p>
-        </div>
-
         {/* 今日推荐测试 */}
         <div className="mb-12">
           <div className="flex items-center gap-2 mb-6">
@@ -95,11 +76,6 @@ export default function AssessmentPage() {
                     <div className="w-full h-48 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
                       <div className="text-6xl opacity-80">{todayRecommended.icon}</div>
                     </div>
-                    {session?.user && todayRecommended.completed && (
-                      <div className="absolute -top-2 -right-2 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg">
-                        ✓ 已完成
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -166,10 +142,8 @@ export default function AssessmentPage() {
               📋 测试说明
             </h3>
             <div className="text-gray-600 space-y-2 text-sm leading-relaxed">
-              <p>• 所有测试基于心理学理论设计，仅供自我了解参考</p>
-              <p>• 请在安静的环境下认真作答，确保测试结果的准确性</p>
-              <p>• 测试结果会保存在您的个人档案中，可随时查看</p>
-              <p>• 如需专业心理咨询，请联系我们的专业心理咨询师</p>
+              <p>所有测试基于心理学理论设计，仅供自我了解参考</p>
+              <p>如需专业心理咨询，请联系我们的专业心理咨询师</p>
             </div>
           </div>
         </div>

@@ -41,9 +41,9 @@ export const allAssessments = [
     description: "基于荣格心理学理论，探索你的性格类型。了解你是内向还是外向，更偏向感觉还是直觉，思考还是情感，判断还是感知。",
     icon: "🔮",
     category: "personality",
-    duration: "15-20分钟",
-    questions: 10, // 调整为实际可用的题目数量
-    participants: 125680,
+    duration: "3分钟",
+    questions: 5,
+    participants: 342,
     difficulty: "medium",
     tags: ["性格", "职场", "人际关系"],
     completed: false
@@ -54,9 +54,9 @@ export const allAssessments = [
     description: "科学权威的人格测试，从开放性、责任心、外向性、亲和性、神经质五个维度全面分析你的性格。",
     icon: "⭐",
     category: "personality",
-    duration: "12-15分钟",
-    questions: 10,
-    participants: 89432,
+    duration: "4分钟",
+    questions: 5,
+    participants: 215,
     difficulty: "easy",
     tags: ["科学", "权威", "全面"],
     completed: true
@@ -67,9 +67,9 @@ export const allAssessments = [
     description: "深入了解你的社交能量来源，是从独处中获得能量还是从与他人互动中充电。",
     icon: "🌓",
     category: "personality",
-    duration: "8-10分钟",
-    questions: 10,
-    participants: 156789,
+    duration: "3分钟",
+    questions: 5,
+    participants: 456,
     difficulty: "easy",
     tags: ["内向", "外向", "社交"],
     completed: false
@@ -80,9 +80,9 @@ export const allAssessments = [
     description: "古老而深刻的人格分析系统，帮你发现内在动机、恐惧和欲望，找到成长的方向。",
     icon: "🎭",
     category: "personality",
-    duration: "18-25分钟",
-    questions: 10,
-    participants: 67543,
+    duration: "5分钟",
+    questions: 5,
+    participants: 128,
     difficulty: "hard",
     tags: ["深度", "成长", "自我认知"],
     completed: false
@@ -95,9 +95,9 @@ export const allAssessments = [
     description: "科学评估你的情绪状态，及早发现抑郁倾向，关爱自己的心理健康。",
     icon: "🌧️",
     category: "emotion",
-    duration: "5-8分钟",
-    questions: 10,
-    participants: 234567,
+    duration: "3分钟",
+    questions: 5,
+    participants: 892,
     difficulty: "easy",
     tags: ["情绪", "健康", "自测"],
     completed: false
@@ -108,9 +108,9 @@ export const allAssessments = [
     description: "评估你的焦虑水平，了解焦虑对日常生活的影响程度，学会更好地管理焦虑情绪。",
     icon: "😰",
     category: "emotion",
-    duration: "6-10分钟",
-    questions: 10,
-    participants: 198765,
+    duration: "3分钟",
+    questions: 5,
+    participants: 675,
     difficulty: "easy",
     tags: ["焦虑", "管理", "缓解"],
     completed: false
@@ -121,9 +121,9 @@ export const allAssessments = [
     description: "测试你的情绪智力，包括自我觉察、情绪管理、社会觉察和人际关系管理四个方面。",
     icon: "💡",
     category: "emotion",
-    duration: "15-18分钟",
-    questions: 10,
-    participants: 145623,
+    duration: "4分钟",
+    questions: 5,
+    participants: 432,
     difficulty: "medium",
     tags: ["情商", "智力", "管理"],
     completed: false
@@ -134,9 +134,9 @@ export const allAssessments = [
     description: "评估你的生活满意度和主观幸福感，发现提升生活质量的关键因素。",
     icon: "😊",
     category: "emotion",
-    duration: "10-12分钟",
-    questions: 10,
-    participants: 187432,
+    duration: "3分钟",
+    questions: 5,
+    participants: 567,
     difficulty: "easy",
     tags: ["幸福", "满意度", "生活质量"],
     completed: true
@@ -149,9 +149,9 @@ export const allAssessments = [
     description: "经典的职业测评工具，从六种职业兴趣类型分析你的职业倾向和适合的工作环境。",
     icon: "💼",
     category: "career",
-    duration: "12-15分钟",
-    questions: 10,
-    participants: 298765,
+    duration: "4分钟",
+    questions: 5,
+    participants: 321,
     difficulty: "medium",
     tags: ["职业", "兴趣", "规划"],
     completed: false
@@ -162,9 +162,9 @@ export const allAssessments = [
     description: "了解你的领导特质和管理风格，发现你在团队中的角色定位和影响力模式。",
     icon: "👑",
     category: "career",
-    duration: "10-15分钟",
-    questions: 10,
-    participants: 123456,
+    duration: "3分钟",
+    questions: 5,
+    participants: 145,
     difficulty: "medium",
     tags: ["领导力", "管理", "团队"],
     completed: false
@@ -175,9 +175,9 @@ export const allAssessments = [
     description: "探索你在工作中最看重的价值，帮助你选择与内心价值观一致的职业道路。",
     icon: "💎",
     category: "career",
-    duration: "8-12分钟",
-    questions: 10,
-    participants: 176543,
+    duration: "3分钟",
+    questions: 5,
+    participants: 234,
     difficulty: "easy",
     tags: ["价值观", "选择", "匹配"],
     completed: false
@@ -190,9 +190,9 @@ export const allAssessments = [
     description: "了解你在亲密关系中的依恋模式，改善人际关系和情感沟通。",
     icon: "💕",
     category: "social",
-    duration: "10-15分钟",
-    questions: 10,
-    participants: 134567,
+    duration: "3分钟",
+    questions: 5,
+    participants: 421,
     difficulty: "medium",
     tags: ["依恋", "关系", "沟通"],
     completed: false
@@ -203,9 +203,9 @@ export const allAssessments = [
     description: "发现你的沟通偏好和表达方式，提升人际交往的有效性和和谐度。",
     icon: "💬",
     category: "social",
-    duration: "8-12分钟",
-    questions: 10,
-    participants: 167890,
+    duration: "3分钟",
+    questions: 5,
+    participants: 356,
     difficulty: "easy",
     tags: ["沟通", "表达", "人际"],
     completed: false
@@ -216,9 +216,9 @@ export const allAssessments = [
     description: "全面评估你的社交技能，包括倾听、共情、冲突解决和团队合作等方面。",
     icon: "🎪",
     category: "social",
-    duration: "12-18分钟",
-    questions: 10,
-    participants: 198234,
+    duration: "5分钟",
+    questions: 5,
+    participants: 198,
     difficulty: "medium",
     tags: ["社交", "技能", "合作"],
     completed: false
@@ -231,9 +231,9 @@ export const allAssessments = [
     description: "评估你当前的压力状况，了解压力来源和对生活的影响程度。",
     icon: "⚖️",
     category: "stress",
-    duration: "6-10分钟",
-    questions: 10,
-    participants: 245678,
+    duration: "3分钟",
+    questions: 5,
+    participants: 789,
     difficulty: "easy",
     tags: ["压力", "状况", "影响"],
     completed: false
@@ -244,9 +244,9 @@ export const allAssessments = [
     description: "了解你处理压力的策略和模式，学会更健康有效的压力管理方法。",
     icon: "🛡️",
     category: "stress",
-    duration: "10-15分钟",
-    questions: 10,
-    participants: 176543,
+    duration: "4分钟",
+    questions: 5,
+    participants: 267,
     difficulty: "medium",
     tags: ["应对", "策略", "管理"],
     completed: true
@@ -257,9 +257,9 @@ export const allAssessments = [
     description: "测试你面对挫折和困难时的恢复能力，提升心理抗压和适应能力。",
     icon: "🌱",
     category: "stress",
-    duration: "12-15分钟",
-    questions: 10,
-    participants: 134567,
+    duration: "4分钟",
+    questions: 5,
+    participants: 156,
     difficulty: "medium",
     tags: ["韧性", "恢复", "适应"],
     completed: false
@@ -270,17 +270,17 @@ export const allAssessments = [
     description: "评估工作中的疲惫感和倦怠程度，预防职业倦怠，维护工作热情。",
     icon: "🔥",
     category: "stress",
-    duration: "8-12分钟",
-    questions: 10,
-    participants: 187654,
+    duration: "3分钟",
+    questions: 5,
+    participants: 345,
     difficulty: "easy",
     tags: ["倦怠", "工作", "热情"],
     completed: false
   }
 ];
 
-// 测试题目示例 - MBTI（简化版演示）
-export const mbtiQuestions = [
+// 题目定义
+const mbtiQuestionsList = [
   {
     id: 1,
     text: "在聚会中，你更倾向于：",
@@ -320,48 +320,131 @@ export const mbtiQuestions = [
       { value: "E", text: "主动分享想法，推动讨论" },
       { value: "I", text: "先思考再发言，提供深思熟虑的观点" }
     ]
-  },
+  }
+];
+
+const sdsQuestionsList = [
   {
-    id: 6,
-    text: "学习新知识时，你更喜欢：",
+    id: 1,
+    text: "我觉得闷闷不乐，情绪低沉",
     options: [
-      { value: "S", text: "从基础开始，循序渐进" },
-      { value: "N", text: "先了解整体概念和联系" }
+      { value: "1", text: "没有或很少时间" },
+      { value: "2", text: "小部分时间" },
+      { value: "3", text: "相当多时间" },
+      { value: "4", text: "绝大部分或全部时间" }
     ]
   },
   {
-    id: 7,
-    text: "面对冲突时，你更倾向于：",
+    id: 2,
+    text: "我觉得一天之中早晨最好",
     options: [
-      { value: "T", text: "客观分析问题，寻求公正解决" },
-      { value: "F", text: "考虑各方感受，寻求和谐解决" }
+      { value: "4", text: "没有或很少时间" },
+      { value: "3", text: "小部分时间" },
+      { value: "2", text: "相当多时间" },
+      { value: "1", text: "绝大部分或全部时间" }
     ]
   },
   {
-    id: 8,
-    text: "对于假期安排，你更喜欢：",
+    id: 3,
+    text: "我一阵阵哭出来或觉得想哭",
     options: [
-      { value: "J", text: "提前规划，按计划执行" },
-      { value: "P", text: "保持开放，随机应变" }
+      { value: "1", text: "没有或很少时间" },
+      { value: "2", text: "小部分时间" },
+      { value: "3", text: "相当多时间" },
+      { value: "4", text: "绝大部分或全部时间" }
     ]
   },
   {
-    id: 9,
-    text: "工作时，你更容易：",
+    id: 4,
+    text: "我晚上睡眠不好",
     options: [
-      { value: "E", text: "在有人的环境中保持活力" },
-      { value: "I", text: "在安静的环境中集中注意力" }
+      { value: "1", text: "没有或很少时间" },
+      { value: "2", text: "小部分时间" },
+      { value: "3", text: "相当多时间" },
+      { value: "4", text: "绝大部分或全部时间" }
     ]
   },
   {
-    id: 10,
-    text: "对于未来，你更关注：",
+    id: 5,
+    text: "我吃得跟平常一样多",
     options: [
-      { value: "S", text: "具体的目标和实际步骤" },
-      { value: "N", text: "可能性和长远愿景" }
+      { value: "4", text: "没有或很少时间" },
+      { value: "3", text: "小部分时间" },
+      { value: "2", text: "相当多时间" },
+      { value: "1", text: "绝大部分或全部时间" }
     ]
   }
 ];
+
+const sasQuestionsList = [
+    {
+      id: 1,
+      text: "我觉得比平常容易紧张和着急",
+      options: [
+        { value: "1", text: "没有或很少时间" },
+        { value: "2", text: "小部分时间" },
+        { value: "3", text: "相当多时间" },
+        { value: "4", text: "绝大部分或全部时间" }
+      ]
+    },
+    {
+      id: 2,
+      text: "我无缘无故地感到害怕",
+      options: [
+        { value: "1", text: "没有或很少时间" },
+        { value: "2", text: "小部分时间" },
+        { value: "3", text: "相当多时间" },
+        { value: "4", text: "绝大部分或全部时间" }
+      ]
+    },
+    {
+      id: 3,
+      text: "我容易心里烦乱或觉得惊恐",
+      options: [
+        { value: "1", text: "没有或很少时间" },
+        { value: "2", text: "小部分时间" },
+        { value: "3", text: "相当多时间" },
+        { value: "4", text: "绝大部分或全部时间" }
+      ]
+    },
+    {
+      id: 4,
+      text: "我觉得我可能将要发疯",
+      options: [
+        { value: "1", text: "没有或很少时间" },
+        { value: "2", text: "小部分时间" },
+        { value: "3", text: "相当多时间" },
+        { value: "4", text: "绝大部分或全部时间" }
+      ]
+    },
+    {
+      id: 5,
+      text: "我觉得一切都很好，也不会发生什么不幸",
+      options: [
+        { value: "4", text: "没有或很少时间" },
+        { value: "3", text: "小部分时间" },
+        { value: "2", text: "相当多时间" },
+        { value: "1", text: "绝大部分或全部时间" }
+      ]
+    }
+];
+
+// 题目映射表
+const questionMap:Record<string, typeof mbtiQuestionsList> = {
+    "mbti": mbtiQuestionsList,
+    "depression_scale": sdsQuestionsList,
+    "anxiety_test": sasQuestionsList,
+    "default": mbtiQuestionsList
+};
+
+// 获取题目的函数
+export const getQuestions = (testId: string) => {
+    return questionMap[testId] || questionMap["default"];
+};
+
+// 保持兼容性导出
+export const mbtiQuestions = mbtiQuestionsList;
+
 
 // 测试结果示例
 export const mbtiResults = {

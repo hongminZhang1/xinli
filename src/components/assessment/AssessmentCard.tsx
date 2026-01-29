@@ -50,16 +50,6 @@ export default function AssessmentCard({ assessment, onStartTest, isCompleted = 
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* 完成标识 */}
-      {isCompleted && (
-        <div className="absolute top-4 right-4 z-10">
-          <div className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg flex items-center gap-1">
-            <CheckCircle className="w-3 h-3" />
-            已完成
-          </div>
-        </div>
-      )}
-
       {/* 卡片内容 */}
       <div className="p-6">
         {/* 头部图标区 */}
@@ -138,7 +128,7 @@ export default function AssessmentCard({ assessment, onStartTest, isCompleted = 
                 : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
             } transform hover:scale-105 shadow-lg hover:shadow-xl`}
           >
-            {isCompleted ? "查看报告" : "开始测试"}
+            {isCompleted ? "开始测试" : "开始测试"}
           </button>
         </div>
       </div>
