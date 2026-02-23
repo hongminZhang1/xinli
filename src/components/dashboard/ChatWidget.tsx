@@ -66,12 +66,13 @@ export default function ChatWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  async function send() {
-    if (!input.trim() || isLoading) return;
+  async function send(text?: string | React.MouseEvent | React.KeyboardEvent) {
+    const messageText = typeof text === 'string' ? text : input;
+    if (!messageText.trim() || isLoading) return;
 
-    const userMsg: Msg = { id: String(Date.now()), role: "user", content: input };
+    const userMsg: Msg = { id: String(Date.now()), role: "user", content: messageText };
     setMessages((prev) => [...prev, userMsg]);
-    setInput("");
+    if (typeof text !== 'string') setInput("");
     setIsLoading(true);
 
     try {
@@ -173,11 +174,33 @@ export default function ChatWidget() {
     <Card className="flex flex-col h-[700px] border-none shadow-xl bg-white/80 backdrop-blur-sm">
       <div className="flex-1 overflow-y-auto space-y-6 p-4 bg-slate-50/50 custom-scrollbar rounded-t-xl">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-0 animate-fadeIn" style={{ animationFillMode: 'forwards' }}>
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-3xl">🤖</div>
-            <div className="max-w-xs space-y-2">
-              <p className="font-semibold text-slate-800 text-lg">你好，我是小晴。</p>
-              <p className="text-sm text-slate-500 leading-relaxed">我是你的专属心理倾听伙伴。无论是开心还是难过，我都在这里陪着你。你可以把这里当作树洞，告诉我任何你想说的话。</p>
+          <div className="flex flex-col items-center justify-center h-full text-center space-y-6 opacity-0 animate-fadeIn" style={{ animationFillMode: 'forwards' }}>
+            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-4xl shadow-sm">🤖</div>
+            <div className="max-w-md space-y-3">
+              <p className="font-semibold text-slate-800 text-xl">你好，我是你的心理助手小晴 ✨</p>
+              <p className="text-sm text-slate-500 leading-relaxed">
+                我是你的专属心理倾听伙伴。无论是开心还是难过，我都在这里陪着你。你可以把这里当作树洞，告诉我任何你想说的话。
+              </p>
+            </div>
+            
+            <div className="w-full max-w-md mt-8">
+              <p className="text-xs text-slate-400 mb-3 font-medium uppercase tracking-wider">你可以试着问我：</p>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  "我最近总是感到很焦虑，该怎么办？",
+                  "晚上经常失眠，脑子里总是在想事情...",
+                  "如何缓解工作/学习带来的压力？",
+                  "我觉得自己很难和别人建立亲密关系。"
+                ].map((prompt, index) => (
+                  <button
+                    key={index}
+                    onClick={() => send(prompt)}
+                    className="text-left px-4 py-3 text-sm text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all duration-200 shadow-sm"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
