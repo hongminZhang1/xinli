@@ -3,7 +3,7 @@
 import Link from "next/link";
 import UserNav from "./UserNav";
 import { useSession } from "next-auth/react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, BrainCircuit, Sparkles } from "lucide-react";
 import { useState } from "react";
 import MobileSidebar from "./MobileSidebar";
 
@@ -29,8 +29,14 @@ export default function Header() {
               )}
             </button>
             
-            <Link href="/dashboard" className="font-display text-lg md:text-xl font-bold text-primary">
-              心晴驿站
+            <Link href="/dashboard" className="flex items-center gap-2 transition-opacity hover:opacity-90">
+              <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-primary to-primary-400 text-white shadow-lg shadow-primary/20">
+                <BrainCircuit className="h-5 w-5" />
+                <Sparkles className="absolute -right-1 -top-1 h-3 w-3 text-yellow-300" />
+              </div>
+              <span className="font-display text-lg font-bold text-gray-900 md:text-xl">
+                心晴驿站
+              </span>
             </Link>
           </div>
 

@@ -150,183 +150,239 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
-
-        {/* 快速操作区域 */}
-        <QuickActions session={session} />
       </section>
 
-      {/* 主要内容区域 */}
-      <section className="space-y-4 lg:space-y-6">
-        <div className={`grid gap-4 lg:gap-6 ${session?.user?.role === 'ADMIN' ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
+      {/* 核心功能网格 */}
+      <section className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* 统计概览卡片 */}
-          <div className={`modern-card p-4 sm:p-5 lg:p-6 space-y-4 lg:space-y-6 ${session?.user?.role === 'ADMIN' ? 'lg:col-span-2' : ''}`}>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-accent rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
-                <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-              </div>
-              <div className="min-w-0">
-                <h2 className="font-heading text-base sm:text-lg lg:text-xl text-foreground truncate">成长数据</h2>
-                <p className="text-xs sm:text-sm text-muted-foreground truncate">记录你的心理健康成长轨迹</p>
-              </div>
-            </div>
+          {/* 左侧主要区域 */}
+          <div className="lg:col-span-2 space-y-6">
             
-            <div className="grid grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-              <div className="text-center space-y-1.5 sm:space-y-2">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 bg-primary/10 rounded-xl lg:rounded-2xl flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                  <Heart className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-primary" />
+            {/* 快速操作 & 成长数据 组合卡片 */}
+            <div className="modern-card p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-lg font-bold font-display">成长概览</h2>
+                  <p className="text-sm text-muted-foreground">你好，这是你今天的心理成长状态</p>
                 </div>
-                <div className="font-display text-lg sm:text-xl lg:text-2xl text-foreground">7</div>
-                <div className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground">本周情绪</div>
-                <div className="w-full bg-muted rounded-full h-1.5 sm:h-2">
-                  <div className="bg-primary rounded-full h-1.5 sm:h-2 transition-all duration-500" style={{ width: '70%' }}></div>
-                </div>
-              </div>
-              
-              <div className="text-center space-y-1.5 sm:space-y-2">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 bg-success/10 rounded-xl lg:rounded-2xl flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                  <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-success" />
-                </div>
-                <div className="font-display text-lg sm:text-xl lg:text-2xl text-foreground">15</div>
-                <div className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground">AI对话</div>
-                <div className="w-full bg-muted rounded-full h-1.5 sm:h-2">
-                  <div className="bg-success rounded-full h-1.5 sm:h-2 transition-all duration-500" style={{ width: '85%' }}></div>
-                </div>
-              </div>
-              
-              <div className="text-center space-y-1.5 sm:space-y-2">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 bg-accent/10 rounded-xl lg:rounded-2xl flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                  <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-accent" />
-                </div>
-                <div className="font-display text-lg sm:text-xl lg:text-2xl text-foreground">3</div>
-                <div className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground">成长日记</div>
-                <div className="w-full bg-muted rounded-full h-1.5 sm:h-2">
-                  <div className="bg-accent rounded-full h-1.5 sm:h-2 transition-all duration-500" style={{ width: '45%' }}></div>
+                <div className="flex gap-3">
+                   <Link 
+                     href="/dashboard/emotions" 
+                     className="group flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-primary-600 text-white rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
+                   >
+                    <span className="text-lg group-hover:scale-110 transition-transform">📊</span>
+                    <span className="font-medium">记录情绪</span>
+                  </Link>
+                  <Link 
+                    href="/dashboard/chat" 
+                    className="group flex items-center gap-2 px-5 py-2.5 bg-white border border-border/50 text-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
+                  >
+                    <span className="text-lg group-hover:scale-110 transition-transform">💬</span>
+                    <span className="font-medium">开始对话</span>
+                  </Link>
                 </div>
               </div>
-            </div>
 
-            {/* 成长趋势 */}
-            <div className="pt-4 lg:pt-6 border-t border-border/20">
-              <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <h3 className="font-heading text-sm sm:text-base lg:text-lg text-foreground">本周成长趋势</h3>
-                <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-success">
-                  <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span>+12%</span>
-                </div>
-              </div>
-              <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
-                {['一', '二', '三', '四', '五', '六', '日'].map((day, index) => (
-                  <div key={day} className="text-center">
-                    <div className="text-[10px] sm:text-xs text-muted-foreground mb-1.5 sm:mb-2">{day}</div>
-                    <div 
-                      className="w-full bg-primary/20 rounded-full"
-                      style={{ height: `${20 + Math.random() * 30}px` }}
-                    >
-                      <div 
-                        className="w-full bg-gradient-to-t from-primary to-accent rounded-full"
-                        style={{ height: '100%' }}
-                      ></div>
+              {/* 数据展示 */}
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="p-4 rounded-2xl bg-muted/30 border border-border/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center text-pink-600">
+                      <Heart size={18} />
                     </div>
+                    <span className="text-sm font-medium text-muted-foreground">本周情绪</span>
                   </div>
-                ))}
+                  <div className="text-3xl font-bold font-display">7</div>
+                  <div className="mt-2 h-1.5 w-full bg-pink-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-pink-500 w-[70%] rounded-full" />
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-muted/30 border border-border/50">
+                   <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+                      <MessageCircle size={18} />
+                    </div>
+                    <span className="text-sm font-medium text-muted-foreground">AI对话</span>
+                  </div>
+                  <div className="text-3xl font-bold font-display">15</div>
+                  <div className="mt-2 h-1.5 w-full bg-blue-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-500 w-[85%] rounded-full" />
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-muted/30 border border-border/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600">
+                      <BookOpen size={18} />
+                    </div>
+                    <span className="text-sm font-medium text-muted-foreground">成长日记</span>
+                  </div>
+                  <div className="text-3xl font-bold font-display">3</div>
+                  <div className="mt-2 h-1.5 w-full bg-amber-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-amber-500 w-[45%] rounded-full" />
+                  </div>
+                </div>
+              </div>
+
+              {/* 趋势图表 */}
+              <div className="pt-6 border-t border-border/50">
+                 <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="font-heading text-base text-foreground">本周成长趋势</h3>
+                    <p className="text-xs text-muted-foreground mt-1">记录你的情绪变化</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 text-xs font-semibold text-green-600 border border-green-100">
+                    <TrendingUp size={14} />
+                    <span>+12% 相比上周</span>
+                  </div>
+                </div>
+                
+                <div className="relative h-40">
+                   {/* 背景网格线 */}
+                  <div className="absolute inset-x-0 inset-y-4 flex flex-col justify-between text-xs text-muted-foreground/30 pointer-events-none z-0">
+                     <div className="border-b border-dashed border-border/40 w-full h-full"></div>
+                     <div className="border-b border-dashed border-border/40 w-full h-full"></div>
+                     <div className="border-b border-dashed border-border/40 w-full h-full"></div>
+                  </div>
+
+                  <div className="absolute inset-0 flex items-end justify-between px-2 pt-4">
+                    {['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map((day, i) => {
+                       const height = [35, 55, 45, 70, 60, 85, 50][i];
+                       // 根据高度显示不同的颜色状态
+                       let bgColor = "bg-primary/80";
+                       if(height < 40) bgColor = "bg-orange-400";
+                       else if(height > 75) bgColor = "bg-green-500";
+                       else bgColor = "bg-blue-500";
+
+                       return (
+                        <div key={day} className="flex flex-col items-center gap-2 group w-full relative z-10 h-full justify-end">
+                           {/* Tooltip */}
+                          <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 bg-popover text-popover-foreground text-[10px] px-2 py-1 rounded shadow-lg border border-border pointer-events-none whitespace-nowrap z-30">
+                             {height}分
+                          </div>
+
+                          <div className="relative w-2.5 sm:w-3 md:w-3.5 h-[80%] bg-muted/20 rounded-full overflow-hidden flex items-end">
+                             <div 
+                              className={`w-full rounded-full transition-all duration-500 ease-out group-hover:opacity-90 ${bgColor}`}
+                              style={{ height: `${height}%` }}
+                            />
+                          </div>
+                          <span className="text-[10px] sm:text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">{day.replace('周', '')}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          
-          {/* API状态组件 - 只对管理员显示 */}
-          {session?.user?.role === 'ADMIN' && (
-            <div>
-              <ApiStatusWidget />
-            </div>
-          )}
 
-          {/* 今日目标卡片 - 非管理员显示 */}
-          {session?.user?.role !== 'ADMIN' && (
-            <div className="modern-card p-4 sm:p-5 lg:p-6 space-y-3 sm:space-y-4">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-success to-success/80 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Award className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+          {/* 右侧边栏区域 */}
+          <div className="space-y-4"> {/* space-y-6 -> space-y-4 */}
+            
+            {/* 今日目标 */}
+            <div className="modern-card p-4 sm:p-5 bg-gradient-to-b from-card to-muted/20">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                    <Award size={18} />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-bold font-display">今日目标</h2>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <h3 className="font-heading text-base sm:text-lg text-foreground truncate">今日目标</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">小步前进，温暖成长</p>
-                </div>
-              </div>
-              
-              <div className="space-y-2 sm:space-y-3">
-                <div className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-success/5 rounded-lg sm:rounded-xl">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-success rounded-full flex-shrink-0"></div>
-                  <span className="text-xs sm:text-sm text-foreground">记录今天的心情</span>
-                </div>
-                <div className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-primary/5 rounded-lg sm:rounded-xl">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full flex-shrink-0"></div>
-                  <span className="text-xs sm:text-sm text-foreground">与AI伙伴聊聊天</span>
-                </div>
-                <div className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-accent/5 rounded-lg sm:rounded-xl">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-accent rounded-full flex-shrink-0"></div>
-                  <span className="text-xs sm:text-sm text-foreground">完成一次心理测评</span>
+                {/* 完成度移到这里 */}
+                <div className="flex flex-col items-end">
+                   <span className="text-xs font-medium text-muted-foreground">完成度 <span className="text-primary font-bold">33%</span></span>
+                   <div className="h-1.5 w-16 bg-muted rounded-full overflow-hidden mt-1">
+                      <div className="h-full bg-primary w-1/3 rounded-full" />
+                   </div>
                 </div>
               </div>
-              
-              <div className="pt-3 sm:pt-4 border-t border-border/20">
-                <div className="flex items-center justify-between text-xs sm:text-sm">
-                  <span className="text-muted-foreground">今日完成度</span>
-                  <span className="font-medium text-success">33%</span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-1.5 sm:h-2 mt-2">
-                  <div className="bg-gradient-to-r from-success to-success/80 rounded-full h-1.5 sm:h-2 transition-all duration-500" style={{ width: '33%' }}></div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
 
-        {/* 最近活动 */}
-        <div className="modern-card p-4 sm:p-5 lg:p-6">
-          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-accent to-accent/80 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
-              <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="font-heading text-base sm:text-lg text-foreground truncate">最近活动</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground truncate">记录你的成长足迹</p>
-            </div>
-          </div>
-          
-          <div className="space-y-3 sm:space-y-4">
-            <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-primary/5 rounded-lg sm:rounded-xl">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-1">
-                <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+               <div className="space-y-2">
+                 {/* 目标列表 */}
+                <div className="flex items-center gap-2.5 p-2 rounded-lg bg-background border border-border/50 shadow-sm">
+                   <div className="w-4 h-4 rounded-full border-2 border-primary flex items-center justify-center flex-shrink-0">
+                     <div className="w-2 h-2 rounded-full bg-primary" />
+                   </div>
+                   <span className="text-xs sm:text-sm line-through text-muted-foreground">记录今天的心情</span>
+                </div>
+                
+                 <div className="flex items-center gap-2.5 p-2 rounded-lg bg-background border border-border/50 shadow-sm">
+                   <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center flex-shrink-0">
+                   </div>
+                   <span className="text-xs sm:text-sm">与AI伙伴聊聊天</span>
+                </div>
+
+                <div className="flex items-center gap-2.5 p-2 rounded-lg bg-background border border-border/50 shadow-sm">
+                    <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center flex-shrink-0">
+                   </div>
+                   <span className="text-xs sm:text-sm">完成一次心理测评</span>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm text-foreground font-medium">记录了情绪状态</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-2">今天感觉心情不错，和朋友聊天很开心</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">2小时前</p>
+            </div>
+
+            {/* 最近活动 */}
+            <div className="modern-card p-4 sm:p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-base font-bold font-display">最近活动</h2>
+                </div>
+                <Link href="/dashboard/history" className="text-sm text-primary hover:underline font-medium">查看全部</Link>
+              </div>
+
+              <div className="space-y-3">
+                 <div className="flex gap-3 p-3 rounded-xl bg-muted/20 border border-border/40 hover:bg-muted/40 transition-colors cursor-pointer">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-600">
+                    <Heart size={16} />
+                  </div>
+                  <div className="flex-grow min-w-0">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-sm font-medium text-foreground">记录情绪</span>
+                      <span className="text-xs text-muted-foreground font-medium">2小时前</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-1">今天感觉心情不错，和朋友聊天很开心</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 p-3 rounded-xl bg-muted/20 border border-border/40 hover:bg-muted/40 transition-colors cursor-pointer">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                    <MessageCircle size={16} />
+                  </div>
+                  <div className="flex-grow min-w-0">
+                     <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-sm font-medium text-foreground">AI对话</span>
+                      <span className="text-xs text-muted-foreground font-medium">昨天</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-1">和小晴聊了关于学习压力的话题</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 p-3 rounded-xl bg-muted/20 border border-border/40 hover:bg-muted/40 transition-colors cursor-pointer">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                    <BookOpen size={16} />
+                  </div>
+                  <div className="flex-grow min-w-0">
+                     <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-sm font-medium text-foreground">成长日记</span>
+                      <span className="text-xs text-muted-foreground font-medium">2天前</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-1">今天的心理测评帮我更了解自己</p>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* 管理员专有内容可以放在这里 */}
+             {session?.user?.role === 'ADMIN' && (
+              <div className="modern-card p-4">
+                <ApiStatusWidget />
+              </div>
+            )}
             
-            <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-success/5 rounded-lg sm:rounded-xl">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-success rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-1">
-                <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm text-foreground font-medium">完成AI对话</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-2">和小晴聊了关于学习压力的话题</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">昨天</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-accent/5 rounded-lg sm:rounded-xl">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-accent rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-1">
-                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm text-foreground font-medium">写了成长日记</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-2">今天的心理测评帮我更了解自己</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">2天前</p>
-              </div>
-            </div>
           </div>
         </div>
       </section>
