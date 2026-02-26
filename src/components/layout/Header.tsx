@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import UserNav from "./UserNav";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import { useSession } from "next-auth/react";
 import { Menu, X, BrainCircuit, Sparkles } from "lucide-react";
 import { useState } from "react";
@@ -34,7 +35,7 @@ export default function Header() {
                 <BrainCircuit className="h-5 w-5" />
                 <Sparkles className="absolute -right-1 -top-1 h-3 w-3 text-yellow-300" />
               </div>
-              <span className="font-display text-lg font-bold text-gray-900 md:text-xl">
+              <span className="font-display text-lg font-bold text-gray-900 dark:text-slate-100 md:text-xl">
                 心晴驿站
               </span>
             </Link>
@@ -50,6 +51,7 @@ export default function Header() {
                 注册
               </Link>
             )}
+            <ThemeToggle />
             <UserNav />
           </div>
         </nav>

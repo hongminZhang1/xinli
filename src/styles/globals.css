@@ -180,6 +180,16 @@
     animation: skyShift 20s ease-in-out infinite;
   }
 
+  .dark .sky-gradient-dynamic {
+    background: linear-gradient(
+      135deg,
+      hsl(215 25% 12% / 1) 0%,
+      hsl(215 25% 14% / 1) 40%,
+      hsl(215 30% 16% / 1) 100%
+    );
+    animation: skyShift 20s ease-in-out infinite;
+  }
+
   @keyframes skyShift {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.9; }
@@ -425,3 +435,216 @@
   }
 }
 
+/* ============================================================
+   全局暗色模式覆盖
+   统一修正所有页面中写死的 bg-white / bg-gray-* / text-gray-* 等
+   ============================================================ */
+@layer utilities {
+  /* --- 卡片/面板背景 --- */
+  .dark .bg-white {
+    background-color: hsl(215 25% 18%) !important;
+  }
+  /* bg-white 带透明度变体 */
+  .dark .bg-white\/80,
+  .dark .bg-white\/90,
+  .dark .bg-white\/95 {
+    background-color: hsl(215 25% 18% / 0.95) !important;
+  }
+  .dark .bg-gray-50,
+  .dark .bg-slate-50 {
+    background-color: hsl(215 25% 22%) !important;
+  }
+  .dark .bg-gray-100,
+  .dark .bg-slate-100 {
+    background-color: hsl(215 25% 25%) !important;
+  }
+  .dark .bg-gray-200,
+  .dark .bg-slate-200 {
+    background-color: hsl(215 25% 30%) !important;
+  }
+
+  /* --- 页面级渐变背景 --- */
+  .dark .bg-gradient-to-br.from-slate-50,
+  .dark [class*="from-slate-50"],
+  .dark [class*="from-gray-50"] {
+    background: hsl(215 25% 13%) !important;
+  }
+
+  /* --- 文字颜色 --- */
+  .dark .text-gray-900,
+  .dark .text-slate-900 {
+    color: hsl(216 33% 96%) !important;
+  }
+  .dark .text-gray-800,
+  .dark .text-slate-800 {
+    color: hsl(216 33% 92%) !important;
+  }
+  .dark .text-gray-700,
+  .dark .text-slate-700 {
+    color: hsl(215 20% 82%) !important;
+  }
+  .dark .text-gray-600,
+  .dark .text-slate-600 {
+    color: hsl(215 15% 72%) !important;
+  }
+  .dark .text-gray-500,
+  .dark .text-slate-500 {
+    color: hsl(215 12% 60%) !important;
+  }
+  .dark .text-gray-400,
+  .dark .text-slate-400 {
+    color: hsl(215 10% 52%) !important;
+  }
+
+  /* --- 边框 --- */
+  .dark .border-gray-100,
+  .dark .border-slate-100 {
+    border-color: hsl(215 25% 24%) !important;
+  }
+  .dark .border-gray-200,
+  .dark .border-slate-200 {
+    border-color: hsl(215 25% 28%) !important;
+  }
+  .dark .border-gray-300,
+  .dark .border-slate-300 {
+    border-color: hsl(215 20% 35%) !important;
+  }
+  .dark .border-dashed.border-gray-200 {
+    border-color: hsl(215 25% 32%) !important;
+  }
+
+  /* --- hover 状态背景 --- */
+  .dark .hover\:bg-gray-50:hover,
+  .dark .hover\:bg-slate-50:hover {
+    background-color: hsl(215 25% 24%) !important;
+  }
+  .dark .hover\:bg-gray-100:hover,
+  .dark .hover\:bg-slate-100:hover {
+    background-color: hsl(215 25% 27%) !important;
+  }
+
+  /* --- 输入框 / textarea --- */
+  .dark input:not([type="submit"]):not([type="button"]):not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+  .dark textarea {
+    background-color: hsl(215 25% 22%) !important;
+    border-color: hsl(215 25% 30%) !important;
+    color: hsl(216 33% 92%) !important;
+  }
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: hsl(215 12% 52%) !important;
+  }
+
+  /* --- 下拉 / select --- */
+  .dark select {
+    background-color: hsl(215 25% 22%) !important;
+    border-color: hsl(215 25% 30%) !important;
+    color: hsl(216 33% 92%) !important;
+  }
+
+  /* --- 轻色系渐变背景（蓝/紫/绿浅色） --- */
+  .dark .bg-blue-50   { background-color: hsl(213 50% 18%) !important; }
+  .dark .bg-purple-50 { background-color: hsl(270 30% 20%) !important; }
+  .dark .bg-green-50  { background-color: hsl(140 30% 16%) !important; }
+  .dark .bg-yellow-50 { background-color: hsl(45 40% 16%)  !important; }
+  .dark .bg-orange-50 { background-color: hsl(25 40% 17%)  !important; }
+  .dark .bg-red-50    { background-color: hsl(0 35% 18%)   !important; }
+  .dark .bg-indigo-50 { background-color: hsl(240 35% 20%) !important; }
+  .dark .bg-violet-50 { background-color: hsl(263 35% 21%) !important; }
+  .dark .bg-pink-50   { background-color: hsl(330 30% 19%) !important; }
+  .dark .bg-amber-50  { background-color: hsl(45 40% 16%)  !important; }
+  .dark .bg-teal-50   { background-color: hsl(173 40% 14%) !important; }
+  .dark .bg-cyan-50   { background-color: hsl(185 40% 15%) !important; }
+
+  /* --- 图标/标签用的 *-100 浅色背景 --- */
+  .dark .bg-blue-100    { background-color: hsl(213 45% 24%) !important; }
+  .dark .bg-purple-100  { background-color: hsl(270 28% 26%) !important; }
+  .dark .bg-green-100   { background-color: hsl(140 28% 22%) !important; }
+  .dark .bg-emerald-100 { background-color: hsl(153 35% 20%) !important; }
+  .dark .bg-yellow-100  { background-color: hsl(45 38% 22%)  !important; }
+  .dark .bg-orange-100  { background-color: hsl(25 38% 23%)  !important; }
+  .dark .bg-red-100     { background-color: hsl(0 32% 24%)   !important; }
+  .dark .bg-indigo-100  { background-color: hsl(240 32% 26%) !important; }
+  .dark .bg-violet-100  { background-color: hsl(263 32% 27%) !important; }
+  .dark .bg-pink-100    { background-color: hsl(330 28% 25%) !important; }
+  .dark .bg-amber-100   { background-color: hsl(45 38% 22%)  !important; }
+  .dark .bg-teal-100    { background-color: hsl(173 38% 20%) !important; }
+  .dark .bg-sky-100     { background-color: hsl(198 42% 22%) !important; }
+  .dark .bg-rose-100    { background-color: hsl(350 35% 22%) !important; }
+  .dark .bg-cyan-100    { background-color: hsl(185 38% 20%) !important; }
+
+  /* --- 渐变起止颜色（from-*-100 / to-*-100）暗色模式 --- */
+  .dark .from-blue-100   { --tw-gradient-from: hsl(213 45% 20%) !important; }
+  .dark .from-purple-100 { --tw-gradient-from: hsl(270 28% 22%) !important; }
+  .dark .from-slate-50   { --tw-gradient-from: hsl(215 25% 15%) !important; }
+  .dark .from-violet-50  { --tw-gradient-from: hsl(263 35% 17%) !important; }
+  .dark .from-indigo-50  { --tw-gradient-from: hsl(240 35% 17%) !important; }
+  .dark .via-blue-50     { --tw-gradient-via: hsl(213 50% 16%)  !important; }
+  .dark .to-purple-100   { --tw-gradient-to: hsl(270 28% 24%)   !important; }
+  .dark .to-purple-50    { --tw-gradient-to: hsl(270 30% 18%)   !important; }
+  .dark .to-indigo-50    { --tw-gradient-to: hsl(240 35% 19%)   !important; }
+
+  /* --- 彩色系深文字（用于浅色背景上的强调色文字）在暗色下提亮 --- */
+  .dark .text-violet-800 { color: hsl(263 75% 78%) !important; }
+  .dark .text-violet-700 { color: hsl(263 70% 75%) !important; }
+  .dark .text-indigo-700 { color: hsl(240 70% 78%) !important; }
+  .dark .text-blue-700   { color: hsl(213 80% 72%) !important; }
+  .dark .text-teal-700   { color: hsl(173 60% 65%) !important; }
+  .dark .text-emerald-700 { color: hsl(153 55% 62%) !important; }
+  .dark .text-green-700  { color: hsl(140 55% 60%) !important; }
+  .dark .text-yellow-700 { color: hsl(45 80% 65%)  !important; }
+  .dark .text-amber-700  { color: hsl(45 80% 65%)  !important; }
+  .dark .text-orange-700 { color: hsl(25 80% 68%)  !important; }
+  .dark .text-red-700    { color: hsl(0 72% 68%)   !important; }
+  .dark .text-pink-700   { color: hsl(330 70% 72%) !important; }
+  .dark .text-rose-700   { color: hsl(350 70% 72%) !important; }
+
+  /* --- 边框彩色细边框 --- */
+  .dark .border-violet-100 { border-color: hsl(263 35% 28%) !important; }
+  .dark .border-blue-100   { border-color: hsl(213 50% 26%) !important; }
+  .dark .border-emerald-100 { border-color: hsl(153 38% 25%) !important; }
+  .dark .border-red-100    { border-color: hsl(0 35% 28%)   !important; }
+  .dark .border-red-900    { border-color: hsl(0 45% 22%)   !important; }
+
+  /* --- 分类按钮未选中状态 (bg-white + border-gray-200) --- */
+  .dark button.bg-white {
+    background-color: hsl(215 25% 22%) !important;
+    border-color: hsl(215 25% 32%) !important;
+  }
+
+  /* --- 水平分割线 --- */
+  .dark hr {
+    border-color: hsl(215 25% 28%) !important;
+  }
+
+  /* --- *-100 浅色背景上的深色文字提亮，保证对比度 --- */
+  .dark .bg-blue-100    .text-blue-700,
+  .dark .bg-blue-100.text-blue-700   { color: hsl(213 85% 72%) !important; }
+  .dark .bg-emerald-100 .text-emerald-600,
+  .dark .bg-emerald-100.text-emerald-600 { color: hsl(153 60% 65%) !important; }
+  .dark .bg-sky-100     .text-sky-600,
+  .dark .bg-sky-100.text-sky-600     { color: hsl(198 75% 68%) !important; }
+  .dark .bg-indigo-100  .text-indigo-600,
+  .dark .bg-indigo-100.text-indigo-600 { color: hsl(240 70% 75%) !important; }
+  .dark .bg-amber-100   .text-amber-700,
+  .dark .bg-amber-100.text-amber-700 { color: hsl(45 85% 68%) !important; }
+  .dark .bg-teal-100    .text-teal-600,
+  .dark .bg-teal-100.text-teal-600   { color: hsl(173 60% 62%) !important; }
+  .dark .bg-violet-100  .text-violet-600,
+  .dark .bg-violet-100.text-violet-600 { color: hsl(263 70% 75%) !important; }
+  .dark .bg-rose-100    .text-rose-600,
+  .dark .bg-rose-100.text-rose-600   { color: hsl(350 70% 72%) !important; }
+
+  /* --- 原生时间/日期选择器暗色适配 --- */
+  .dark input[type="datetime-local"],
+  .dark input[type="date"],
+  .dark input[type="time"] {
+    color-scheme: dark;
+  }
+
+  /* --- 阴影在暗色下减淡 --- */
+  .dark .shadow-sm  { box-shadow: 0 1px 3px rgba(0,0,0,0.4) !important; }
+  .dark .shadow-md  { box-shadow: 0 4px 8px rgba(0,0,0,0.5) !important; }
+  .dark .shadow-lg  { box-shadow: 0 8px 16px rgba(0,0,0,0.5) !important; }
+  .dark .shadow-xl  { box-shadow: 0 12px 24px rgba(0,0,0,0.5) !important; }
+}

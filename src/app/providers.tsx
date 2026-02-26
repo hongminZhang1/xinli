@@ -1,5 +1,6 @@
 "use client";
 import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "next-themes";
 import { useCacheCleanup } from "@/hooks/useCacheCleanup";
 import { useEffect } from "react";
 
@@ -57,13 +58,15 @@ export default function AuthProvider({
 }) {
   return (
     <ErrorBoundary>
-      <SessionProvider>
-        <CacheProvider>
-          <MotionProvider>
-            {children}
-          </MotionProvider>
-        </CacheProvider>
-      </SessionProvider>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange={false}>
+        <SessionProvider>
+          <CacheProvider>
+            <MotionProvider>
+              {children}
+            </MotionProvider>
+          </CacheProvider>
+        </SessionProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }
