@@ -42,8 +42,19 @@ function AuthForm({ mode, onSwitchMode, onClose }: {
       });
       
       if (res.ok) {
+        // 注册成功后自动登录
+        const loginResult = await signIn("credentials", {
+          redirect: false,
+          username,
+          password,
+        });
         onClose();
-        router.push('/dashboard');
+        if (loginResult?.ok) {
+          router.push('/dashboard');
+        } else {
+          // 登录失败时跳转到登录页
+          router.push('/login');
+        }
       } else {
         const errorData = await res.json();
         if (errorData.error === 'registration_disabled') {
