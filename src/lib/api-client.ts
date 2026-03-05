@@ -101,7 +101,7 @@ class ApiClient {
 // 创建API客户端实例
 export const apiClient = new ApiClient({
   baseUrl: getApiBaseUrl(),
-  timeout: 10000,
+  timeout: 15000,
   headers: {
     'Accept': 'application/json',
   },

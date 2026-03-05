@@ -22,6 +22,8 @@ export default function LoginForm() {
 
     if (result?.ok) {
       router.push("/dashboard");
+    } else if (result?.error && result.error.includes("服务暂时不可用")) {
+      setError("服务暂时不可用，请稍候片刻再重试");
     } else {
       setError("用户名或密码错误");
     }
