@@ -217,7 +217,7 @@ export const useJournals = (type: 'all' | 'public' = 'public', initialData?: any
   );
 };
 
-export const useJournalDetail = (id: string, enabled = true) => {
+export const useJournalDetail = (id: string, enabled = true, initialData?: any) => {
   return useQuery(
     `journal-${id}`,
     () => dbAdapter.journal.getById(id),
@@ -225,11 +225,12 @@ export const useJournalDetail = (id: string, enabled = true) => {
       enabled: enabled && !!id,
       cacheTime: CACHE_TTL.ARTICLE_DETAIL,
       staleTime: 2 * 60 * 1000, // 2分钟内认为是新鲜数据
+      initialData,
     }
   );
 };
 
-export const useJournalComments = (journalId: string, enabled = true) => {
+export const useJournalComments = (journalId: string, enabled = true, initialData?: any[]) => {
   return useQuery(
     `journal-comments-${journalId}`,
     () => dbAdapter.comment.getByJournalId(journalId),
@@ -237,6 +238,7 @@ export const useJournalComments = (journalId: string, enabled = true) => {
       enabled: enabled && !!journalId,
       cacheTime: CACHE_TTL.COMMENTS,
       staleTime: 60 * 1000, // 1分钟内认为是新鲜数据
+      initialData,
     }
   );
 };
