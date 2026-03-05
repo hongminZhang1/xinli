@@ -197,7 +197,7 @@ export const dbAdapter = {
     },
     getPublic: async () => {
       // 通过API代理调用公开日记API - 使用GET方法
-      const response = await fetch('/api/proxy/journals?public=true', {
+      const response = await fetch('http://homgzha.cc:3001/api/journals?public=true', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -209,7 +209,7 @@ export const dbAdapter = {
       return response.json();
     },
     getById: async (id: string) => {
-      const response = await fetch(`/api/proxy/journals/${id}`, {
+      const response = await fetch(`http://homgzha.cc:3001/api/journals/${id}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -217,7 +217,7 @@ export const dbAdapter = {
       return response.json();
     },
     getByUserId: async (userId: string) => {
-      const response = await fetch(`/api/proxy/journals?userId=${userId}`, {
+      const response = await fetch(`http://homgzha.cc:3001/api/journals?userId=${userId}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -225,7 +225,7 @@ export const dbAdapter = {
       return response.json();
     },
     create: async (data: any) => {
-      const response = await fetch('/api/proxy/journal', {
+      const response = await fetch('http://homgzha.cc:3001/api/journal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -234,7 +234,7 @@ export const dbAdapter = {
       return response.json();
     },
     update: async (id: string, data: any) => {
-      const response = await fetch(`/api/proxy/journal/${id}`, {
+      const response = await fetch(`http://homgzha.cc:3001/api/journal/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -243,7 +243,7 @@ export const dbAdapter = {
       return response.json();
     },
     delete: async (id: string) => {
-      const response = await fetch(`/api/proxy/journal/${id}`, {
+      const response = await fetch(`http://homgzha.cc:3001/api/journal/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -254,7 +254,7 @@ export const dbAdapter = {
   
   comment: {
     getByJournalId: async (journalId: string) => {
-      const response = await fetch(`/api/proxy/comments?journalEntryId=${journalId}`, {
+      const response = await fetch(`http://homgzha.cc:3001/api/comments?journalEntryId=${journalId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -272,7 +272,7 @@ export const dbAdapter = {
         userId: data.userId
       };
       
-      const response = await fetch('/api/proxy/comments', {
+      const response = await fetch('http://homgzha.cc:3001/api/comments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -288,7 +288,7 @@ export const dbAdapter = {
       return response.json();
     },
     update: async (id: string, data: any) => {
-      const response = await fetch(`/api/proxy/comments/${id}`, {
+      const response = await fetch(`http://homgzha.cc:3001/api/comments/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -301,7 +301,7 @@ export const dbAdapter = {
       return response.json();
     },
     delete: async (id: string) => {
-      const response = await fetch(`/api/proxy/comments/${id}`, {
+      const response = await fetch(`http://homgzha.cc:3001/api/comments/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
