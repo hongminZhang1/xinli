@@ -196,36 +196,26 @@ export const dbAdapter = {
       return response.json();
     },
     getPublic: async () => {
-      // 通过API代理调用公开日记API - 使用GET方法
-      const response = await fetch('http://homgzha.cc:3001/api/journals?public=true', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      // 通过 Next.js API Route 中转，避免浏览器 Mixed Content 限制
+      const response = await fetch('/api/journal?type=public');
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       return response.json();
     },
     getById: async (id: string) => {
-      const response = await fetch(`http://homgzha.cc:3001/api/journals/${id}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const response = await fetch(`/api/journal/${id}`);
       if (!response.ok) throw new Error('获取日记失败');
       return response.json();
     },
-    getByUserId: async (userId: string) => {
-      const response = await fetch(`http://homgzha.cc:3001/api/journals?userId=${userId}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
+    getByUserId: async (_userId: string) => {
+      // Next.js Route 内部从 session 取 userId
+      const response = await fetch('/api/journal');
       if (!response.ok) throw new Error('获取用户日记失败');
       return response.json();
     },
     create: async (data: any) => {
-      const response = await fetch('http://homgzha.cc:3001/api/journal', {
+      const response = await fetch('/api/journal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -234,7 +224,7 @@ export const dbAdapter = {
       return response.json();
     },
     update: async (id: string, data: any) => {
-      const response = await fetch(`http://homgzha.cc:3001/api/journal/${id}`, {
+      const response = await fetch(`/api/journal/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -243,9 +233,8 @@ export const dbAdapter = {
       return response.json();
     },
     delete: async (id: string) => {
-      const response = await fetch(`http://homgzha.cc:3001/api/journal/${id}`, {
+      const response = await fetch(`/api/journal/${id}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
       });
       if (!response.ok) throw new Error('删除日记失败');
       return response.json();
@@ -254,45 +243,28 @@ export const dbAdapter = {
   
   comment: {
     getByJournalId: async (journalId: string) => {
-      const response = await fetch(`http://homgzha.cc:3001/api/comments?journalEntryId=${journalId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      // 通过 Next.js API Route 中转，避免浏览器 Mixed Content 限制
+      const response = await fetch(`/api/journal/${journalId}/comments`);
       if (!response.ok) {
         throw new Error('获取评论失败');
       }
       return response.json();
     },
     create: async (data: { content: string; journalId: string; userId: string }) => {
-      const requestData = {
-        content: data.content,
-        journalEntryId: data.journalId, // 使用正确的字段名
-        userId: data.userId
-      };
-      
-      const response = await fetch('http://homgzha.cc:3001/api/comments', {
+      const response = await fetch(`/api/journal/${data.journalId}/comments`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: data.content })
       });
-      
       if (!response.ok) {
-        const errorText = await response.text();
         throw new Error(`创建评论失败: ${response.status} ${response.statusText}`);
       }
-      
       return response.json();
     },
     update: async (id: string, data: any) => {
-      const response = await fetch(`http://homgzha.cc:3001/api/comments/${id}`, {
+      const response = await fetch(`/api/comments/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
       if (!response.ok) {
@@ -301,11 +273,8 @@ export const dbAdapter = {
       return response.json();
     },
     delete: async (id: string) => {
-      const response = await fetch(`http://homgzha.cc:3001/api/comments/${id}`, {
+      const response = await fetch(`/api/comments/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        }
       });
       if (!response.ok) {
         throw new Error('删除评论失败');

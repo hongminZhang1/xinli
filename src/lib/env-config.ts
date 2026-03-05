@@ -1,8 +1,11 @@
 /**
  * 环境配置管理
- * 直接使用后端域名，无需代理
+ * 服务端调用后端 API 的地址（不受浏览器 Mixed Content 限制）
  */
 
 export const getApiBaseUrl = () => {
-  return 'http://homgzha.cc:3001/api';
+  if (process.env.NODE_ENV === 'production') {
+    return 'http://homgzha.cc:3001/api';
+  }
+  return 'http://localhost:3001/api';
 };
