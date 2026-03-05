@@ -37,10 +37,10 @@ const moodOptions = [
   { value: "peaceful", label: "🕊️ 宁静", color: "text-indigo-500" }
 ];
 
-export default function ArticleSquare() {
+export default function ArticleSquare({ initialData }: { initialData?: any[] } = {}) {
   const { data: session } = useSession();
   const router = useRouter();
-  const { data, isLoading, error, refetch } = useJournals('public');
+  const { data, isLoading, error, refetch } = useJournals('public', initialData);
   
   // 从API数据中提取journals - 现在API已经只返回公开的日记
   const journals = Array.isArray(data) ? data : [];

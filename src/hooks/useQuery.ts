@@ -8,6 +8,7 @@ export interface UseQueryOptions {
   staleTime?: number; // 数据保持新鲜的时间（毫秒）
   refetchOnMount?: boolean; // 组件挂载时是否重新获取
   refetchOnWindowFocus?: boolean; // 窗口获得焦点时是否重新获取
+  initialData?: any; // SSR 预取的初始数据，直接展示无需等待请求
 }
 
 export interface UseQueryResult<T> {
@@ -29,14 +30,18 @@ export function useQuery<T = any>(
     cacheTime = CACHE_TTL.DEFAULT,
     staleTime = 0,
     refetchOnMount = true,
-    refetchOnWindowFocus = false
+    refetchOnWindowFocus = false,
+    initialData,
   } = options;
   
   const { getCache, setCache, invalidateCache, getCacheItem } = useCacheStore();
   
   const [data, setData] = useState<T | null>(() => {
-    // 初始化时尝试从缓存获取
-    return enabled ? getCache<T>(key) : null;
+    if (!enabled) return null;
+    // 优先使用 localStorage 持久化缓存，其次使用 SSR 初始数据
+    const cached = getCache<T>(key);
+    if (cached !== null) return cached;
+    return (initialData !== undefined ? initialData : null) as T | null;
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
@@ -73,6 +78,11 @@ export function useQuery<T = any>(
 
   useEffect(() => {
     if (!enabled) return;
+
+    // 如果有 SSR 初始数据且缓存为空，先将初始数据写入缓存（视为刚获取的新鲜数据）
+    if (initialData !== undefined && !getCacheItem(key)) {
+      setCache(key, initialData, cacheTime);
+    }
 
     const cacheItem = getCacheItem<T>(key);
     
@@ -189,7 +199,7 @@ export function useMutation<TData = any, TVariables = any>(
 // ==================== 具体数据查询 Hooks ====================
 
 // 文章/日记相关
-export const useJournals = (type: 'all' | 'public' = 'public') => {
+export const useJournals = (type: 'all' | 'public' = 'public', initialData?: any[]) => {
   return useQuery(
     `journals-${type}`,
     () => {
@@ -202,6 +212,7 @@ export const useJournals = (type: 'all' | 'public' = 'public') => {
       enabled: true,
       cacheTime: CACHE_TTL.ARTICLES,
       staleTime: 60 * 1000, // 1分钟内认为是新鲜数据
+      initialData,
     }
   );
 };
