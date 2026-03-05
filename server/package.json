@@ -2,10 +2,10 @@
   "name": "xinli-api-server",
   "version": "1.0.0",
   "description": "轻量应用云服务器API服务",
-  "main": "api-server.js",
+  "main": "api-server-complete.js",
   "scripts": {
-    "start": "node api-server.js",
-    "dev": "nodemon api-server.js",
+    "start": "node api-server-complete.js",
+    "dev": "nodemon api-server-complete.js",
     "install-deps": "npm install express cors @prisma/client prisma dotenv bcrypt",
     "setup": "npm run install-deps && npx prisma generate"
   },

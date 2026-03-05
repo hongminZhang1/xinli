@@ -47,7 +47,7 @@ ssh $SERVER_USER@$SERVER_IP << 'ENDSSH'
     pm2 delete xinli-api 2>/dev/null || true
     
     # 启动新服务
-    pm2 start api-server.js --name xinli-api
+    pm2 start api-server-complete.js --name xinli-api
     
     # 保存PM2配置
     pm2 save
