@@ -48,31 +48,30 @@ export default function Avatar({
     xl: "w-5 h-5"
   };
 
-  // 暂时不渲染URL头像，始终显示默认字母头像
-  // if (avatar) {
-  //   return (
-  //     <div className="relative inline-block">
-  //       <img
-  //         src={avatar}
-  //         alt={`${username}'s avatar`}
-  //         className={cn(
-  //           sizeClasses[size], 
-  //           "rounded-full object-cover shadow-sm border-2 border-card",
-  //           className
-  //         )}
-  //       />
-  //       {showStatus && (
-  //         <div className={cn(
-  //           statusSize[size],
-  //           "absolute -bottom-0.5 -right-0.5 rounded-full border-2 border-card shadow-sm",
-  //           isOnline ? "bg-success" : "bg-muted"
-  //         )}>
-  //           {isOnline && <div className="w-full h-full bg-white rounded-full scale-50 animate-pulse" />}
-  //         </div>
-  //       )}
-  //     </div>
-  //   );
-  // }
+  if (avatar) {
+    return (
+      <div className="relative inline-block">
+        <img
+          src={avatar}
+          alt={`${username ?? "用户"}的头像`}
+          className={cn(
+            sizeClasses[size],
+            "rounded-full object-cover shadow-sm border-2 border-card",
+            className
+          )}
+        />
+        {showStatus && (
+          <div className={cn(
+            statusSize[size],
+            "absolute -bottom-0.5 -right-0.5 rounded-full border-2 border-card shadow-sm",
+            isOnline ? "bg-success" : "bg-muted"
+          )}>
+            {isOnline && <div className="w-full h-full bg-white rounded-full scale-50 animate-pulse" />}
+          </div>
+        )}
+      </div>
+    );
+}
 
   return (
     <div className="relative inline-block">

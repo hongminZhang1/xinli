@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { AuthOptions } from "next-auth";
 import { getApiBaseUrl } from "@/lib/env-config";
 
@@ -71,13 +71,17 @@ export const authOptions: AuthOptions = {
     signIn: "/",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session: sessionUpdate }) {
       if (user) {
         token.id = user.id;
         token.username = user.username;
         token.role = user.role;
         token.isActive = user.isActive;
         token.avatar = user.avatar;
+      }
+      // 支持前端调用 useSession().update({ avatar: url }) 刷新 session
+      if (trigger === "update" && sessionUpdate?.avatar !== undefined) {
+        token.avatar = sessionUpdate.avatar;
       }
       return token;
     },

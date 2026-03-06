@@ -88,7 +88,7 @@ export default function SettingsPage() {
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5">
 
         <div className="space-y-5">
-          <AvatarUpload username={session?.user?.username} />
+          <AvatarUpload username={session?.user?.username} avatar={session?.user?.avatar} />
 
           <div>
             <label className="block text-sm font-medium text-slate-500 mb-1.5">用户名</label>
