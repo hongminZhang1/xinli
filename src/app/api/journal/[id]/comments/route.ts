@@ -88,13 +88,3 @@ export async function POST(
     return NextResponse.json({ error: "创建评论失败" }, { status: 500 });
   }
 }
-// PLACEHOLDER_REMOVED
-      }
-    });
-
-    return NextResponse.json(comment);
-  } catch (error) {
-    console.error("创建评论失败:", error);
-    return NextResponse.json({ error: "创建评论失败" }, { status: 500 });
-  }
-}
