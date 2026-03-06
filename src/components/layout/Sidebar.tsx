@@ -38,11 +38,11 @@ export default function Sidebar() {
   const isAdmin = session?.user?.role === 'ADMIN';
 
   return (
-    <aside className="hidden lg:block w-64 p-4 bg-card border-r h-screen fixed top-0 left-0">
+    <aside className="hidden lg:flex lg:flex-col w-64 p-4 bg-card border-r h-screen fixed top-0 left-0">
       <div className="mb-8 font-bold text-2xl text-center py-4 text-primary">
         心晴驿站
       </div>
-      <nav className="flex flex-col gap-2">
+      <nav className="flex flex-col gap-2 flex-1">
         {navItems.map((item) => (
           <Link
             key={item.href}
@@ -80,6 +80,20 @@ export default function Sidebar() {
           </>
         )}
       </nav>
+
+      {/* 备案信息 */}
+      <div className="mt-auto pt-4 border-t border-border/50">
+        <p className="text-center text-sm text-muted-foreground/80 leading-relaxed">
+          <a
+            href="https://beian.miit.gov.cn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold hover:text-foreground transition-colors"
+          >
+            皖ICP备2024064456号
+          </a>
+        </p>
+      </div>
     </aside>
   );
 }

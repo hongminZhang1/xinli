@@ -4,8 +4,5 @@
  */
 
 export const getApiBaseUrl = () => {
-  if (process.env.NODE_ENV === 'production') {
-    return 'http://homgzha.cc:3001/api';
-  }
-  return 'http://localhost:3001/api';
+  return process.env.API_BASE_URL || 'http://homgzha.cc:3001/api';
 };

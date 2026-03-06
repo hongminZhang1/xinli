@@ -188,9 +188,9 @@ export default function Home() {
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
 
   return (
-    <main className="min-h-screen relative">
+    <main className="min-h-screen relative flex flex-col">
       {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center px-4 py-12">
+      <section className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
             
@@ -277,6 +277,20 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* 底部备案信息 */}
+      <footer className="relative z-10 py-6 text-center">
+        <p className="text-sm text-muted-foreground/80">
+          <a
+            href="https://beian.miit.gov.cn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold hover:text-foreground transition-colors"
+          >
+            皖ICP备2024064456号
+          </a>
+        </p>
+      </footer>
 
     </main>
   );
