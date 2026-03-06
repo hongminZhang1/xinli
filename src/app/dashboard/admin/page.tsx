@@ -1,6 +1,5 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../api/auth/[...nextauth]/route";
-import { dbAdapter } from "@/lib/db-adapter";
 import { redirect } from "next/navigation";
 import AdminUserManagement from "@/components/admin/AdminUserManagement";
 import AdminSystemSettings from "@/components/admin/AdminSystemSettings";

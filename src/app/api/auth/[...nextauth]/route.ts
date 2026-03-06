@@ -1,21 +1,22 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { db } from "@/lib/db-adapter";
 import bcrypt from "bcrypt";
 import { AuthOptions } from "next-auth";
+import { getApiBaseUrl } from "@/lib/env-config";
 
 // 带重试的用户查找：后端冷启动时第一次请求可能超时，重试一次避免误报"密码错误"
 async function findUserWithRetry(username: string, retries = 2): Promise<any> {
+  const apiBase = getApiBaseUrl();
   for (let i = 0; i < retries; i++) {
     try {
-      const user = await db.user.findUnique({ username });
-      return user;
+      const res = await fetch(`${apiBase}/users/username/${encodeURIComponent(username)}`);
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+      return res.json();
     } catch (error) {
       if (i < retries - 1) {
-        // 等待 1.5 秒后重试（给后端冷启动一点时间）
         await new Promise((resolve) => setTimeout(resolve, 1500));
       } else {
-        // 所有重试均失败，抛出明确错误
         throw new Error('SERVICE_UNAVAILABLE');
       }
     }

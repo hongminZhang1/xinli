@@ -35,11 +35,11 @@ export function usePreloadData() {
             const detailCached = cache.getCacheItem(detailCacheKey);
             if (!detailCached || detailCached.isExpired) {
               try {
-                // 使用dbAdapter而不是直接API调用
-                const { dbAdapter } = require('@/lib/db-adapter');
-                const data = await dbAdapter.journal.getById(journalId);
-                cache.setCache(detailCacheKey, data, 5 * 60 * 1000);
-                // Precache article detail
+                const res = await fetch(`/api/journal/${journalId}`);
+                if (res.ok) {
+                  const data = await res.json();
+                  cache.setCache(detailCacheKey, data, 5 * 60 * 1000);
+                }
               } catch (error) {
                 // Failed to precache article detail
               }
@@ -49,11 +49,11 @@ export function usePreloadData() {
             const commentsCached = cache.getCacheItem(commentsCacheKey);
             if (!commentsCached || commentsCached.isExpired) {
               try {
-                // 使用dbAdapter获取评论（目前返回空数组）
-                const { dbAdapter } = require('@/lib/db-adapter');
-                const data = await dbAdapter.comment.getByJournalId(journalId);
-                cache.setCache(commentsCacheKey, data, 3 * 60 * 1000);
-                // Precache article comments
+                const res = await fetch(`/api/journal/${journalId}/comments`);
+                if (res.ok) {
+                  const data = await res.json();
+                  cache.setCache(commentsCacheKey, data, 3 * 60 * 1000);
+                }
               } catch (error) {
                 // Failed to precache article comments
               }
@@ -94,11 +94,11 @@ export function usePreloadData() {
         
         if (!cached || cached.isExpired) {
           try {
-            // 使用dbAdapter而不是直接API调用
-            const { dbAdapter } = require('@/lib/db-adapter');
-            const data = await dbAdapter.emotion.getAll();
-            cache.setCache(cacheKey, data, 5 * 60 * 1000);
-            // Precache emotion records
+            const res = await fetch('/api/emotions');
+            if (res.ok) {
+              const data = await res.json();
+              cache.setCache(cacheKey, data, 5 * 60 * 1000);
+            }
           } catch (error) {
             // Failed to precache emotion records
           }
@@ -123,27 +123,25 @@ export function usePreloadData() {
 
       const executePreload = async () => {
         try {
-          // 使用dbAdapter获取用户列表
           const usersCacheKey = 'admin-users';
           const usersCached = cache.getCacheItem(usersCacheKey);
           if (!usersCached || usersCached.isExpired) {
-            const { dbAdapter } = require('@/lib/db-adapter');
-            const usersData = await dbAdapter.user.getAll();
-            cache.setCache(usersCacheKey, usersData, 10 * 60 * 1000);
-            // Precache admin user data
+            const usersRes = await fetch('/api/admin/users');
+            if (usersRes.ok) {
+              const usersData = await usersRes.json();
+              cache.setCache(usersCacheKey, usersData, 10 * 60 * 1000);
+            }
           }
 
-          // 预加载系统设置
           const settingsCacheKey = 'admin-settings';
           const settingsCached = cache.getCacheItem(settingsCacheKey);
           if (!settingsCached || settingsCached.isExpired) {
-            const { dbAdapter } = require('@/lib/db-adapter');
-            const settingsData = await dbAdapter.systemSetting.getAll();
-            cache.setCache(settingsCacheKey, settingsData, 15 * 60 * 1000);
-            // Precache admin settings data
+            const settingsRes = await fetch('/api/admin/settings');
+            if (settingsRes.ok) {
+              const settingsData = await settingsRes.json();
+              cache.setCache(settingsCacheKey, settingsData, 15 * 60 * 1000);
+            }
           }
-          
-          // Admin data preload completed
         } catch (error) {
           // Admin data preload failed
         }

@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { dbAdapter } from '@/lib/db-adapter';
 import { useCacheStore, CACHE_TTL } from '@/store/useCacheStore';
 
 export interface UseQueryOptions {
@@ -202,16 +201,16 @@ export function useMutation<TData = any, TVariables = any>(
 export const useJournals = (type: 'all' | 'public' = 'public', initialData?: any[]) => {
   return useQuery(
     `journals-${type}`,
-    () => {
-      if (type === 'public') {
-        return dbAdapter.journal.getPublic();
-      }
-      return dbAdapter.journal.getAll();
+    async () => {
+      const url = type === 'public' ? '/api/journal?type=public' : '/api/journal';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('获取日记失败');
+      return res.json();
     },
-    { 
+    {
       enabled: true,
       cacheTime: CACHE_TTL.ARTICLES,
-      staleTime: 60 * 1000, // 1分钟内认为是新鲜数据
+      staleTime: 60 * 1000,
       initialData,
     }
   );
@@ -220,11 +219,15 @@ export const useJournals = (type: 'all' | 'public' = 'public', initialData?: any
 export const useJournalDetail = (id: string, enabled = true, initialData?: any) => {
   return useQuery(
     `journal-${id}`,
-    () => dbAdapter.journal.getById(id),
-    { 
+    async () => {
+      const res = await fetch(`/api/journal/${id}`);
+      if (!res.ok) throw new Error('获取日记详情失败');
+      return res.json();
+    },
+    {
       enabled: enabled && !!id,
       cacheTime: CACHE_TTL.ARTICLE_DETAIL,
-      staleTime: 2 * 60 * 1000, // 2分钟内认为是新鲜数据
+      staleTime: 2 * 60 * 1000,
       initialData,
     }
   );
@@ -233,11 +236,15 @@ export const useJournalDetail = (id: string, enabled = true, initialData?: any) 
 export const useJournalComments = (journalId: string, enabled = true, initialData?: any[]) => {
   return useQuery(
     `journal-comments-${journalId}`,
-    () => dbAdapter.comment.getByJournalId(journalId),
-    { 
+    async () => {
+      const res = await fetch(`/api/journal/${journalId}/comments`);
+      if (!res.ok) throw new Error('获取评论失败');
+      return res.json();
+    },
+    {
       enabled: enabled && !!journalId,
       cacheTime: CACHE_TTL.COMMENTS,
-      staleTime: 60 * 1000, // 1分钟内认为是新鲜数据
+      staleTime: 60 * 1000,
       initialData,
     }
   );
@@ -247,11 +254,15 @@ export const useJournalComments = (journalId: string, enabled = true, initialDat
 export const useEmotionRecords = () => {
   return useQuery(
     'emotions',
-    () => dbAdapter.emotion.getAll(),
-    { 
+    async () => {
+      const res = await fetch('/api/emotions');
+      if (!res.ok) throw new Error('获取情绪记录失败');
+      return res.json();
+    },
+    {
       enabled: true,
       cacheTime: CACHE_TTL.EMOTIONS,
-      staleTime: 2 * 60 * 1000, // 2分钟内认为是新鲜数据
+      staleTime: 2 * 60 * 1000,
     }
   );
 };
@@ -260,21 +271,13 @@ export const useEmotionRecords = () => {
 export const useUsers = () => {
   return useQuery(
     'users',
-    () => dbAdapter.user.getAll(),
-    { 
+    async () => {
+      const res = await fetch('/api/admin/users');
+      if (!res.ok) throw new Error('获取用户列表失败');
+      return res.json();
+    },
+    {
       enabled: true,
-      cacheTime: CACHE_TTL.USERS,
-      staleTime: 5 * 60 * 1000, // 5分钟内认为是新鲜数据
-    }
-  );
-};
-
-export const useUser = (id: string, enabled = true) => {
-  return useQuery(
-    `user-${id}`,
-    () => dbAdapter.user.getById(id),
-    { 
-      enabled: enabled && !!id,
       cacheTime: CACHE_TTL.USERS,
       staleTime: 5 * 60 * 1000,
     }
@@ -285,37 +288,15 @@ export const useUser = (id: string, enabled = true) => {
 export const useSystemSettings = () => {
   return useQuery(
     'system-settings',
-    () => dbAdapter.systemSetting.getAll(),
-    { 
+    async () => {
+      const res = await fetch('/api/admin/settings');
+      if (!res.ok) throw new Error('获取系统设置失败');
+      return res.json();
+    },
+    {
       enabled: true,
       cacheTime: CACHE_TTL.SETTINGS,
-      staleTime: 10 * 60 * 1000, // 10分钟内认为是新鲜数据
+      staleTime: 10 * 60 * 1000,
     }
   );
 };
-
-// 预约相关 - 如果有对应API可以取消注释
-// export const useAppointments = (userId: string, enabled = true) => {
-//   return useQuery(
-//     `appointments-${userId}`,
-//     () => dbAdapter.appointment.getByUserId(userId),
-//     { 
-//       enabled: enabled && !!userId,
-//       cacheTime: CACHE_TTL.DEFAULT,
-//       staleTime: 2 * 60 * 1000,
-//     }
-//   );
-// };
-
-// 聊天会话 - 如果有对应API可以取消注释
-// export const useChatSessions = (userId: string, enabled = true) => {
-//   return useQuery(
-//     `chat-sessions-${userId}`,
-//     () => dbAdapter.chat.getByUserId(userId),
-//     { 
-//       enabled: enabled && !!userId,
-//       cacheTime: CACHE_TTL.DEFAULT,
-//       staleTime: 60 * 1000,
-//     }
-//   );
-// };

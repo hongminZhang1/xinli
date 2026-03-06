@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { db, isApiMode } from "@/lib/db-adapter";
-import { EmotionType } from "@prisma/client";
 import { getApiBaseUrl } from "@/lib/env-config";
+
+type EmotionType = string;
 
 // 创建新的情绪记录
 export async function POST(request: NextRequest) {

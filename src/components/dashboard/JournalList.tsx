@@ -7,7 +7,6 @@ import Avatar from "@/components/ui/Avatar";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import { Plus, Edit, Trash2, Calendar, Tag, Eye, EyeOff } from "lucide-react";
 import { useQuery, useMutation } from "@/hooks/useQuery";
-import { dbAdapter } from "@/lib/db-adapter";
 
 type JournalEntry = {
   id: string;
@@ -47,16 +46,24 @@ export default function JournalList({ initialJournals, userId }: JournalListProp
 
   const { data: journals, refetch } = useQuery(
     `user-journals-${userId}`,
-    () => dbAdapter.journal.getByUserId(userId),
+    async () => {
+      const res = await fetch('/api/journal');
+      if (!res.ok) throw new Error('获取日记失败');
+      return res.json();
+    },
     {
       enabled: !!userId,
       initialData: initialJournals,
-      staleTime: 30 * 1000, // 30秒内使用 SSR 数据，无需重新请求
+      staleTime: 30 * 1000,
     }
   );
 
   const deleteMutation = useMutation(
-    (journalId: string) => dbAdapter.journal.delete(journalId),
+    async (journalId: string) => {
+      const res = await fetch(`/api/journal/${journalId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('删除失败');
+      return res.json();
+    },
     { onSuccess: () => refetch() }
   );
 

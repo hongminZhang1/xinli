@@ -7,7 +7,6 @@ import Card from "@/components/ui/Card";
 import MarkdownEditor from "@/components/ui/MarkdownEditor";
 import { ArrowLeft, Save, Eye, EyeOff } from "lucide-react";
 import { useQuery, useMutation } from "@/hooks/useQuery";
-import { dbAdapter } from "@/lib/db-adapter";
 
 const moodOptions = [
   { value: "happy", label: "😊 开心", color: "text-green-500" },
@@ -32,18 +31,26 @@ export default function EditJournalPage({ params }: { params: { id: string } }) 
   // 获取日记详情
   const { data: journal, isLoading, error } = useQuery(
     `journal-${params.id}`,
-    () => dbAdapter.journal.getById(params.id),
+    async () => {
+      const res = await fetch(`/api/journal/${params.id}`);
+      if (!res.ok) throw new Error('获取日记失败');
+      return res.json();
+    },
     { enabled: !!params.id }
   );
 
   // 更新日记的mutation
   const updateMutation = useMutation(
-    (data: any) => dbAdapter.journal.update(params.id, data),
-    {
-      onSuccess: () => {
-        router.push("/dashboard/journal");
-      }
-    }
+    async (data: any) => {
+      const res = await fetch(`/api/journal/${params.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('更新失败');
+      return res.json();
+    },
+    { onSuccess: () => router.push("/dashboard/journal") }
   );
 
   // 当日记数据加载完成时，填充表单

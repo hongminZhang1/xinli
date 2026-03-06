@@ -325,6 +325,39 @@ app.put('/api/appointments/:id', async (req, res) => {
   }
 });
 
+// 评论相关API
+app.get('/api/comments/journal/:journalId', async (req, res) => {
+  try {
+    const comments = await prisma.comment.findMany({
+      where: { journalEntryId: req.params.journalId },
+      include: {
+        user: { select: { id: true, username: true, name: true, avatar: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json(comments);
+  } catch (error) {
+    console.error('获取评论失败:', error);
+    res.status(500).json({ error: '获取评论失败' });
+  }
+});
+
+app.post('/api/comments', async (req, res) => {
+  try {
+    const { content, userId, journalEntryId } = req.body;
+    const comment = await prisma.comment.create({
+      data: { content, userId, journalEntryId },
+      include: {
+        user: { select: { id: true, username: true, name: true, avatar: true } }
+      }
+    });
+    res.status(201).json(comment);
+  } catch (error) {
+    console.error('创建评论失败:', error);
+    res.status(500).json({ error: '创建评论失败' });
+  }
+});
+
 // 系统设置相关API
 app.get('/api/settings', async (req, res) => {
   try {

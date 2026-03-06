@@ -5,15 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "prisma:generate": "prisma generate",
-    "prisma:push": "prisma db push",
-    "init-admin": "tsx scripts/init-admin.ts",
-    "init-settings": "tsx scripts/init-settings.ts"
+    "start": "next start"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
-    "@prisma/client": "5.10.0",
     "@radix-ui/react-slot": "^1.2.4",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@uiw/react-md-editor": "^4.0.11",
@@ -29,7 +24,6 @@
     "next-themes": "^0.4.6",
     "node-fetch": "^3.3.2",
     "postcss": "8.4.38",
-    "prisma": "5.10.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-markdown": "^10.1.0",
@@ -45,7 +39,6 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/react": "19.2.5",
-    "tsx": "^4.20.6",
     "typescript": "^5.4.5"
   }
 }

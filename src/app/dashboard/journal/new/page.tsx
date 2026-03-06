@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
 import MarkdownEditor from "@/components/ui/MarkdownEditor";
 import { ArrowLeft, Save, Eye, EyeOff } from "lucide-react";
-import { dbAdapter } from "@/lib/db-adapter";
 
 const moodOptions = [
   { value: "happy", label: "😊 开心", color: "text-green-500" },
@@ -39,16 +38,21 @@ export default function NewJournalPage() {
     setIsSubmitting(true);
     try {
       const tagsArray = tags.split(",").map(tag => tag.trim()).filter(Boolean);
-      
-      await dbAdapter.journal.create({
-        title: title.trim(),
-        content: content.trim(),
-        mood: mood || undefined,
-        tags: tagsArray,
-        isPrivate: isPrivate,
-        userId: session.user.id,
-        likes: 0
+
+      const res = await fetch('/api/journal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title.trim(),
+          content: content.trim(),
+          mood: mood || undefined,
+          tags: tagsArray,
+          isPrivate: isPrivate,
+          userId: session.user.id,
+          likes: 0
+        }),
       });
+      if (!res.ok) throw new Error('挂请失败');
 
       alert("日记创建成功！");
       router.push("/dashboard/journal");

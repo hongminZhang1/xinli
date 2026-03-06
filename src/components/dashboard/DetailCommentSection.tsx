@@ -38,14 +38,14 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
       if (!session?.user?.id) {
         throw new Error('用户未登录');
       }
-      
-      // 使用dbAdapter而不是直接API调用
-      const { dbAdapter } = require('@/lib/db-adapter');
-      return dbAdapter.comment.create({
-        content: commentData.content,
-        journalId: journalId,
-        userId: session.user.id // 使用实际的用户ID
+
+      const res = await fetch(`/api/journal/${journalId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: commentData.content }),
       });
+      if (!res.ok) throw new Error('创建评论失败');
+      return res.json();
     },
     {
       onSuccess: (newCommentData) => {

@@ -22,9 +22,13 @@ export default function AdminSystemSettings() {
   // 更新设置的mutation
   const updateSettingMutation = useMutation(
     async ({ key, value }: { key: string; value: string }) => {
-      // 使用dbAdapter而不是直接API调用
-      const { dbAdapter } = require('@/lib/db-adapter');
-      return dbAdapter.systemSetting.update(key, value);
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, value }),
+      });
+      if (!res.ok) throw new Error('更新设置失败');
+      return res.json();
     },
     {
       onSuccess: () => {
