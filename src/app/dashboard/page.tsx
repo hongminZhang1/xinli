@@ -91,9 +91,8 @@ export default async function DashboardPage() {
                     size="large"
                     className="ring-2 sm:ring-4 ring-white/20 shadow-lg w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20"
                   />
-                  {/* 在线状态指示器 */}
-                  <div className={`absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-4 h-4 sm:w-6 sm:h-6 rounded-full border-2 sm:border-3 border-card shadow-lg flex items-center justify-center ${session?.user?.isActive ? 'bg-success' : 'bg-muted'}`}>
-                    {session?.user?.isActive && <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full animate-pulse" />}
+                  {/* 在线状态指示器（强制显示浅绿色在线，无动画） */}
+                  <div className={`absolute bottom-0 right-0 sm:bottom-0.5 sm:right-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 rounded-full border-2 sm:border-[3px] border-white dark:border-gray-800 shadow-sm bg-[#4ade80]`}>
                   </div>
                 </div>
                 
@@ -102,7 +101,6 @@ export default async function DashboardPage() {
                     <h1 className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl text-foreground truncate">
                       {greeting.text}, {session?.user?.username || '朋友'}!
                     </h1>
-                    <span className="text-xl sm:text-2xl lg:text-3xl animate-float flex-shrink-0">{greeting.icon}</span>
                   </div>
                   
                   <div className="flex flex-wrap items-center gap-2 sm:gap-4">
