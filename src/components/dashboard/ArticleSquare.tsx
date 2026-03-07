@@ -27,16 +27,34 @@ type JournalEntry = {
   commentCount?: number;
 };
 
+const moodStyleMap: Record<string, { bg: string, text: string, gradient: string, border: string }> = {
+  happy: { bg: "bg-emerald-100 dark:bg-emerald-900/30", text: "text-emerald-700 dark:text-emerald-300", gradient: "from-emerald-500/20 to-teal-500/5", border: "border-emerald-200 dark:border-emerald-800" },
+  sad: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-300", gradient: "from-blue-500/20 to-indigo-500/5", border: "border-blue-200 dark:border-blue-800" },
+  anxious: { bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-300", gradient: "from-amber-500/20 to-orange-500/5", border: "border-amber-200 dark:border-amber-800" },
+  angry: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-300", gradient: "from-red-500/20 to-rose-500/5", border: "border-red-200 dark:border-red-800" },
+  calm: { bg: "bg-teal-100 dark:bg-teal-900/30", text: "text-teal-700 dark:text-teal-300", gradient: "from-teal-500/20 to-cyan-500/5", border: "border-teal-200 dark:border-teal-800" },
+  excited: { bg: "bg-pink-100 dark:bg-pink-900/30", text: "text-pink-700 dark:text-pink-300", gradient: "from-pink-500/20 to-fuchsia-500/5", border: "border-pink-200 dark:border-pink-800" },
+  tired: { bg: "bg-slate-100 dark:bg-slate-900/30", text: "text-slate-700 dark:text-slate-300", gradient: "from-slate-500/20 to-gray-500/5", border: "border-slate-200 dark:border-slate-800" },
+  peaceful: { bg: "bg-indigo-100 dark:bg-indigo-900/30", text: "text-indigo-700 dark:text-indigo-300", gradient: "from-indigo-500/20 to-violet-500/5", border: "border-indigo-200 dark:border-indigo-800" }
+};
+
 const moodOptions = [
-  { value: "happy", label: "😊 开心", color: "text-green-500" },
-  { value: "sad", label: "😢 悲伤", color: "text-blue-500" },
-  { value: "anxious", label: "😰 焦虑", color: "text-yellow-500" },
-  { value: "angry", label: "😡 愤怒", color: "text-red-500" },
-  { value: "calm", label: "😌 平静", color: "text-purple-500" },
-  { value: "excited", label: "🤩 兴奋", color: "text-pink-500" },
-  { value: "tired", label: "😴 疲惫", color: "text-gray-500" },
-  { value: "peaceful", label: "🕊️ 宁静", color: "text-indigo-500" }
+  { value: "happy", label: "😊 开心" },
+  { value: "sad", label: "😢 悲伤" },
+  { value: "anxious", label: "😰 焦虑" },
+  { value: "angry", label: "😡 愤怒" },
+  { value: "calm", label: "😌 平静" },
+  { value: "excited", label: "🤩 兴奋" },
+  { value: "tired", label: "😴 疲惫" },
+  { value: "peaceful", label: "🕊️ 宁静" }
 ];
+
+const getMoodStyle = (moodValue?: string) => {
+  if (!moodValue || !moodStyleMap[moodValue]) {
+    return { bg: "bg-gray-100 dark:bg-gray-800", text: "text-gray-700 dark:text-gray-300", gradient: "from-gray-500/10 to-gray-500/5", border: "border-gray-200 dark:border-gray-800" };
+  }
+  return moodStyleMap[moodValue];
+};
 
 export default function ArticleSquare({ initialData }: { initialData?: any[] } = {}) {
   const { data: session } = useSession();
@@ -114,127 +132,122 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
   }
 
   return (
-    <div className="space-y-6">
-      <Card className="p-3 sm:p-4">
-        <div className="text-center">
-          <h3 className="text-base sm:text-lg font-semibold mb-2">文章广场</h3>
-          <p className="text-gray-600 text-sm sm:text-base">
-            <span className="hidden sm:inline">这里是大家分享心情和感受的地方，互相支持，共同成长 💝</span>
-            <span className="sm:hidden">分享你的心情，互相支持 💝</span>
+    <div className="space-y-8">
+      {/* 头部专业级封面/横幅设计 */}
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-800 dark:via-gray-800 dark:to-indigo-900/40 p-8 sm:p-12 shadow-sm border border-indigo-100/60 dark:border-gray-700">
+        <div className="relative z-10 max-w-2xl">
+          <div className="flex items-center gap-4 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-indigo-950 dark:text-indigo-100">文章广场</h2>
+            <div className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-sm font-medium rounded-full border border-indigo-200 dark:border-indigo-800">
+              {journals.length} 篇公开文章
+            </div>
+          </div>
+          <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
+            在一个安全的空间里，探索自我、分享心情。在这里，我们互相倾听、互相支持，共同完成心灵的疗愈与成长。
           </p>
         </div>
-      </Card>
+        {/* 背景装饰图形 */}
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-indigo-200 dark:bg-indigo-600 opacity-20 blur-3xl"></div>
+        <div className="absolute bottom-0 right-20 mb-[-10%] w-32 h-32 rounded-full border-4 border-indigo-100 dark:border-indigo-800 opacity-50"></div>
+      </div>
 
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {journals.length === 0 ? (
-          <Card className="text-center p-8">
-            <p className="text-gray-500">还没有公开的文章，快去写下第一篇吧！</p>
-          </Card>
+          <div className="col-span-full">
+            <Card className="text-center p-12 bg-gray-50 dark:bg-gray-800/50 border-dashed border-2 shadow-none">
+              <p className="text-gray-500 dark:text-gray-400 text-lg">还没有公开的文章，快去写下第一篇吧！</p>
+            </Card>
+          </div>
         ) : (
-          journals.map((journal: any) => (
-            <div
-              key={journal.id}
-              onClick={() => handleJournalClick(journal.id)}
-              className="cursor-pointer"
-            >
-              <Card className="p-3 sm:p-4 hover:shadow-md transition-shadow">
-              <div className="flex items-start gap-3">
-                {/* 桌面端显示头像 */}
-                <div className="hidden sm:block flex-shrink-0">
-                  <Avatar 
-                    username={getUserDisplayName(journal.user)} 
-                    avatar={journal.user.avatar}
-                    size="medium"
-                    className="flex-shrink-0"
-                  />
-                </div>
+          journals.map((journal: any) => {
+            const moodStyle = getMoodStyle(journal.mood);
+            return (
+              <div
+                key={journal.id}
+                onClick={() => handleJournalClick(journal.id)}
+                className="group cursor-pointer flex flex-col h-full bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 dark:border-gray-700"
+              >
+                {/* 顶部彩色条，根据心情变化 */}
+                <div className={`h-1.5 w-full bg-gradient-to-r ${moodStyle.gradient}`}></div>
                 
-                {/* 移动端小头像 */}
-                <div className="sm:hidden flex-shrink-0">
-                  <Avatar 
-                    username={getUserDisplayName(journal.user)} 
-                    avatar={journal.user.avatar}
-                    size="small"
-                  />
-                </div>
-
-                {/* 文章信息 */}
-                <div className="flex-1 min-w-0">
-                  {/* 标题和心情 */}
-                  <div className="flex items-start justify-between mb-2">
-                    <h4 className="text-sm sm:text-lg font-semibold text-gray-800 truncate">
-                      {journal.title}
-                    </h4>
+                <div className="flex flex-col flex-grow p-5 sm:p-6">
+                  {/* 用户信息与日期区域 */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar 
+                        username={getUserDisplayName(journal.user)} 
+                        avatar={journal.user.avatar}
+                        size="small"
+                        className="ring-2 ring-gray-50 dark:ring-gray-800"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-1">
+                          {getUserDisplayName(journal.user)}
+                        </span>
+                        <div className="flex items-center text-[11px] text-gray-500 dark:text-gray-400">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {isMounted ? formatDate(journal.createdAt) : ''}
+                        </div>
+                      </div>
+                    </div>
+                    {/* 心情贴纸 */}
                     {journal.mood && (
-                      <span className="ml-2 text-base sm:text-lg flex-shrink-0">
+                      <div className={`px-2.5 py-1 rounded-full text-xs font-medium flex items-center ${moodStyle.bg} ${moodStyle.text} border ${moodStyle.border}`}>
                         {getMoodDisplay(journal.mood)}
-                      </span>
+                      </div>
                     )}
                   </div>
 
-                  {/* 内容预览 */}
-                  <div className="text-gray-600 text-sm mb-2 overflow-hidden" style={{
+                  {/* 标题 */}
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {journal.title}
+                  </h3>
+
+                  {/* 内容摘要 */}
+                  <div className="text-gray-600 dark:text-gray-400 text-sm mb-4 flex-grow prose prose-sm dark:prose-invert max-w-none" style={{
                     display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical'
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
                   }}>
-                    <MarkdownRenderer 
-                      content={journal.content.length > 100 
-                        ? `${journal.content.substring(0, 100)}...`
-                        : journal.content
-                      } 
-                      className="prose-sm"
-                    />
+                    {journal.content.replace(/[#*`_]/g, '')}
                   </div>
 
-                  {/* 底部信息栏 */}
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <div className="flex items-center gap-2 sm:gap-4">
-                      <span className="font-medium text-xs sm:text-sm">
-                        {getUserDisplayName(journal.user)}
-                      </span>
-                      <div className="hidden sm:flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {isMounted ? formatDate(journal.createdAt) : ''}
-                      </div>
-                      <div className="sm:hidden text-xs">
-                        {isMounted ? formatDate(journal.createdAt) : ''}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      <div className="flex items-center gap-1">
-                        <Heart className="w-3 h-3" />
-                        <span className="text-xs">{journal.likes}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MessageCircle className="w-3 h-3" />
-                        <span className="text-xs">{Array.isArray(journal.comments) ? journal.comments.length : (journal.commentCount || 0)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 标签（只显示前3个）*/}
-                  {Array.isArray(journal.tags) && journal.tags.length > 0 && (
-                    <div className="hidden sm:flex items-center gap-1 mt-2">
-                      {journal.tags.slice(0, 2).map((tag: string) => (
-                        <span
-                          key={tag}
-                          className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs"
-                        >
-                          #{tag}
+                  {/* 底部互动区与标签 */}
+                  <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 overflow-hidden w-2/3">
+                      {Array.isArray(journal.tags) && journal.tags.length > 0 && (
+                        journal.tags.slice(0, 2).map((tag: string) => (
+                          <span
+                            key={tag}
+                            className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-medium truncate"
+                          >
+                            #{tag}
+                          </span>
+                        ))
+                      )}
+                      {Array.isArray(journal.tags) && journal.tags.length > 2 && (
+                        <span className="text-gray-400 dark:text-gray-500 text-[10px] sm:text-xs font-medium shrink-0">
+                          +{journal.tags.length - 2}
                         </span>
-                      ))}
-                      {journal.tags.length > 2 && (
-                        <span className="text-gray-400 text-xs">+{journal.tags.length - 2}</span>
                       )}
                     </div>
-                  )}
+                    
+                    <div className="flex items-center gap-3 shrink-0 text-gray-400 dark:text-gray-500">
+                      <div className="flex items-center gap-1 group-hover:text-pink-500 transition-colors">
+                        <Heart className="w-4 h-4" />
+                        <span className="text-xs font-medium">{journal.likes}</span>
+                      </div>
+                      <div className="flex items-center gap-1 group-hover:text-blue-500 transition-colors">
+                        <MessageCircle className="w-4 h-4" />
+                        <span className="text-xs font-medium">{Array.isArray(journal.comments) ? journal.comments.length : (journal.commentCount || 0)}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                </div>
-              </Card>
-            </div>
-          ))
+              </div>
+            );
+          })
         )}
       </div>
     </div>
