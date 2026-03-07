@@ -3,15 +3,15 @@ import { useSession } from "next-auth/react";
 import { EmotionEntry, CreateEmotionRequest, UpdateEmotionRequest } from "@/types/emotions";
 import { useCacheStore, CACHE_TTL } from '@/store/useCacheStore';
 
-const EMOTIONS_CACHE_KEY = 'emotions-records';
+const getEmotionsCacheKey = (userId?: string) => `emotions-records-${userId ?? 'anonymous'}`;
 
 export function useEmotions() {
   const { data: session, status } = useSession();
   const { getCache, setCache, invalidateCache } = useCacheStore();
   
   const [entries, setEntries] = useState<any[]>(() => {
-    // 初始化时尝试从缓存获取
-    return getCache<any[]>(EMOTIONS_CACHE_KEY) || [];
+    // 初始化时尝试从缓存获取（此时 session 还未加载，直接返回空数组）
+    return [];
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +21,10 @@ export function useEmotions() {
   const loadEntries = async () => {
     if (!session?.user?.id || loadingRef.current) return;
     
+    const cacheKey = getEmotionsCacheKey(session.user.id);
+
     // 检查缓存
-    const cachedData = getCache<any[]>(EMOTIONS_CACHE_KEY);
+    const cachedData = getCache<any[]>(cacheKey);
     if (cachedData) {
       setEntries(cachedData);
       return;
@@ -40,7 +42,7 @@ export function useEmotions() {
       const data = await response.json();
       
       // 更新缓存
-      setCache(EMOTIONS_CACHE_KEY, data || [], CACHE_TTL.EMOTIONS);
+      setCache(cacheKey, data || [], CACHE_TTL.EMOTIONS);
       setEntries(data || []);
     } catch (err) {
       console.error('Failed to load emotions:', err);
@@ -76,7 +78,7 @@ export function useEmotions() {
       // 更新本地状态和缓存
       const updatedEntries = [newEntry, ...entries];
       setEntries(updatedEntries);
-      setCache(EMOTIONS_CACHE_KEY, updatedEntries, CACHE_TTL.EMOTIONS);
+      setCache(getEmotionsCacheKey(session.user.id), updatedEntries, CACHE_TTL.EMOTIONS);
       
       return true;
     } catch (err) {
@@ -115,7 +117,7 @@ export function useEmotions() {
         entry.id === id ? updatedEntry : entry
       );
       setEntries(updatedEntries);
-      setCache(EMOTIONS_CACHE_KEY, updatedEntries, CACHE_TTL.EMOTIONS);
+      setCache(getEmotionsCacheKey(session.user.id), updatedEntries, CACHE_TTL.EMOTIONS);
       
       return true;
     } catch (err) {
@@ -146,7 +148,7 @@ export function useEmotions() {
       // 更新本地状态和缓存
       const updatedEntries = entries.filter(entry => entry.id !== id);
       setEntries(updatedEntries);
-      setCache(EMOTIONS_CACHE_KEY, updatedEntries, CACHE_TTL.EMOTIONS);
+      setCache(getEmotionsCacheKey(session.user.id), updatedEntries, CACHE_TTL.EMOTIONS);
       
       return true;
     } catch (err) {

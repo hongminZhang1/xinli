@@ -60,6 +60,11 @@ export default function JournalDetailClient({
   initialComments,
 }: JournalDetailClientProps) {
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // 使用 SSR 初始数据，后台静默刷新
   const { data: journal, isLoading, error: fetchError } = useJournalDetail(
@@ -159,7 +164,7 @@ export default function JournalDetailClient({
         className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
-        {getBackText()}
+        {isMounted ? getBackText() : "返回文章广场"}
       </button>
 
       {/* 文章详情 */}
@@ -179,7 +184,7 @@ export default function JournalDetailClient({
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <Clock className="w-4 h-4" />
-                {formatDate(displayJournal.createdAt)}
+                {isMounted ? formatDate(displayJournal.createdAt) : ''}
               </div>
             </div>
           </div>

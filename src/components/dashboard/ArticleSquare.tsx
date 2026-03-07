@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
@@ -41,6 +41,11 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
   const { data: session } = useSession();
   const router = useRouter();
   const { data, isLoading, error, refetch } = useJournals('public', initialData);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   // 从API数据中提取journals - 现在API已经只返回公开的日记
   const journals = Array.isArray(data) ? data : [];
@@ -189,10 +194,10 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
                       </span>
                       <div className="hidden sm:flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        {formatDate(journal.createdAt)}
+                        {isMounted ? formatDate(journal.createdAt) : ''}
                       </div>
                       <div className="sm:hidden text-xs">
-                        {formatDate(journal.createdAt)}
+                        {isMounted ? formatDate(journal.createdAt) : ''}
                       </div>
                     </div>
 

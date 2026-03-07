@@ -11,8 +11,8 @@ export async function GET(
     const journalId = params.id;
     const apiBase = getApiBaseUrl();
 
-    // 先检查日记是否存在且为公开，如果私密则需要权限检查
-    const journalRes = await fetch(`${apiBase}/journal/${journalId}`);
+    // 检查日记是否存在且为公开，设置 cache为 no-store 防止Next.js默认缓存
+    const journalRes = await fetch(`${apiBase}/journal/${journalId}`, { cache: 'no-store' });
     if (!journalRes.ok) {
       return NextResponse.json({ error: "日记不存在" }, { status: 404 });
     }
@@ -26,11 +26,9 @@ export async function GET(
       }
     }
 
-    const commentsRes = await fetch(`${apiBase}/comments/journal/${journalId}`);
-    if (!commentsRes.ok) {
-      return NextResponse.json({ error: "获取评论失败" }, { status: 500 });
-    }
-    const comments = await commentsRes.json();
+    // 日记响应中已包含 comments（服务端 include: { comments: { include: { user: true } } }）
+    // 直接使用，避免额外请求
+    const comments = journal.comments ?? [];
     return NextResponse.json(comments);
   } catch (error) {
     console.error("获取评论失败:", error);

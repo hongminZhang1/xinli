@@ -4,5 +4,5 @@
  */
 
 export const getApiBaseUrl = () => {
-  return process.env.API_BASE_URL || 'http://homgzha.cc:3001/api';
+  return process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || 'http://homgzha.cc:3001/api';
 };

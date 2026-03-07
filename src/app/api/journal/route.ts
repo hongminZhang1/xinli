@@ -35,7 +35,11 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+    // 防御性过滤：确保公开列表中不包含私密日记（服务端过滤可能有 bug）
+    const filtered = type === 'public' && Array.isArray(data)
+      ? data.filter((item: any) => !item.isPrivate)
+      : data;
+    return NextResponse.json(filtered);
   } catch (error) {
     console.error("获取日记失败:", error);
     return NextResponse.json([], { status: 200 }); // 降级返回空数组

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useJournalComments, useMutation } from "@/hooks/useQuery";
 import Avatar from "@/components/ui/Avatar";
@@ -28,6 +28,11 @@ export default function CommentSection({ journalId, comments, onCommentAdded }: 
   const [newComment, setNewComment] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [showCommentInput, setShowCommentInput] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   // 使用缓存的评论查询
   const { data: loadedComments, isLoading: isLoadingComments, refetch: refetchComments } = useJournalComments(journalId, showComments);
@@ -193,7 +198,7 @@ export default function CommentSection({ journalId, comments, onCommentAdded }: 
                       {getUserDisplayName(comment.user)}
                     </span>
                     <span className="text-xs text-gray-500">
-                      {formatDate(comment.createdAt)}
+                      {isMounted ? formatDate(comment.createdAt) : ''}
                     </span>
                   </div>
                   <div className="text-gray-700 text-sm whitespace-pre-wrap">

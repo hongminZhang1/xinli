@@ -198,9 +198,11 @@ export function useMutation<TData = any, TVariables = any>(
 // ==================== 具体数据查询 Hooks ====================
 
 // 文章/日记相关
-export const useJournals = (type: 'all' | 'public' = 'public', initialData?: any[]) => {
+export const useJournals = (type: 'all' | 'public' = 'public', initialData?: any[], userId?: string) => {
+  // public 类型共享缓存；all/private 类型按用户隔离
+  const cacheKey = type === 'public' ? `journals-${type}` : `journals-${type}-${userId ?? 'anon'}`;
   return useQuery(
-    `journals-${type}`,
+    cacheKey,
     async () => {
       const url = type === 'public' ? '/api/journal?type=public' : '/api/journal';
       const res = await fetch(url);
@@ -208,7 +210,7 @@ export const useJournals = (type: 'all' | 'public' = 'public', initialData?: any
       return res.json();
     },
     {
-      enabled: true,
+      enabled: type === 'public' || !!userId,
       cacheTime: CACHE_TTL.ARTICLES,
       staleTime: 60 * 1000,
       initialData,

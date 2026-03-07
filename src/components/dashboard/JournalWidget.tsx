@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
@@ -53,7 +53,12 @@ const moodOptions = [
 export default function JournalWidget() {
   const { data: session } = useSession();
   const router = useRouter();
-  const { data, isLoading: journalsLoading, error: journalsError, refetch } = useJournals('all');
+  const { data, isLoading: journalsLoading, error: journalsError, refetch } = useJournals('all', undefined, session?.user?.id);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   // 从API数据中提取journals并筛选当前用户的记录
   const journals = Array.isArray(data) 
@@ -344,7 +349,7 @@ export default function JournalWidget() {
                     )}
                   </div>
                   <div className="text-xs sm:text-sm text-gray-500">
-                    {formatDate(journal.createdAt)}
+                    {isMounted ? formatDate(journal.createdAt) : ''}
                   </div>
                 </div>
                 

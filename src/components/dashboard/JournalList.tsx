@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
 import Avatar from "@/components/ui/Avatar";
@@ -43,6 +43,11 @@ interface JournalListProps {
 
 export default function JournalList({ initialJournals, userId }: JournalListProps) {
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const { data: journals, refetch } = useQuery(
     `user-journals-${userId}`,
@@ -161,7 +166,7 @@ export default function JournalList({ initialJournals, userId }: JournalListProp
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-gray-500">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-3 h-3 flex-shrink-0" />
-                        <span>{formatDate(journal.createdAt)}</span>
+                        <span>{isMounted ? formatDate(journal.createdAt) : ''}</span>
                       </div>
                       <div className="flex items-center gap-2 sm:gap-4">
                         {journal.mood && (

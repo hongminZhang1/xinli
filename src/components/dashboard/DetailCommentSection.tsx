@@ -28,7 +28,10 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState<Comment[]>(initialComments);
 
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
+    setIsMounted(true);
     setComments(initialComments);
   }, [initialComments]);
 
@@ -138,7 +141,7 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
                       {getUserDisplayName(comment.user)}
                     </span>
                     <span className="text-sm text-gray-500">
-                      {formatDate(comment.createdAt)}
+                      {isMounted ? formatDate(comment.createdAt) : ''}
                     </span>
                   </div>
                   <div className="text-gray-700 whitespace-pre-wrap">
