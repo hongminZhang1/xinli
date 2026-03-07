@@ -181,7 +181,7 @@ export default function ChatWidget() {
             <div className="max-w-md space-y-3">
               <p className="font-semibold text-slate-800 dark:text-slate-100 text-xl">你好，我是你的心理助手小晴 ✨</p>
               <p className="text-sm text-slate-500 dark:text-slate-300 leading-relaxed">
-                我是你的专属心理倾听伙伴。无论是开心还是难过，我都在这里陪着你。你可以把这里当作树洞，告诉我任何你想说的话。
+                我是你的专属心理倾听伙伴。无论是开心还是难过，我都在这里陪着你。 你可以把这里当作树洞，告诉我任何你想说的话。
               </p>
             </div>
             
