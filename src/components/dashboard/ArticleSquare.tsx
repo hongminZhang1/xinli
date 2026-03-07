@@ -23,6 +23,7 @@ type JournalEntry = {
     name?: string;
     avatar?: string;
   };
+  comments?: any[];
   commentCount?: number;
 };
 
@@ -208,7 +209,7 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
                       </div>
                       <div className="flex items-center gap-1">
                         <MessageCircle className="w-3 h-3" />
-                        <span className="text-xs">{journal.commentCount || 0}</span>
+                        <span className="text-xs">{Array.isArray(journal.comments) ? journal.comments.length : (journal.commentCount || 0)}</span>
                       </div>
                     </div>
                   </div>

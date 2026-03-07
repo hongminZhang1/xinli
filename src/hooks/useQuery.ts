@@ -79,7 +79,10 @@ export function useQuery<T = any>(
     if (!enabled) return;
 
     // 如果有 SSR 初始数据且缓存为空，先将初始数据写入缓存（视为刚获取的新鲜数据）
-    if (initialData !== undefined && !getCacheItem(key)) {
+    // 仅当 initialData 非空时才写入缓存，避免 SSR 失败返回 [] 毒化缓存导致客户端永远不发请求
+    const isNonEmptyInitialData = initialData !== undefined &&
+      !(Array.isArray(initialData) && initialData.length === 0);
+    if (isNonEmptyInitialData && !getCacheItem(key)) {
       setCache(key, initialData, cacheTime);
     }
 
@@ -89,10 +92,11 @@ export function useQuery<T = any>(
       // 有有效缓存
       setData(cacheItem.data);
       
-      // 检查是否需要后台刷新（stale-while-revalidate）
+      // 缓存数据为空数组时，视为无效数据，立即后台刷新
+      const cachedIsEmpty = Array.isArray(cacheItem.data) && cacheItem.data.length === 0;
       const timeSinceCache = Date.now() - cacheItem.timestamp;
-      if (timeSinceCache > staleTime) {
-        // 数据已过期，后台刷新
+      if (timeSinceCache > staleTime || cachedIsEmpty) {
+        // 数据已过期或为空，后台刷新
         executeQuery(true);
       }
     } else {
