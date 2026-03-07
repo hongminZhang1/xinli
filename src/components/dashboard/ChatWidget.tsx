@@ -171,20 +171,22 @@ export default function ChatWidget() {
   };
 
   return (
-    <Card className="flex flex-col h-[700px] border-none shadow-xl bg-white/80 backdrop-blur-sm">
-      <div className="flex-1 overflow-y-auto space-y-6 p-4 bg-slate-50/50 custom-scrollbar rounded-t-xl">
+    <Card className="flex flex-col h-[700px] border-none shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+      <div className="flex-1 overflow-y-auto space-y-6 p-4 bg-slate-50/50 dark:bg-slate-900/50 custom-scrollbar rounded-t-xl">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-6 opacity-0 animate-fadeIn" style={{ animationFillMode: 'forwards' }}>
-            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-4xl shadow-sm">🤖</div>
+            <div className="w-20 h-20 rounded-full overflow-hidden shadow-sm border-2 border-blue-100">
+              <img src="/images/OIP.jpg" alt="小晴" className="w-full h-full object-cover" />
+            </div>
             <div className="max-w-md space-y-3">
-              <p className="font-semibold text-slate-800 text-xl">你好，我是你的心理助手小晴 ✨</p>
-              <p className="text-sm text-slate-500 leading-relaxed">
+              <p className="font-semibold text-slate-800 dark:text-slate-100 text-xl">你好，我是你的心理助手小晴 ✨</p>
+              <p className="text-sm text-slate-500 dark:text-slate-300 leading-relaxed">
                 我是你的专属心理倾听伙伴。无论是开心还是难过，我都在这里陪着你。你可以把这里当作树洞，告诉我任何你想说的话。
               </p>
             </div>
             
             <div className="w-full max-w-md mt-8">
-              <p className="text-xs text-slate-400 mb-3 font-medium uppercase tracking-wider">你可以试着问我：</p>
+              <p className="text-xs text-slate-400 dark:text-slate-400 mb-3 font-medium uppercase tracking-wider">你可以试着问我：</p>
               <div className="grid grid-cols-1 gap-2">
                 {[
                   "我最近总是感到很焦虑，该怎么办？",
@@ -195,7 +197,7 @@ export default function ChatWidget() {
                   <button
                     key={index}
                     onClick={() => send(prompt)}
-                    className="text-left px-4 py-3 text-sm text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all duration-200 shadow-sm"
+                    className="text-left px-4 py-3 text-sm text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-blue-50 dark:hover:bg-slate-600 hover:border-blue-200 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 shadow-sm"
                   >
                     {prompt}
                   </button>
