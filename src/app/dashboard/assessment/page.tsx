@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import AssessmentCard from "@/components/assessment/AssessmentCard";
 import TestModal from "@/components/assessment/TestModal";
 import { assessmentCategories, allAssessments } from "@/lib/assessment-data";
-import { Brain, Sparkles } from "lucide-react";
+import { Brain, Filter, ChevronRight } from "lucide-react";
 
 export default function AssessmentPage() {
   const { data: session } = useSession();
@@ -16,8 +16,6 @@ export default function AssessmentPage() {
   const filteredAssessments = selectedCategory === "all" 
     ? allAssessments 
     : allAssessments.filter(assessment => assessment.category === selectedCategory);
-
-  const todayRecommended = allAssessments[0]; // 今日推荐
 
   const handleStartTest = (assessment: any) => {
     setSelectedTest(assessment);
@@ -30,126 +28,99 @@ export default function AssessmentPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 今日推荐测试 */}
-        <div className="mb-12">
-          <div className="flex items-center gap-2 mb-6">
-            <Sparkles className="w-5 h-5 text-yellow-500" />
-            <h2 className="text-2xl font-bold text-gray-800">今日推荐</h2>
-          </div>
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
-            <div className="relative bg-white rounded-2xl p-8 shadow-xl">
-              <div className="flex flex-col lg:flex-row items-center gap-8">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="text-4xl">{todayRecommended.icon}</div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-gray-800">{todayRecommended.title}</h3>
-                      <p className="text-yellow-600 font-medium">⭐ 今日推荐测试</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 mb-4 text-lg leading-relaxed">
-                    {todayRecommended.description}
-                  </p>
-                  <div className="flex items-center gap-6 text-sm text-gray-500 mb-6">
-                    <span className="flex items-center gap-1">
-                      ⏱️ {todayRecommended.duration}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      📊 {todayRecommended.questions} 道题
-                    </span>
-                    <span className="flex items-center gap-1">
-                      👥 {todayRecommended.participants} 人已测试
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => handleStartTest(todayRecommended)}
-                    className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
-                  >
-                    开始测试 →
-                  </button>
-                </div>
-                <div className="lg:w-80">
-                  <div className="relative">
-                    <div className="w-full h-48 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
-                      <div className="text-6xl opacity-80">{todayRecommended.icon}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-slate-900 pb-20 selection:bg-indigo-500/30">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden w-full bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-0 left-[20%] w-[500px] h-[500px] bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-3xl mix-blend-multiply opacity-70 animate-pulse"></div>
+          <div className="absolute top-0 right-[20%] w-[400px] h-[400px] bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-3xl mix-blend-multiply opacity-70 animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-32 left-[40%] w-[600px] h-[600px] bg-pink-500/10 dark:bg-pink-500/5 rounded-full blur-3xl mix-blend-multiply opacity-70 animate-pulse animation-delay-4000"></div>
+          <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] dark:[mask-image:linear-gradient(180deg,black,transparent)] opacity-20"></div>
         </div>
 
-        {/* 测试分类导航 */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">测试分类</h2>
-          <div className="flex gap-4 overflow-x-auto pb-4">
-            <button
-              onClick={() => setSelectedCategory("all")}
-              className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 whitespace-nowrap ${
-                selectedCategory === "all"
-                  ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg"
-                  : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
-              }`}
-            >
-              🌟 全部测试
-            </button>
-            {assessmentCategories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 whitespace-nowrap ${
-                  selectedCategory === category.id
-                    ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg"
-                    : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
-                }`}
-              >
-                {category.icon} {category.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 测试列表 */}
-        <div>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">
-              {selectedCategory === "all" ? "所有测试" : assessmentCategories.find(c => c.id === selectedCategory)?.name}
-            </h2>
-            <span className="text-sm text-gray-500">
-              共 {filteredAssessments.length} 个测试
-            </span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredAssessments.map((assessment) => (
-              <AssessmentCard
-                key={assessment.id}
-                assessment={assessment}
-                onStartTest={() => handleStartTest(assessment)}
-                isCompleted={assessment.completed}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* 底部提示 */}
-        <div className="mt-16 text-center">
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 max-w-3xl mx-auto border border-blue-100">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">
-              📋 测试说明
-            </h3>
-            <div className="text-gray-600 space-y-2 text-sm leading-relaxed">
-              <p>所有测试基于心理学理论设计，仅供自我了解参考</p>
-              <p>如需专业心理咨询，请联系我们的专业心理咨询师</p>
-            </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
+          <div className="text-center max-w-3xl mx-auto">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4 flex items-center justify-center gap-3">
+              发现真实的
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                内心宇宙
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-semibold rounded-full bg-gradient-to-r from-blue-500/10 to-indigo-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-sm align-middle ml-2">
+                <Brain className="w-4 h-4" />
+                DeepSeek AI
+              </span>
+            </h1>
+            <p className="text-base text-slate-600 dark:text-slate-400 mb-0">
+              结合科学的心理学量表与前沿 <strong className="text-slate-800 dark:text-slate-200 font-semibold">DeepSeek AI 深度分析架构</strong>，为您生成个性化、多维度的专业洞察报告
+            </p>
           </div>
         </div>
       </div>
 
-      {/* 测试弹窗 */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Category Navigation */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-center gap-8 mb-12">
+          <div className="flex p-1.5 bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl shadow-sm overflow-x-auto hide-scrollbar w-full lg:w-auto">
+            <button
+              onClick={() => setSelectedCategory("all")}
+              className={`flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 ${
+                selectedCategory === "all"
+                  ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md"
+                  : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700/50"
+              }`}
+            >
+              <Filter className="w-4 h-4" />
+              <span>全部 ({allAssessments.length})</span>
+            </button>
+            {assessmentCategories.map((category) => {
+              const categoryCount = allAssessments.filter(a => a.category === category.id).length;
+              return (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 ${
+                  selectedCategory === category.id
+                    ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md"
+                    : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                }`}
+              >
+                <span className="text-lg">{category.icon}</span>
+                <span>{category.name} ({categoryCount})</span>
+              </button>
+            )})}
+          </div>
+        </div>
+
+        {/* Assessment Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredAssessments.map((assessment) => (
+            <AssessmentCard
+              key={assessment.id}
+              assessment={assessment}
+              onStartTest={() => handleStartTest(assessment)}
+              isCompleted={assessment.completed}
+            />
+          ))}
+        </div>
+
+        {filteredAssessments.length === 0 && (
+          <div className="py-24 text-center bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-100 dark:border-slate-700/50 mt-8 shadow-sm">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-50 dark:bg-slate-900/50 mb-6 border border-slate-100 dark:border-slate-800">
+              <Brain className="w-10 h-10 text-slate-400" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">暂无相关评测</h3>
+            <p className="text-slate-500 dark:text-slate-400">目前该分类下还没有添加测试量表</p>
+          </div>
+        )}
+
+        {/* Footer Disclaimer */}
+        <div className="mt-16 text-center text-slate-400 dark:text-slate-500 text-sm">
+          <p className="font-bold">
+            心理测评说明：我们的量表基于前沿心理学理论和大量实证研究构建，为您提供深度自我洞察与成长参考。不能代替专业心理诊断与医疗建议。
+          </p>
+        </div>
+      </div>
+
       {isTestModalOpen && selectedTest && (
         <TestModal
           test={selectedTest}
