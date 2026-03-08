@@ -388,6 +388,45 @@ const resources = [
     "hover": "hover:border--400 dark:hover:border--600"
   },
   {
+    "title": "KnowYourself",
+    "desc": "国内极具影响力的泛心理学平台，提供深度的心理科普内容、自我探索与觉察工具",
+    "href": "https://www.knowyourself.cc/",
+    "icon": "🌌",
+    "category": "platform",
+    "tag": "自我探索",
+    "tagColor": "bg--100 dark:bg--900/40 text--700 dark:text--300",
+    "gradient": "from-purple-400 to-indigo-500",
+    "bg": "bg-gradient-to-br from--50 to--50 dark:from--900/20 dark:to--900/20",
+    "border": "border--200 dark:border--800/50",
+    "hover": "hover:border--400 dark:hover:border--600"
+  },
+  {
+    "title": "看见心理",
+    "desc": "汇聚专业心理咨询师的平台，提供涵盖个人成长、情绪管理等多维度的心理学课程与自我探索体验",
+    "href": "https://www.kanjianxinli.com/",
+    "icon": "👁️",
+    "category": "platform",
+    "tag": "咨询与科普",
+    "tagColor": "bg--100 dark:bg--900/40 text--700 dark:text--300",
+    "gradient": "from-blue-400 to-cyan-500",
+    "bg": "bg-gradient-to-br from--50 to--50 dark:from--900/20 dark:to--900/20",
+    "border": "border--200 dark:border--800/50",
+    "hover": "hover:border--400 dark:hover:border--600"
+  },
+  {
+    "title": "简单心理",
+    "desc": "有温度的心理学平台，提供高质量的科普内容、专业心理评估与深度文章",
+    "href": "https://www.jiandanxinli.com/",
+    "icon": "🌱",
+    "category": "platform",
+    "tag": "心理科普",
+    "tagColor": "bg--100 dark:bg--900/40 text--700 dark:text--300",
+    "gradient": "from-emerald-400 to-teal-500",
+    "bg": "bg-gradient-to-br from--50 to--50 dark:from--900/20 dark:to--900/20",
+    "border": "border--200 dark:border--800/50",
+    "hover": "hover:border--400 dark:hover:border--600"
+  },
+  {
     "title": "全国心理援助热线",
     "desc": "24小时免费援助：12356 / 400-161-9995",
     "href": "https://baike.baidu.com/item/12356%E5%BF%83%E7%90%86%E6%8F%B4%E5%8A%A9%E7%83%AD%E7%BA%BF%E5%B9%B3%E5%8F%B0/67243261",
@@ -420,35 +459,35 @@ export default function ResourcesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-slate-950 dark:via-blue-950/30 dark:to-indigo-950/40">
       {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-2xl mb-8 bg-white dark:bg-slate-900 border border-teal-100 dark:border-teal-900/50 p-8 shadow-sm dark:shadow-none">
+      <div className="relative overflow-hidden rounded-2xl mb-6 bg-white dark:bg-slate-900 border border-teal-100 dark:border-teal-900/50 p-5 md:p-6 shadow-sm dark:shadow-none">
         {/* decorative background flares */}
         <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-teal-50 dark:bg-teal-900/20 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-sky-50 dark:bg-sky-900/20 blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="px-3 py-1 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 text-xs font-semibold tracking-wide border border-teal-200/60 dark:border-teal-800">
+            <div className="flex items-center gap-3 mb-3">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100">
+                疗愈资源中心
+              </h1>
+              <span className="px-2.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 text-xs font-semibold tracking-wide border border-teal-200/60 dark:border-teal-800">
                 🌿 心理健康资源库
               </span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4 text-slate-800 dark:text-slate-100">
-              疗愈资源中心
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base max-w-xl leading-relaxed">
+            <p className="text-slate-500 dark:text-slate-400 text-sm md:text-sm max-w-xl leading-relaxed">
               精选冥想引导、权威心理科普与专业援助平台，陪伴你在每一个需要支持的时刻，找到属于自己的平静与力量。
             </p>
           </div>
           {/* Stats */}
-          <div className="grid grid-cols-2 gap-3 shrink-0">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 shrink-0 md:mt-0 mt-2">
             {stats.map((s) => (
               <div
                 key={s.label}
-                className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl px-5 py-4 border border-slate-100 dark:border-slate-700/50 text-center min-w-[110px] transition-colors hover:bg-slate-100/60 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-600"
+                className="bg-slate-50 dark:bg-slate-800/50 rounded-xl px-3 py-2 border border-slate-100 dark:border-slate-700/50 text-center min-w-[80px] transition-colors hover:bg-slate-100/60 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-600"
               >
-                <div className="text-xl mb-1">{s.icon}</div>
-                <div className="text-2xl font-bold text-slate-800 dark:text-slate-100">{s.value}</div>
-                <div className="text-slate-500 text-xs mt-0.5">{s.label}</div>
+                <div className="text-lg mb-0.5">{s.icon}</div>
+                <div className="text-lg font-bold text-slate-800 dark:text-slate-100">{s.value}</div>
+                <div className="text-slate-500 text-[10px] mt-0.5">{s.label}</div>
               </div>
             ))}
           </div>
@@ -469,6 +508,17 @@ export default function ResourcesPage() {
           >
             <span>{c.icon}</span>
             {c.label}
+            <span
+              className={`ml-1 text-[11px] px-1.5 py-0.5 rounded-full ${
+                activeCategory === c.key
+                  ? "bg-white/20 text-white"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+              }`}
+            >
+              {c.key === "all"
+                ? resources.length
+                : resources.filter((r) => r.category === c.key).length}
+            </span>
           </button>
         ))}
         <span className="ml-auto flex items-center text-xs text-slate-400 gap-1">
@@ -478,7 +528,7 @@ export default function ResourcesPage() {
       </div>
 
       {/* Emergency Banner */}
-      {(activeCategory === "all" || activeCategory === "emergency") && (
+      {activeCategory === "emergency" && (
         <div className="mb-6 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 dark:from-rose-600 dark:to-pink-700 p-5 flex items-center gap-4 text-white shadow-lg shadow-rose-200 dark:shadow-none">
           <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-2xl shrink-0 border border-white/30">
             🆘
