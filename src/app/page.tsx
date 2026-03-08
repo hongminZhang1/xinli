@@ -202,7 +202,15 @@ export default function Home() {
                 <AIMascot />
                 <div className="space-y-2">
                   <h2 className="font-heading text-2xl text-accent">你好，我是小晴！</h2>
-                  <p className="text-muted-foreground">你的专属心理健康AI伙伴</p>
+                  <p className="text-muted-foreground text-lg">
+                    你的专属心理健康
+                    <span className="font-bold bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent px-1">
+                      AI伙伴
+                    </span>
+                  </p>
+                  <p className="text-xs text-indigo-500/80 font-medium tracking-wide flex items-center justify-center lg:justify-start gap-1">
+                    Powered by DeepSeek
+                  </p>
                 </div>
               </div>
 
@@ -225,10 +233,16 @@ export default function Home() {
               </div>
 
               {/* 简化的特色介绍 */}
-              <div className="space-y-6 stagger-1 max-w-xl">
-                <p className="text-lg text-muted-foreground leading-relaxed">
-                  支持 AI互动 社区互助 随心打卡 心情日记 咨询预约
-                </p>
+              <div className="space-y-6 stagger-1 max-w-xl mx-auto lg:mx-0">
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-sm font-medium">
+                  <span className="text-muted-foreground mr-1">支持：</span>
+                  <span className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full border border-blue-100 dark:border-blue-800/50">AI互动</span>
+                  <span className="px-3 py-1 bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 rounded-full border border-sky-100 dark:border-sky-800/50">心理测评</span>
+                  <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full border border-indigo-100 dark:border-indigo-800/50">社区互助</span>
+                  <span className="px-3 py-1 bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 rounded-full border border-violet-100 dark:border-violet-800/50">情绪追踪</span>
+                  <span className="px-3 py-1 bg-fuchsia-50 dark:bg-fuchsia-900/30 text-fuchsia-600 dark:text-fuchsia-400 rounded-full border border-fuchsia-100 dark:border-fuchsia-800/50">心情日记</span>
+                  <span className="px-3 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full border border-purple-100 dark:border-purple-800/50">咨询预约</span>
+                </div>
                 
                 {/* 快速统计 */}
                 <div className="grid grid-cols-3 gap-3">
