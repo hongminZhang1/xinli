@@ -329,7 +329,7 @@ export default async function DashboardPage() {
                 <div>
                   <h2 className="text-base font-bold font-display">最近活动</h2>
                 </div>
-                <Link href="/dashboard/history" className="text-sm text-primary hover:underline font-medium">查看全部</Link>
+                <Link href="/dashboard/journal" className="text-sm text-primary hover:underline font-medium">查看全部</Link>
               </div>
 
               <div className="space-y-3">

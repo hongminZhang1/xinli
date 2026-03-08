@@ -37,10 +37,12 @@ export function useQuery<T = any>(
   
   const [data, setData] = useState<T | null>(() => {
     if (!enabled) return null;
-    // 优先使用 localStorage 持久化缓存，其次使用 SSR 初始数据
+    // 优先使用 SSR 预取的最新数据，避免 hydrate 错误，并且 SSR 数据通常是最新的网络请求结果
+    if (initialData !== undefined) return initialData as T;
+    // 其次使用 localStorage 持久化缓存
     const cached = getCache<T>(key);
     if (cached !== null) return cached;
-    return (initialData !== undefined ? initialData : null) as T | null;
+    return null;
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
@@ -78,23 +80,25 @@ export function useQuery<T = any>(
   useEffect(() => {
     if (!enabled) return;
 
-    // 如果有 SSR 初始数据且缓存为空，先将初始数据写入缓存（视为刚获取的新鲜数据）
-    // 仅当 initialData 非空时才写入缓存，避免 SSR 失败返回 [] 毒化缓存导致客户端永远不发请求
+    // 如果有 SSR 初始数据，直接将它视为比缓存更新鲜的数据来覆盖缓存（如果是非空）
+    // 这样避免旧缓存覆盖掉 SSR 刚取到的最新数据
     const isNonEmptyInitialData = initialData !== undefined &&
       !(Array.isArray(initialData) && initialData.length === 0);
-    if (isNonEmptyInitialData && !getCacheItem(key)) {
+      
+    if (isNonEmptyInitialData) {
       setCache(key, initialData, cacheTime);
     }
 
     const cacheItem = getCacheItem<T>(key);
     
     if (cacheItem && !cacheItem.isExpired) {
-      // 有有效缓存
+      // 如果数据本来就来自于刚存进去的 initialData，这里 setData 是没啥副作用的
       setData(cacheItem.data);
       
       // 缓存数据为空数组时，视为无效数据，立即后台刷新
       const cachedIsEmpty = Array.isArray(cacheItem.data) && cacheItem.data.length === 0;
       const timeSinceCache = Date.now() - cacheItem.timestamp;
+      // 注意：如果刚刚用 initialData 刷新了 cache，timeSinceCache 接近 0，就不会触发 staleTime 刷新
       if (timeSinceCache > staleTime || cachedIsEmpty) {
         // 数据已过期或为空，后台刷新
         executeQuery(true);

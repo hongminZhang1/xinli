@@ -59,12 +59,77 @@ export default function ChatWidget() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [model, setModel] = useState<"deepseek-chat" | "deepseek-reasoner">("deepseek-chat");
+  const [isReadingRecords, setIsReadingRecords] = useState(false);
+  const [useUserRecords, setUseUserRecords] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // 自动滚动到底部
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  async function handleReadRecords() {
+    setUseUserRecords((prev) => !prev);
+  }
+
+  async function fetchUserRecordsContext() {
+    setIsReadingRecords(true);
+    let contextStr = "";
+    try {
+      // Fetch journals and emotions concurrently
+      const [journalRes, emotionsRes] = await Promise.all([
+        fetch("/api/journal"),
+        fetch("/api/emotions")
+      ]);
+      
+      let journals = [];
+      let emotions = [];
+      
+      if (journalRes.ok) {
+        journals = await journalRes.json();
+      }
+      if (emotionsRes.ok) {
+        emotions = await emotionsRes.json();
+      }
+
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const recentJournals = Array.isArray(journals) ? journals.filter((j: any) => new Date(j.createdAt || Date.now()) > thirtyDaysAgo).slice(0, 10) : [];
+      const recentEmotions = Array.isArray(emotions) ? emotions.filter((e: any) => new Date(e.createdAt || Date.now()) > thirtyDaysAgo).slice(0, 20) : [];
+
+      contextStr += `当前日期: ${new Date().toLocaleDateString()}\n\n`;
+
+      if (recentJournals.length === 0 && recentEmotions.length === 0) {
+        contextStr += "没有找到近期的日记和情绪记录。如果没有信息可以参考，请正常进行心理疏导，不用在意缺失个人信息。";
+      } else {
+        contextStr += "以下是我近期的情绪和日记记录（注意时效性，距离太远的信息不使用，并将其与当前的心理疏导结合）：\n\n";
+        
+        if (recentEmotions.length > 0) {
+          contextStr += "【情绪打卡记录】\n";
+          recentEmotions.forEach((e: any) => {
+            const dateStr = new Date(e.createdAt).toLocaleDateString();
+            contextStr += `- ${dateStr}: 心情 ${e.emoji || ""} ${e.note ? "备注: " + e.note : ""}\n`;
+          });
+          contextStr += "\n";
+        }
+        
+        if (recentJournals.length > 0) {
+          contextStr += "【日记记录】\n";
+          recentJournals.forEach((j: any) => {
+            const dateStr = new Date(j.createdAt).toLocaleDateString();
+            contextStr += `- ${dateStr} ${j.title ? "《" + j.title + "》:" : ""}\n  ${(j.content || "").substring(0, 200)}...\n`;
+          });
+          contextStr += "\n";
+        }
+      }
+    } catch (error) {
+      console.error("读取记录失败:", error);
+    } finally {
+      setIsReadingRecords(false);
+    }
+    return contextStr;
+  }
 
   async function send(text?: string | React.MouseEvent | React.KeyboardEvent) {
     const messageText = typeof text === 'string' ? text : input;
@@ -76,17 +141,27 @@ export default function ChatWidget() {
     setIsLoading(true);
 
     try {
-      // 准备发送给 API 的消息历史 (去掉 reasoning_content 以节省 Token)
-      const apiMessages = [...messages, userMsg].map(({ role, content }) => ({
+      // 如果启用了读取情绪记录，在最新一条消息中附带上下文
+      let finalApiMessages = [...messages, userMsg].map(({ role, content }) => ({
         role,
         content
       }));
+
+      if (useUserRecords) {
+        const recordsContext = await fetchUserRecordsContext();
+        if (recordsContext) {
+          const lastMsgIndex = finalApiMessages.length - 1;
+          finalApiMessages[lastMsgIndex].content = `${recordsContext}\n\n以上是我的个人近期记录，以下是我本次想对你说的话：\n${finalApiMessages[lastMsgIndex].content}`;
+        }
+        // 读取后自动重置状态，只在单次发送时携带记录？或者让用户手动取消
+        setUseUserRecords(false);
+      }
 
       const res = await fetch("/api/chat/deepseek", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: apiMessages,
+          messages: finalApiMessages,
           model: model
         }),
       });
@@ -281,6 +356,23 @@ export default function ChatWidget() {
             disabled={isLoading}
           />
           
+          <button
+            onClick={handleReadRecords}
+            disabled={isLoading || isReadingRecords}
+            className={`px-3 py-1.5 text-xs font-medium border rounded-lg transition-colors flex items-center gap-1 ${
+              useUserRecords 
+                ? 'bg-blue-50 text-blue-600 border-blue-200' 
+                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-blue-600'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
+            title="启用后，下次发送消息时会自动附带最近的情绪和日记记录"
+          >
+            {isReadingRecords 
+              ? "加载中..." 
+              : useUserRecords 
+                ? "✓ 将包含情绪记录" 
+                : "➕ 读取情绪记录"}
+          </button>
+
           <select 
             value={model} 
             onChange={(e) => setModel(e.target.value as any)}

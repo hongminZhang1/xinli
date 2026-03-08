@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 
     // 调用远程API创建日记
     const baseUrl = getApiBaseUrl();
-    const response = await fetch(`${baseUrl}/journals`, {
+    const response = await fetch(`${baseUrl}/journal`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

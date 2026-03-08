@@ -52,7 +52,7 @@ export default function NewJournalPage() {
           likes: 0
         }),
       });
-      if (!res.ok) throw new Error('挂请失败');
+      if (!res.ok) throw new Error('请求失败');
 
       alert("日记创建成功！");
       router.push("/dashboard/journal");
