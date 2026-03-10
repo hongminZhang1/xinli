@@ -172,6 +172,38 @@ app.delete('/api/emotions/:id', async (req, res) => {
 });
 
 // 日记条目相关API
+
+// 获取日记列表（支持公开/按用户筛选+分页）
+app.get('/api/journals', async (req, res) => {
+  try {
+    const { type, page = '1', pageSize = '20', userId } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(pageSize);
+    const take = parseInt(pageSize);
+
+    let where = {};
+    if (type === 'public') {
+      where = { isPrivate: false };
+    } else if (userId) {
+      where = { userId };
+    }
+
+    const journals = await prisma.journalEntry.findMany({
+      where,
+      include: {
+        user: true,
+        comments: { include: { user: true } }
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take
+    });
+    res.json(journals);
+  } catch (error) {
+    console.error('获取日记列表失败:', error);
+    res.status(500).json({ error: '获取日记列表失败' });
+  }
+});
+
 app.get('/api/journal/user/:userId', async (req, res) => {
   try {
     const journalEntries = await prisma.journalEntry.findMany({
@@ -242,6 +274,80 @@ app.delete('/api/journal/:id', async (req, res) => {
   } catch (error) {
     console.error('删除日记条目失败:', error);
     res.status(500).json({ error: '删除日记条目失败' });
+  }
+});
+
+// 点赞相关API
+app.post('/api/journal/:id/like', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const { id: journalId } = req.params;
+
+    if (!userId) {
+      return res.status(401).json({ error: '请先登录' });
+    }
+
+    const likeKey = `like_${journalId}_${userId}`;
+    // 使用 SystemSettings 作为一个简单的 Key-Value 存储来记录点赞，避免修改 Schema
+    const existingLike = await prisma.systemSettings.findUnique({
+      where: { key: likeKey }
+    });
+
+    if (existingLike) {
+      return res.status(400).json({ error: '你已经点过赞了' });
+    }
+
+    // 记录点赞，并增加点赞数
+    await prisma.$transaction([
+      prisma.systemSettings.create({
+        data: {
+          key: likeKey,
+          value: 'true',
+          description: 'User like record'
+        }
+      }),
+      prisma.journalEntry.update({
+        where: { id: journalId },
+        data: {
+          likes: { increment: 1 }
+        }
+      })
+    ]);
+
+    const updatedJournal = await prisma.journalEntry.findUnique({
+      where: { id: journalId }
+    });
+
+    res.json({ success: true, message: '点赞成功', likes: updatedJournal.likes });
+  } catch (error) {
+    console.error('点赞失败:', error);
+    res.status(500).json({ error: '点赞失败' });
+  }
+});
+
+app.get('/api/users/:userId/likes', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // 取出所有的 likes 进行过滤
+    const allLikes = await prisma.systemSettings.findMany({
+      where: {
+        key: { startsWith: 'like_' }
+      }
+    });
+    
+    // key 格式是 like_journalId_userId
+    const userLikes = allLikes.filter(item => item.key.endsWith(`_${userId}`));
+
+    const likedJournalIds = userLikes.map(l => {
+        const parts = l.key.split('_');
+        return parts[1]; 
+    });
+
+    res.json(likedJournalIds);
+  } catch (error) {
+    console.error('获取用户点赞列表失败:', error);
+    res.status(500).json({ error: '获取失败' });
   }
 });
 

@@ -220,7 +220,7 @@ export const useJournals = (type: 'all' | 'public' = 'public', initialData?: any
     {
       enabled: type === 'public' || !!userId,
       cacheTime: CACHE_TTL.ARTICLES,
-      staleTime: 60 * 1000,
+      staleTime: 0,
       initialData,
     }
   );

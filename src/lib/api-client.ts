@@ -130,7 +130,7 @@ export const dbApi = {
   
   // 日记条目
   journals: {
-    getAll: () => apiClient.get<any[]>('/journals'),
+    getAll: () => apiClient.get<any[]>('/journal'),
     getById: (id: string) => apiClient.get<any>(`/journal/${id}`),
     create: (data: any) => apiClient.post<any>('/journal', data),
     update: (id: string, data: any) => apiClient.put<any>(`/journal/${id}`, data),

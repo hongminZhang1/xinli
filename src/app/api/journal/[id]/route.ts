@@ -17,7 +17,7 @@ export async function GET(
 
     // 调用远程API获取日记详情
     const baseUrl = getApiBaseUrl();
-    const response = await fetch(`${baseUrl}/journals/${journalId}?userId=${session.user.id}`);
+    const response = await fetch(`${baseUrl}/journal/${journalId}?userId=${session.user.id}`);
     
     if (!response.ok) {
       if (response.status === 404) {
@@ -52,7 +52,7 @@ export async function PUT(
 
     // 调用远程API更新日记
     const baseUrl = getApiBaseUrl();
-    const response = await fetch(`${baseUrl}/journals/${journalId}`, {
+    const response = await fetch(`${baseUrl}/journal/${journalId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ export async function DELETE(
 
     // 调用远程API删除日记
     const baseUrl = getApiBaseUrl();
-    const response = await fetch(`${baseUrl}/journals/${journalId}?userId=${session.user.id}`, {
+    const response = await fetch(`${baseUrl}/journal/${journalId}?userId=${session.user.id}`, {
       method: 'DELETE',
     });
 

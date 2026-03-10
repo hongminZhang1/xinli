@@ -8,6 +8,7 @@ import Avatar from "@/components/ui/Avatar";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import { Clock, MessageCircle, Heart } from "lucide-react";
 import { useJournals } from "@/hooks/useQuery";
+import { apiClient } from "@/lib/api-client";
 
 type JournalEntry = {
   id: string;
@@ -62,10 +63,21 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
   const { data, isLoading, error, refetch } = useJournals('public', initialData);
   const [isMounted, setIsMounted] = useState(false);
   const [timeFilter, setTimeFilter] = useState<'all' | 'week' | 'month' | 'year'>('all');
+  const [likedJournals, setLikedJournals] = useState<string[]>([]);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      apiClient.get(`/users/${session.user.id}/likes`)
+        .then((data: any) => {
+          if (Array.isArray(data)) setLikedJournals(data);
+        })
+        .catch(err => console.error("获取点赞记录失败", err));
+    }
+  }, [session?.user?.id]);
   
   // 从API数据中提取journals - 现在API已经只返回公开的日记
   const allJournals = Array.isArray(data) ? data : [];
@@ -133,6 +145,33 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
       return `${days}天前`;
     } else {
       return date.toLocaleDateString("zh-CN");
+    }
+  };
+
+  const handleLike = async (e: React.MouseEvent, journalId: string) => {
+    e.stopPropagation();
+    if (!session) {
+      alert("请先登录后点赞");
+      return;
+    }
+    if (likedJournals.includes(journalId)) {
+      alert("您已经点过赞啦");
+      return;
+    }
+    
+    // 乐观更新
+    setLikedJournals(prev => [...prev, journalId]);
+    
+    try {
+      await apiClient.post(`/journal/${journalId}/like`, { userId: session.user.id });
+      refetch();
+    } catch (error: any) {
+      console.error("点赞失败", error);
+      // 回退乐观更新
+      setLikedJournals(prev => prev.filter(id => id !== journalId));
+      if (error.message || error.error) {
+        alert(error.message || error.error || "点赞失败");
+      }
     }
   };
 
@@ -329,9 +368,12 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
                     </div>
                     
                     <div className="flex items-center gap-3 shrink-0 text-gray-400 dark:text-gray-500">
-                      <div className="flex items-center gap-1 group-hover:text-pink-500 transition-colors">
-                        <Heart className="w-4 h-4" />
-                        <span className="text-xs font-medium">{journal.likes}</span>
+                        <div 
+                          className={`flex items-center gap-1 hover:text-pink-500 transition-colors cursor-pointer ${likedJournals.includes(journal.id) ? 'text-pink-500' : ''}`}
+                          onClick={(e) => handleLike(e, journal.id)}
+                        >
+                          <Heart className="w-4 h-4" fill={likedJournals.includes(journal.id) ? "currentColor" : "none"} />
+                          <span className="text-xs font-medium">{journal.likes || 0}</span>
                       </div>
                       <div className="flex items-center gap-1 group-hover:text-blue-500 transition-colors">
                         <MessageCircle className="w-4 h-4" />

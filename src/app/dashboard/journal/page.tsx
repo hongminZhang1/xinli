@@ -4,6 +4,9 @@ import { getApiBaseUrl } from "@/lib/env-config";
 import Card from "@/components/ui/Card";
 import JournalList from "@/components/dashboard/JournalList";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function fetchUserJournals(userId: string): Promise<any[]> {
   try {
     const baseUrl = getApiBaseUrl();

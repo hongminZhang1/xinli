@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { apiClient } from "@/lib/api-client";
 import Card from "@/components/ui/Card";
 import Avatar from "@/components/ui/Avatar";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
-import { Plus, Edit, Trash2, Calendar, Tag, Eye, EyeOff } from "lucide-react";
+import { Plus, Edit, Trash2, Calendar, Tag, Eye, EyeOff, Heart } from "lucide-react";
 import { useQuery, useMutation } from "@/hooks/useQuery";
 
 type JournalEntry = {
@@ -43,11 +45,23 @@ interface JournalListProps {
 
 export default function JournalList({ initialJournals, userId }: JournalListProps) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [isMounted, setIsMounted] = useState(false);
+  const [likedJournals, setLikedJournals] = useState<string[]>([]);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      apiClient.get(`/users/${session.user.id}/likes`)
+        .then((data: any) => {
+          if (Array.isArray(data)) setLikedJournals(data);
+        })
+        .catch(err => console.error(err));
+    }
+  }, [session?.user?.id]);
 
   const { data: journals, refetch } = useQuery(
     `user-journals-${userId}`,
@@ -81,6 +95,33 @@ export default function JournalList({ initialJournals, userId }: JournalListProp
     if (diffInHours < 24) return "今天";
     if (diffInHours < 48) return "昨天";
     return date.toLocaleDateString("zh-CN");
+  };
+
+  const handleLike = async (e: React.MouseEvent, journalId: string) => {
+    e.stopPropagation();
+    if (!session) {
+      alert("请先登录后点赞");
+      return;
+    }
+    if (likedJournals.includes(journalId)) {
+      alert("您已经点过赞啦");
+      return;
+    }
+    
+    // 乐观更新
+    setLikedJournals(prev => [...prev, journalId]);
+    
+    try {
+      await apiClient.post(`/journal/${journalId}/like`, { userId: session.user.id });
+      refetch();
+    } catch (error: any) {
+      console.error("点赞失败", error);
+      // 回退乐观更新
+      setLikedJournals(prev => prev.filter(id => id !== journalId));
+      if (error.message || error.error) {
+        alert(error.message || error.error || "点赞失败");
+      }
+    }
   };
 
   const handleCardClick = (journalId: string) => {
@@ -265,6 +306,17 @@ export default function JournalList({ initialJournals, userId }: JournalListProp
                     </div>
                   </div>
                 )}
+                
+                {/* 互动数据 */}
+                <div className="flex items-center gap-4 pt-3 mt-2 border-t border-gray-50 dark:border-gray-700/50 pl-2 text-gray-400 dark:text-gray-500">
+                    <div 
+                      className={`flex items-center gap-1.5 hover:text-pink-500 transition-colors cursor-pointer ${likedJournals.includes(journal.id) ? 'text-pink-500' : ''}`}
+                      onClick={(e) => handleLike(e, journal.id)}
+                    >
+                    <Heart className="w-3.5 h-3.5" fill={likedJournals.includes(journal.id) ? "currentColor" : "none"} />
+                    <span className="text-[11px] font-medium">{journal.likes || 0}</span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>

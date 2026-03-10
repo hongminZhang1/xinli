@@ -1,13 +1,15 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Card from "@/components/ui/Card";
 import Avatar from "@/components/ui/Avatar";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import CommentSection from "@/components/dashboard/DetailCommentSection";
-import { ArrowLeft, Clock } from "lucide-react";
+import { ArrowLeft, Clock, Heart } from "lucide-react";
 import { useJournalDetail, useJournalComments } from "@/hooks/useQuery";
+import { apiClient } from "@/lib/api-client";
 
 type Comment = {
   id: string;
@@ -73,9 +75,60 @@ export default function JournalDetailClient({
     initialJournal
   );
   const { data: commentsData } = useJournalComments(journalId, true, initialComments);
+  const { refetch: refetchJournal } = useJournalDetail(journalId, true, initialJournal);
 
   const [localComments, setLocalComments] = useState<Comment[]>(initialComments);
   const [error, setError] = useState("");
+  const { data: session } = useSession();
+  const [localLikes, setLocalLikes] = useState<number>(initialJournal?.likes || 0);
+  const [hasLiked, setHasLiked] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      apiClient.get(`/users/${session.user.id}/likes`)
+        .then((data: any) => {
+          if (Array.isArray(data) && data.includes(journalId)) {
+            setHasLiked(true);
+          }
+        })
+        .catch(err => console.error(err));
+    }
+  }, [session?.user?.id, journalId]);
+
+  useEffect(() => {
+    if (journal?.likes !== undefined) {
+      setLocalLikes(journal.likes);
+    }
+  }, [journal?.likes]);
+
+  const handleLike = async () => {
+    if (!session) {
+      alert("请先登录后点赞");
+      return;
+    }
+    if (hasLiked) {
+      alert("您已经点过赞啦");
+      return;
+    }
+    try {
+      setLocalLikes(prev => prev + 1); // 乐观更新
+      setHasLiked(true);
+      await apiClient.post(`/journal/${journalId}/like`, { userId: session.user.id });
+      refetchJournal(); // 重新获取数据
+    } catch (err: any) {
+      console.error("点赞失败", err);
+      // 还原
+      setHasLiked(false);
+      if (journal?.likes !== undefined) {
+        setLocalLikes(journal.likes); 
+      } else {
+        setLocalLikes(prev => prev - 1);
+      }
+      if (err.message || err.error) {
+        alert(err.message || err.error || "点赞失败");
+      }
+    }
+  };
 
   // 同步评论数据
   useEffect(() => {
@@ -219,9 +272,12 @@ export default function JournalDetailClient({
 
         {/* 互动信息 */}
         <div className="flex items-center gap-6 text-gray-600 pb-6 border-b">
-          <div className="flex items-center gap-2">
-            <span>❤️</span>
-            <span>{displayJournal.likes} 点赞</span>
+          <div 
+            className={`flex items-center gap-2 cursor-pointer hover:text-pink-500 transition-colors ${hasLiked ? "text-pink-500" : ""}`}
+            onClick={handleLike}
+          >
+            <Heart className="w-5 h-5" fill={hasLiked ? "currentColor" : "none"} />
+            <span>{localLikes} 点赞</span>
           </div>
           <div className="flex items-center gap-2">
             <span>💬</span>
@@ -244,3 +300,4 @@ export default function JournalDetailClient({
     </div>
   );
 }
+

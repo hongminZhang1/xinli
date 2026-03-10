@@ -79,8 +79,8 @@ export async function GET(request: NextRequest) {
     const baseUrl = getApiBaseUrl();
     
     try {
-      // 添加用户ID参数到查询字符串，让远程API只返回当前用户的数据
-      const response = await fetch(`${baseUrl}/emotions?userId=${session.user.id}`);
+      // 使用正确的路由路径 /emotions/user/:userId
+      const response = await fetch(`${baseUrl}/emotions/user/${session.user.id}`);
       
       if (!response.ok) {
         throw new Error(`远程API错误: ${response.status}`);

@@ -22,13 +22,13 @@ export async function GET(request: NextRequest) {
       if (!session?.user?.id) {
         return NextResponse.json({ error: "未登录" }, { status: 401 });
       }
-      apiEndpoint = `/journals?type=${type}&page=${page}&pageSize=${pageSize}&userId=${session.user.id}`;
+      apiEndpoint = `/journal/user/${session.user.id}`;
     }
 
     // 调用远程API
     const baseUrl = getApiBaseUrl();
-    const response = await fetch(`${baseUrl}${apiEndpoint}`);
-    
+    const response = await fetch(`${baseUrl}${apiEndpoint}`, { cache: 'no-store' });
+
     if (!response.ok) {
       // Remote API error
       return NextResponse.json([], { status: 200 }); // 降级返回空数组
