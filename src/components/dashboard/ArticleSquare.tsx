@@ -61,13 +61,56 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
   const router = useRouter();
   const { data, isLoading, error, refetch } = useJournals('public', initialData);
   const [isMounted, setIsMounted] = useState(false);
+  const [timeFilter, setTimeFilter] = useState<'all' | 'week' | 'month' | 'year'>('all');
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
   
   // 从API数据中提取journals - 现在API已经只返回公开的日记
-  const journals = Array.isArray(data) ? data : [];
+  const allJournals = Array.isArray(data) ? data : [];
+
+  const journals = React.useMemo(() => {
+    if (timeFilter === 'all') return allJournals;
+    
+    const now = new Date();
+    return allJournals.filter((journal: any) => {
+      const date = new Date(journal.createdAt);
+      const diffMs = now.getTime() - date.getTime();
+      const diffDays = diffMs / (1000 * 60 * 60 * 24);
+      
+      if (timeFilter === 'week') return diffDays <= 7;
+      if (timeFilter === 'month') return diffDays <= 30;
+      if (timeFilter === 'year') return diffDays <= 365;
+      
+      return true;
+    });
+  }, [allJournals, timeFilter]);
+
+  // 计算各个时间段的文章数量
+  const counts = React.useMemo(() => {
+    const now = new Date();
+    let weekCount = 0;
+    let monthCount = 0;
+    let yearCount = 0;
+
+    allJournals.forEach((journal: any) => {
+      const date = new Date(journal.createdAt);
+      const diffMs = now.getTime() - date.getTime();
+      const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+      if (diffDays <= 7) weekCount++;
+      if (diffDays <= 30) monthCount++;
+      if (diffDays <= 365) yearCount++;
+    });
+
+    return {
+      all: allJournals.length,
+      week: weekCount,
+      month: monthCount,
+      year: yearCount,
+    };
+  }, [allJournals]);
 
   // 移除自动预加载，避免重复API请求
 
@@ -134,21 +177,73 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
   return (
     <div className="space-y-8">
       {/* 头部专业级封面/横幅设计 */}
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-800 dark:via-gray-800 dark:to-indigo-900/40 p-8 sm:p-12 shadow-sm border border-indigo-100/60 dark:border-gray-700">
-        <div className="relative z-10 max-w-2xl">
-          <div className="flex items-center gap-4 mb-4">
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-indigo-950 dark:text-indigo-100">文章广场</h2>
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-800 dark:via-gray-800 dark:to-indigo-900/40 p-6 sm:p-8 shadow-sm border border-indigo-100/60 dark:border-gray-700">
+        <div className="relative z-10 w-full">
+          <div className="flex items-center gap-4 mb-3">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-indigo-950 dark:text-indigo-100">文章广场</h2>
             <div className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-sm font-medium rounded-full border border-indigo-200 dark:border-indigo-800">
               {journals.length} 篇公开文章
             </div>
           </div>
-          <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
+          <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed truncate">
             在一个安全的空间里，探索自我、分享心情。在这里，我们互相倾听、互相支持，共同完成心灵的疗愈与成长。
           </p>
         </div>
         {/* 背景装饰图形 */}
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-indigo-200 dark:bg-indigo-600 opacity-20 blur-3xl"></div>
         <div className="absolute bottom-0 right-20 mb-[-10%] w-32 h-32 rounded-full border-4 border-indigo-100 dark:border-indigo-800 opacity-50"></div>
+      </div>
+
+      {/* 筛选按钮组 */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setTimeFilter('all')}
+          className={`flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            timeFilter === 'all'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 border border-indigo-100 dark:border-gray-700'
+          }`}
+        >
+          全部 <span className={`ml-1.5 px-2 py-0.5 rounded-full font-mono text-xs font-bold ${
+            timeFilter === 'all' ? 'bg-indigo-500 text-white' : 'bg-indigo-200/60 text-indigo-800 dark:bg-gray-700 dark:text-gray-200'
+          }`}>{counts.all}</span>
+        </button>
+        <button
+          onClick={() => setTimeFilter('week')}
+          className={`flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            timeFilter === 'week'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 border border-indigo-100 dark:border-gray-700'
+          }`}
+        >
+          最近一周 <span className={`ml-1.5 px-2 py-0.5 rounded-full font-mono text-xs font-bold ${
+            timeFilter === 'week' ? 'bg-indigo-500 text-white' : 'bg-indigo-200/60 text-indigo-800 dark:bg-gray-700 dark:text-gray-200'
+          }`}>{counts.week}</span>
+        </button>
+        <button
+          onClick={() => setTimeFilter('month')}
+          className={`flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            timeFilter === 'month'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 border border-indigo-100 dark:border-gray-700'
+          }`}
+        >
+          最近一月 <span className={`ml-1.5 px-2 py-0.5 rounded-full font-mono text-xs font-bold ${
+            timeFilter === 'month' ? 'bg-indigo-500 text-white' : 'bg-indigo-200/60 text-indigo-800 dark:bg-gray-700 dark:text-gray-200'
+          }`}>{counts.month}</span>
+        </button>
+        <button
+          onClick={() => setTimeFilter('year')}
+          className={`flex items-center px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            timeFilter === 'year'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 border border-indigo-100 dark:border-gray-700'
+          }`}
+        >
+          最近一年 <span className={`ml-1.5 px-2 py-0.5 rounded-full font-mono text-xs font-bold ${
+            timeFilter === 'year' ? 'bg-indigo-500 text-white' : 'bg-indigo-200/60 text-indigo-800 dark:bg-gray-700 dark:text-gray-200'
+          }`}>{counts.year}</span>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
