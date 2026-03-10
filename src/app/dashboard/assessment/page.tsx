@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import AssessmentCard from "@/components/assessment/AssessmentCard";
 import TestModal from "@/components/assessment/TestModal";
 import { assessmentCategories, allAssessments } from "@/lib/assessment-data";
-import { Brain, Filter, ChevronRight } from "lucide-react";
+import { Brain, Filter, ChevronRight, Info } from "lucide-react";
 
 export default function AssessmentPage() {
   const { data: session } = useSession();
@@ -114,10 +114,16 @@ export default function AssessmentPage() {
         )}
 
         {/* Footer Disclaimer */}
-        <div className="mt-16 text-center text-slate-400 dark:text-slate-500 text-sm">
-          <p className="font-bold">
-            心理测评说明：我们的量表基于前沿心理学理论和大量实证研究构建，为您提供深度自我洞察与成长参考。不能代替专业心理诊断与医疗建议。
-          </p>
+        <div className="mt-16 max-w-4xl mx-auto">
+          <div className="flex items-start md:items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50 text-slate-500 dark:text-slate-400 text-sm shadow-sm transition-all duration-300 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md hover:border-slate-200 dark:hover:border-slate-700">
+            <div className="flex-shrink-0 mt-0.5 md:mt-0 p-1.5 bg-white dark:bg-slate-700 rounded-lg shadow-sm border border-slate-100 dark:border-slate-600">
+              <Info className="w-4 h-4 text-indigo-400 dark:text-indigo-400" />
+            </div>
+            <div className="leading-relaxed">
+              <span className="font-bold text-slate-700 dark:text-slate-300 mr-1">心理测评说明：</span>
+              我们的量表基于前沿心理学理论和大量实证研究构建，AI分析仅供参考，不能代替专业心理诊断与医疗建议。
+            </div>
+          </div>
         </div>
       </div>
 
