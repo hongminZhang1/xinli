@@ -214,7 +214,7 @@ export default function EmotionsWidget({ emotionsData }: EmotionsWidgetProps) {
             <span className="text-lg">🕐</span>
             <h3 className="font-semibold text-gray-800">历史记录</h3>
           </div>
-          <span className="text-xs text-gray-400 font-medium">{entries.length} 条</span>
+          <span className="text-xs text-gray-400 font-medium">最近 5 条 / 共 {entries.length} 条</span>
         </div>
 
         <div className="divide-y divide-gray-50 max-h-[480px] overflow-y-auto">
@@ -236,7 +236,7 @@ export default function EmotionsWidget({ emotionsData }: EmotionsWidgetProps) {
             </div>
           )}
 
-          {entries.map((entry: any) => {
+          {entries.slice(0, 5).map((entry: any) => {
             const emojiKey = getEmotionEmoji(entry.emotion || entry.emoji);
             const s = EMOTION_STYLES[emojiKey] ?? EMOTION_STYLES["😊"];
             const isEditing = editingId === entry.id;

@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import Card from "@/components/ui/Card";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+
 
 // 定义消息类型，增加 reasoning_content 支持 DeepSeek R1
 type Msg = {
@@ -54,7 +56,14 @@ async function* streamReader(response: Response) {
   }
 }
 
-export default function ChatWidget() {
+interface ChatWidgetProps {
+  initialSession?: { id: string; title: string; messages: any[] } | null;
+  onSessionSaved?: () => void;
+}
+
+export default function ChatWidget({ initialSession, onSessionSaved }: ChatWidgetProps = {}) {
+  const { data: authSession } = useSession();
+  const sessionIdRef = useRef<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -67,6 +76,28 @@ export default function ChatWidget() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // 加载 initialSession（切换历史对话时）
+  useEffect(() => {
+    if (initialSession) {
+      const msgs: Msg[] = Array.isArray(initialSession.messages)
+        ? initialSession.messages.map((m: any, idx: number) => ({
+            id: `session-${initialSession.id}-${idx}`,
+            role: m.role as 'user' | 'assistant',
+            content: m.content || '',
+            reasoning_content: m.reasoning_content || undefined,
+            isThinking: false,
+            isReasoningCollapsed: true,
+          }))
+        : [];
+      setMessages(msgs);
+      sessionIdRef.current = initialSession.id;
+    } else {
+      setMessages([]);
+      sessionIdRef.current = null;
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialSession?.id]);
 
   async function handleReadRecords() {
     setUseUserRecords((prev) => !prev);
@@ -135,10 +166,36 @@ export default function ChatWidget() {
     const messageText = typeof text === 'string' ? text : input;
     if (!messageText.trim() || isLoading) return;
 
+    const isFirstMessage = messages.length === 0;
+    const snapshotMessages = messages; // 快照当前消息，用于保存到数据库
+
     const userMsg: Msg = { id: String(Date.now()), role: "user", content: messageText };
     setMessages((prev) => [...prev, userMsg]);
     if (typeof text !== 'string') setInput("");
     setIsLoading(true);
+
+    // 第一条消息时创建新 session
+    let activeSessionId = sessionIdRef.current;
+    if (isFirstMessage && !activeSessionId && authSession?.user?.id) {
+      try {
+        const resp = await fetch('/api/chat/sessions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: messageText.slice(0, 50),
+            messages: [{ role: 'user', content: messageText, reasoning_content: '' }],
+            isActive: true,
+          }),
+        });
+        if (resp.ok) {
+          const newSess = await resp.json();
+          activeSessionId = newSess.id;
+          sessionIdRef.current = newSess.id;
+        }
+      } catch (e) {
+        console.error('create session failed:', e);
+      }
+    }
 
     try {
       // 如果启用了读取情绪记录，在最新一条消息中附带上下文
@@ -230,6 +287,24 @@ export default function ChatWidget() {
         })
       );
 
+      // AI 回复完成后，将对话保存到数据库
+      if (activeSessionId) {
+        const messagesToSave = [
+          ...snapshotMessages,
+          userMsg,
+          { role: 'assistant', content: fullContent, reasoning_content: fullReasoning },
+        ].map((m: any) => ({
+          role: m.role,
+          content: m.content || '',
+          reasoning_content: m.reasoning_content || '',
+        }));
+        fetch(`/api/chat/sessions/${activeSessionId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: messagesToSave }),
+        }).then(() => onSessionSaved?.()).catch(console.error);
+      }
+
     } catch (error) {
       console.error("Chat error:", error);
       setMessages((prev) => [...prev, { id: String(Date.now()), role: "assistant", content: "抱歉，出错了，请稍后再试。" }]);
@@ -247,6 +322,7 @@ export default function ChatWidget() {
 
   return (
     <Card className="flex flex-col h-[700px] border-none shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+
       <div className="flex-1 overflow-y-auto space-y-6 p-4 bg-slate-50/50 dark:bg-slate-900/50 custom-scrollbar rounded-t-xl">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-6 opacity-0 animate-fadeIn" style={{ animationFillMode: 'forwards' }}>

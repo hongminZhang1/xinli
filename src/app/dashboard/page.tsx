@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
+import { getApiBaseUrl } from "@/lib/env-config";
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar";
 import UserRoleCard from "@/components/dashboard/UserRoleCard";
@@ -20,8 +21,59 @@ import {
   BarChart3
 } from "lucide-react";
 
+// ---- 服务端数据拉取 ----
+async function fetchGrowthStats(userId: string) {
+  const baseUrl = getApiBaseUrl();
+  try {
+    const [emotionsRes, chatRes, journalRes] = await Promise.allSettled([
+      fetch(`${baseUrl}/emotions/user/${userId}`, { cache: 'no-store' }),
+      fetch(`${baseUrl}/chat/user/${userId}`, { cache: 'no-store' }),
+      fetch(`${baseUrl}/journal/user/${userId}`, { cache: 'no-store' }),
+    ]);
+
+    const emotions: any[] = emotionsRes.status === 'fulfilled' && emotionsRes.value.ok
+      ? await emotionsRes.value.json() : [];
+    const chatSessions: any[] = chatRes.status === 'fulfilled' && chatRes.value.ok
+      ? await chatRes.value.json() : [];
+    const journals: any[] = journalRes.status === 'fulfilled' && journalRes.value.ok
+      ? await journalRes.value.json() : [];
+
+    // 本周情绪数
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay()); // 本周日
+    weekStart.setHours(0, 0, 0, 0);
+    const weekEmotionCount = emotions.filter((e: any) => new Date(e.createdAt) >= weekStart).length;
+
+    // 今日判断（用于目标打卡）
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+    const todayHasEmotion = emotions.some((e: any) => new Date(e.createdAt) >= todayStart);
+    const todayHasChat = chatSessions.some((s: any) => new Date(s.createdAt) >= todayStart || new Date(s.updatedAt) >= todayStart);
+
+    return {
+      weekEmotionCount,
+      chatSessionCount: chatSessions.length,
+      journalCount: journals.length,
+      todayHasEmotion,
+      todayHasChat,
+    };
+  } catch {
+    return { weekEmotionCount: 0, chatSessionCount: 0, journalCount: 0, todayHasEmotion: false, todayHasChat: false };
+  }
+}
+
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
+
+  // 拉取真实成长数据
+  const stats = session?.user?.id
+    ? await fetchGrowthStats(session.user.id)
+    : { weekEmotionCount: 0, chatSessionCount: 0, journalCount: 0, todayHasEmotion: false, todayHasChat: false };
+
+  // 今日目标完成数
+  const completedGoals = [stats.todayHasEmotion, stats.todayHasChat, false].filter(Boolean).length;
+  const goalPercent = Math.round((completedGoals / 3) * 100);
 
   const getTimeGreeting = () => {
     const hour = new Date().getUTCHours() + 8;
@@ -162,10 +214,13 @@ export default async function DashboardPage() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-lg font-bold font-display">成长概览</h2>
-                  <p className="text-sm text-muted-foreground">你好，这是你今天的心理成长状态</p>
                 </div>
-                <div className="flex gap-3">
-                   <Link 
+                <div className="flex items-center gap-3">
+                  {/* 快捷操作提示 */}
+                  <div className="font-bold hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/60 border border-border/60 text-xs text-foreground/70">
+                    <span>快捷操作</span>
+                  </div>
+                  <Link 
                      href="/dashboard/emotions" 
                      className="group flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-primary-600 text-white rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
                    >
@@ -191,9 +246,9 @@ export default async function DashboardPage() {
                     </div>
                     <span className="text-sm font-medium text-muted-foreground">本周情绪</span>
                   </div>
-                  <div className="text-3xl font-bold font-display">7</div>
+                  <div className="text-3xl font-bold font-display">{stats.weekEmotionCount}</div>
                   <div className="mt-2 h-1.5 w-full bg-pink-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-pink-500 w-[70%] rounded-full" />
+                    <div className="h-full bg-pink-500 rounded-full" style={{ width: `${Math.min(stats.weekEmotionCount / 7 * 100, 100)}%` }} />
                   </div>
                 </div>
 
@@ -204,9 +259,9 @@ export default async function DashboardPage() {
                     </div>
                     <span className="text-sm font-medium text-muted-foreground">AI对话</span>
                   </div>
-                  <div className="text-3xl font-bold font-display">15</div>
+                  <div className="text-3xl font-bold font-display">{stats.chatSessionCount}</div>
                   <div className="mt-2 h-1.5 w-full bg-blue-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500 w-[85%] rounded-full" />
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: `${Math.min(stats.chatSessionCount / 20 * 100, 100)}%` }} />
                   </div>
                 </div>
 
@@ -217,9 +272,9 @@ export default async function DashboardPage() {
                     </div>
                     <span className="text-sm font-medium text-muted-foreground">成长日记</span>
                   </div>
-                  <div className="text-3xl font-bold font-display">3</div>
+                  <div className="text-3xl font-bold font-display">{stats.journalCount}</div>
                   <div className="mt-2 h-1.5 w-full bg-amber-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-amber-500 w-[45%] rounded-full" />
+                    <div className="h-full bg-amber-500 rounded-full" style={{ width: `${Math.min(stats.journalCount / 10 * 100, 100)}%` }} />
                   </div>
                 </div>
               </div>
@@ -293,9 +348,9 @@ export default async function DashboardPage() {
                 </div>
                 {/* 完成度移到这里 */}
                 <div className="flex flex-col items-end">
-                   <span className="text-xs font-medium text-muted-foreground">完成度 <span className="text-primary font-bold">33%</span></span>
+                   <span className="text-xs font-medium text-muted-foreground">完成度 <span className="text-primary font-bold">{goalPercent}%</span></span>
                    <div className="h-1.5 w-16 bg-muted rounded-full overflow-hidden mt-1">
-                      <div className="h-full bg-primary w-1/3 rounded-full" />
+                      <div className="h-full bg-primary rounded-full" style={{ width: `${goalPercent}%` }} />
                    </div>
                 </div>
               </div>
@@ -303,16 +358,25 @@ export default async function DashboardPage() {
                <div className="space-y-2">
                  {/* 目标列表 */}
                 <div className="flex items-center gap-2.5 p-2 rounded-lg bg-background border border-border/50 shadow-sm">
-                   <div className="w-4 h-4 rounded-full border-2 border-primary flex items-center justify-center flex-shrink-0">
-                     <div className="w-2 h-2 rounded-full bg-primary" />
-                   </div>
-                   <span className="text-xs sm:text-sm line-through text-muted-foreground">记录今天的心情</span>
+                   {stats.todayHasEmotion ? (
+                     <div className="w-4 h-4 rounded-full border-2 border-primary flex items-center justify-center flex-shrink-0">
+                       <div className="w-2 h-2 rounded-full bg-primary" />
+                     </div>
+                   ) : (
+                     <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30 flex-shrink-0" />
+                   )}
+                   <span className={`text-xs sm:text-sm ${stats.todayHasEmotion ? 'line-through text-muted-foreground' : ''}`}>记录今天的心情</span>
                 </div>
                 
                  <div className="flex items-center gap-2.5 p-2 rounded-lg bg-background border border-border/50 shadow-sm">
-                   <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center flex-shrink-0">
-                   </div>
-                   <span className="text-xs sm:text-sm">与AI伙伴聊聊天</span>
+                   {stats.todayHasChat ? (
+                     <div className="w-4 h-4 rounded-full border-2 border-primary flex items-center justify-center flex-shrink-0">
+                       <div className="w-2 h-2 rounded-full bg-primary" />
+                     </div>
+                   ) : (
+                     <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30 flex-shrink-0" />
+                   )}
+                   <span className={`text-xs sm:text-sm ${stats.todayHasChat ? 'line-through text-muted-foreground' : ''}`}>与AI伙伴聊聊天</span>
                 </div>
 
                 <div className="flex items-center gap-2.5 p-2 rounded-lg bg-background border border-border/50 shadow-sm">
