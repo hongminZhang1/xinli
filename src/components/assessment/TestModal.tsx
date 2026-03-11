@@ -279,18 +279,66 @@ export default function TestModal({ test, onClose }: TestModalProps) {
   // 加载状态
   if (isSubmitting) {
     return (
-      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-3xl h-[80vh] min-h-[600px] flex flex-col items-center justify-center p-10 text-center shadow-2xl border border-slate-100 dark:border-slate-700 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-          <div className="relative">
-            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center animate-pulse mb-6 shadow-inner">
-              <Sparkles className="w-10 h-10 text-indigo-500 dark:text-indigo-400" />
+      <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-lg flex flex-col items-center justify-center p-12 text-center shadow-2xl border border-slate-100 dark:border-slate-700/60 relative overflow-hidden">
+          {/* 顶部彩条 */}
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+
+          {/* 背景光晕 */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-indigo-400/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute top-1/4 right-1/4 w-32 h-32 bg-purple-400/10 rounded-full blur-2xl pointer-events-none"></div>
+
+          {/* 动画图标区 */}
+          <div className="relative mb-8">
+            {/* 外圈旋转轨道 */}
+            <div className="w-28 h-28 rounded-full border-[3px] border-dashed border-indigo-300/40 dark:border-indigo-500/20 animate-spin" style={{ animationDuration: '8s' }}></div>
+            {/* 中圈旋转轨道 */}
+            <div className="absolute inset-2 w-24 h-24 rounded-full border-[2px] border-purple-400/30 dark:border-purple-500/20 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '4s' }}></div>
+            {/* 内圈进度条 */}
+            <div className="absolute inset-4 w-20 h-20 rounded-full border-[3px] border-indigo-200/40 dark:border-slate-700 border-t-indigo-500 animate-spin" style={{ animationDuration: '1.2s' }}></div>
+            {/* 中心图标 */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <BrainCircuit className="w-8 h-8 text-white" />
+              </div>
             </div>
-            <div className="absolute inset-0 w-24 h-24 mx-auto border-[3px] border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+            {/* 角落装饰点 */}
+            <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-yellow-400 animate-pulse" />
           </div>
-          <div>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">AI 正在深度深度...</h3>
-            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">正在结合前沿心理学模型，为您定制专属多维评估报告</p>
+
+          {/* 文字区 */}
+          <div className="relative space-y-3 mb-8">
+            <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent dark:from-indigo-400 dark:to-purple-400">
+              AI 正在深度分析中
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed max-w-xs mx-auto">
+              正在结合前沿心理学模型，为您定制专属多维评估报告
+            </p>
+          </div>
+
+          {/* 步骤指示器 */}
+          <div className="relative w-full max-w-xs space-y-2.5">
+            {[
+              { label: '收集作答数据', done: true },
+              { label: '多维度心理建模', done: true },
+              { label: '生成个性化报告', done: false },
+            ].map((step, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${step.done ? 'bg-indigo-500' : 'bg-indigo-100 dark:bg-slate-700'}`}>
+                  {step.done
+                    ? <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    : <div className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></div>
+                  }
+                </div>
+                <div className="flex-1 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-1000 ${step.done ? 'bg-gradient-to-r from-indigo-500 to-purple-500 w-full' : 'bg-gradient-to-r from-indigo-400 to-purple-400 animate-pulse'}`}
+                    style={step.done ? {} : { width: '60%' }}
+                  ></div>
+                </div>
+                <span className={`text-xs shrink-0 font-medium ${step.done ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>{step.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
