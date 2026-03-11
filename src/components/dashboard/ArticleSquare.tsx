@@ -221,7 +221,7 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
           <div className="flex items-center gap-4 mb-3">
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-indigo-950 dark:text-indigo-100">文章广场</h2>
             <div className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-sm font-medium rounded-full border border-indigo-200 dark:border-indigo-800">
-              {journals.length} 篇公开文章
+              {counts.all} 篇公开文章
             </div>
           </div>
           <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed truncate">
@@ -307,29 +307,30 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
                 <div className="flex flex-col flex-grow p-5 sm:p-6">
                   {/* 用户信息与日期区域 */}
                   <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
                       <Avatar 
                         username={getUserDisplayName(journal.user)} 
                         avatar={journal.user.avatar}
                         size="small"
-                        className="ring-2 ring-gray-50 dark:ring-gray-800"
+                        className="ring-2 ring-gray-50 dark:ring-gray-800 flex-shrink-0"
                       />
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-1">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
                           {getUserDisplayName(journal.user)}
                         </span>
-                        <div className="flex items-center text-[11px] text-gray-500 dark:text-gray-400">
-                          <Clock className="w-3 h-3 mr-1" />
-                          {isMounted ? formatDate(journal.createdAt) : ''}
-                        </div>
+                        {/* 心情贴纸 */}
+                        {journal.mood && (
+                          <div className={`px-2.5 py-1 rounded-full text-xs font-medium flex items-center flex-shrink-0 ${moodStyle.bg} ${moodStyle.text} border ${moodStyle.border}`}>
+                            {getMoodDisplay(journal.mood)}
+                          </div>
+                        )}
                       </div>
                     </div>
-                    {/* 心情贴纸 */}
-                    {journal.mood && (
-                      <div className={`px-2.5 py-1 rounded-full text-xs font-medium flex items-center ${moodStyle.bg} ${moodStyle.text} border ${moodStyle.border}`}>
-                        {getMoodDisplay(journal.mood)}
-                      </div>
-                    )}
+                    {/* 发布时间 - 右侧显示 */}
+                    <div className="flex items-center gap-1 text-sm text-gray-400 dark:text-gray-500 flex-shrink-0 ml-2">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{isMounted ? formatDate(journal.createdAt) : ''}</span>
+                    </div>
                   </div>
 
                   {/* 标题 */}
@@ -338,14 +339,14 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
                   </h3>
 
                   {/* 内容摘要 */}
-                  <div className="text-gray-600 dark:text-gray-400 text-sm mb-4 flex-grow prose prose-sm dark:prose-invert max-w-none" style={{
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 overflow-hidden" style={{
                     display: '-webkit-box',
                     WebkitLineClamp: 3,
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden'
                   }}>
-                    {journal.content.replace(/[#*`_]/g, '')}
-                  </div>
+                    {journal.content.replace(/[#*`_>\-=\[\]!]/g, '').trim()}
+                  </p>
 
                   {/* 底部互动区与标签 */}
                   <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">

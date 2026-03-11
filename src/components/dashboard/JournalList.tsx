@@ -7,7 +7,7 @@ import { apiClient } from "@/lib/api-client";
 import Card from "@/components/ui/Card";
 import Avatar from "@/components/ui/Avatar";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
-import { Plus, Edit, Trash2, Calendar, Tag, Eye, EyeOff, Heart } from "lucide-react";
+import { Plus, Edit, Trash2, Calendar, Tag, Eye, EyeOff, Heart, BookOpen, PenLine } from "lucide-react";
 import { useQuery, useMutation } from "@/hooks/useQuery";
 
 type JournalEntry = {
@@ -155,37 +155,46 @@ export default function JournalList({ initialJournals, userId }: JournalListProp
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* 页面头部及统计信息 */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">我的日记</h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base">记录生活点滴，追踪内心成长</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3 sm:gap-6">
-            <div className="flex items-center gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-              <div className="flex flex-col items-center">
-                <span className="text-xs text-gray-500 dark:text-gray-400">总计</span>
-                <span className="font-bold text-lg text-gray-900 dark:text-white">{totalCount}</span>
+      <div className="relative overflow-hidden rounded-2xl shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100 dark:from-blue-950/60 dark:via-blue-900/50 dark:to-indigo-900/50"></div>
+        <div className="absolute top-0 right-0 w-72 h-72 bg-blue-200/30 rounded-full -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-56 h-56 bg-indigo-200/20 rounded-full translate-y-1/2 -translate-x-1/4 pointer-events-none"></div>
+        <div className="relative p-6 sm:p-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-200/60 dark:bg-blue-800/40 rounded-xl flex items-center justify-center border border-blue-200 dark:border-blue-700/50 shadow-inner">
+                <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-300" />
               </div>
-              <div className="w-px h-8 bg-gray-200 dark:bg-gray-600"></div>
-              <div className="flex flex-col items-center">
-                <span className="text-xs text-gray-500 dark:text-gray-400">公开</span>
-                <span className="font-bold text-lg text-blue-600 dark:text-blue-400">{publicCount}</span>
-              </div>
-              <div className="w-px h-8 bg-gray-200 dark:bg-gray-600"></div>
-              <div className="flex flex-col items-center">
-                <span className="text-xs text-gray-500 dark:text-gray-400">私密</span>
-                <span className="font-bold text-lg text-purple-600 dark:text-purple-400">{privateCount}</span>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-blue-900 dark:text-white mb-0.5">我的日记</h1>
+                <p className="text-blue-500 dark:text-blue-300 text-sm sm:text-base">记录生活点滴，追踪内心成长</p>
               </div>
             </div>
-
-            <button
-              onClick={() => router.push("/dashboard/journal/new")}
-              className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition shadow-sm hover:shadow-md active:scale-95"
-            >
-              <Plus className="w-5 h-5" />
-              <span>写日记</span>
-            </button>
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+              <div className="flex items-center gap-1 bg-white/60 dark:bg-white/5 backdrop-blur-sm rounded-xl border border-blue-200 dark:border-white/10">
+                <div className="flex flex-col items-center px-4 py-2.5">
+                  <span className="text-blue-400 dark:text-blue-300 text-xs mb-0.5">总计</span>
+                  <span className="font-bold text-xl text-blue-900 dark:text-white">{totalCount}</span>
+                </div>
+                <div className="w-px h-10 bg-blue-200 dark:bg-white/20"></div>
+                <div className="flex flex-col items-center px-4 py-2.5">
+                  <span className="text-blue-400 dark:text-blue-300 text-xs mb-0.5">公开</span>
+                  <span className="font-bold text-xl text-emerald-600 dark:text-emerald-300">{publicCount}</span>
+                </div>
+                <div className="w-px h-10 bg-blue-200 dark:bg-white/20"></div>
+                <div className="flex flex-col items-center px-4 py-2.5">
+                  <span className="text-blue-400 dark:text-blue-300 text-xs mb-0.5">私密</span>
+                  <span className="font-bold text-xl text-purple-600 dark:text-purple-300">{privateCount}</span>
+                </div>
+              </div>
+              <button
+                onClick={() => router.push("/dashboard/journal/new")}
+                className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg active:scale-95"
+              >
+                <PenLine className="w-4 h-4" />
+                <span>写日记</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -193,21 +202,20 @@ export default function JournalList({ initialJournals, userId }: JournalListProp
       {/* 日记列表 */}
       <div className="space-y-4">
         {userJournals.length === 0 ? (
-          <Card className="text-center p-6 sm:p-12">
-            <div className="mb-4">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <Plus className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
-              </div>
-              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">还没有日记</h3>
-              <p className="text-gray-500 mb-4 sm:mb-6 text-sm sm:text-base">开始记录你的第一篇日记吧</p>
-              <button
-                onClick={() => router.push("/dashboard/journal/new")}
-                className="px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
-              >
-                写第一篇日记
-              </button>
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-inner">
+              <BookOpen className="w-10 h-10 text-blue-400" />
             </div>
-          </Card>
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">还没有日记</h3>
+            <p className="text-gray-400 dark:text-gray-500 mb-6 text-sm max-w-xs">打开心扉，记录属于你的每一个故事与感受</p>
+            <button
+              onClick={() => router.push("/dashboard/journal/new")}
+              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg active:scale-95"
+            >
+              <PenLine className="w-4 h-4" />
+              <span>写第一篇日记</span>
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {userJournals.map((journal: JournalEntry) => (
@@ -253,38 +261,53 @@ export default function JournalList({ initialJournals, userId }: JournalListProp
                     </div>
                   </div>
 
-                  {/* 操作按钮 */}
-                  <div className="flex items-center gap-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {/* 右侧操作区 */}
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    {/* 点赞 - 常驻显示 */}
                     <button
-                      onClick={(e) => handleEdit(journal.id, e)}
-                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full transition-colors"
-                      title="编辑"
+                      onClick={(e) => handleLike(e, journal.id)}
+                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        likedJournals.includes(journal.id)
+                          ? 'bg-pink-50 dark:bg-pink-900/20 text-pink-500 dark:text-pink-400'
+                          : 'bg-gray-50 dark:bg-gray-700/50 text-gray-400 dark:text-gray-500 hover:bg-pink-50 dark:hover:bg-pink-900/20 hover:text-pink-500 dark:hover:text-pink-400'
+                      }`}
                     >
-                      <Edit className="w-4 h-4" />
+                      <Heart className="w-3.5 h-3.5" fill={likedJournals.includes(journal.id) ? "currentColor" : "none"} />
+                      <span>{journal.likes || 0}</span>
                     </button>
-                    <button
-                      onClick={(e) => handleDelete(journal.id, journal.title, e)}
-                      disabled={deleteMutation.isLoading}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-full transition-colors"
-                      title="删除"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {/* 编辑删除 - hover 显示 */}
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => handleEdit(journal.id, e)}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full transition-colors"
+                        title="编辑"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => handleDelete(journal.id, journal.title, e)}
+                        disabled={deleteMutation.isLoading}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-full transition-colors"
+                        title="删除"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
                 {/* 内容预览 */}
                 <div className="mb-4 pl-2">
-                  <div
-                    className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed overflow-hidden prose prose-sm dark:prose-invert max-w-none"
+                  <p
+                    className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed overflow-hidden"
                     style={{
                       display: "-webkit-box",
-                      WebkitLineClamp: 3,
+                      WebkitLineClamp: 2,
                       WebkitBoxOrient: "vertical",
                     }}
                   >
-                    {journal.content.replace(/[#*`_]/g, '') /* 简单去除部分Markdown以优化预览 */}
-                  </div>
+                    {journal.content.replace(/[#*`_>\-=\[\]!]/g, '').trim()}
+                  </p>
                 </div>
 
                 {/* 标签 */}
@@ -295,7 +318,7 @@ export default function JournalList({ initialJournals, userId }: JournalListProp
                       {journal.tags.slice(0, 3).map((tag: string) => (
                         <span
                           key={tag}
-                          className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded text-[11px] font-medium truncate"
+                          className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 px-2.5 py-0.5 rounded-full text-[11px] font-medium border border-blue-100 dark:border-blue-800 truncate"
                         >
                           #{tag}
                         </span>
@@ -307,16 +330,7 @@ export default function JournalList({ initialJournals, userId }: JournalListProp
                   </div>
                 )}
                 
-                {/* 互动数据 */}
-                <div className="flex items-center gap-4 pt-3 mt-2 border-t border-gray-50 dark:border-gray-700/50 pl-2 text-gray-400 dark:text-gray-500">
-                    <div 
-                      className={`flex items-center gap-1.5 hover:text-pink-500 transition-colors cursor-pointer ${likedJournals.includes(journal.id) ? 'text-pink-500' : ''}`}
-                      onClick={(e) => handleLike(e, journal.id)}
-                    >
-                    <Heart className="w-3.5 h-3.5" fill={likedJournals.includes(journal.id) ? "currentColor" : "none"} />
-                    <span className="text-[11px] font-medium">{journal.likes || 0}</span>
-                  </div>
-                </div>
+
               </div>
             ))}
           </div>
