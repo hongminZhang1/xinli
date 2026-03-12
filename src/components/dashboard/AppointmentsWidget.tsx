@@ -1,115 +1,125 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
-
-type Appointment = { id: string; date: string; note?: string };
+import Avatar from "@/components/ui/Avatar";
+import { MessageSquare, UserCheck } from "lucide-react";
+type Counselor = {
+  id: string;
+  name: string;
+  avatar: string | null;
+  specialties: string[] | any;
+  bio: string | null;
+};
 
 export default function AppointmentsWidget() {
-  const [items, setItems] = useState<Appointment[]>([]);
-  const [date, setDate] = useState("");
-  const [note, setNote] = useState("");
+  const [counselors, setCounselors] = useState<Counselor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("appointments");
-      if (raw) setItems(JSON.parse(raw));
-    } catch {}
+    const fetchCounselors = async () => {
+      try {
+        // 调用同域 Next.js API 中转，避免跨域 CORS 延迟
+        const res = await fetch("/api/counselors");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data: Counselor[] = await res.json();
+        setCounselors(data);
+      } catch (error) {
+        console.error("获取咨询师失败:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCounselors();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("appointments", JSON.stringify(items));
-  }, [items]);
+  const handleStartChat = (id: string) => {
+    router.push(`/dashboard/appointments/${id}`);
+  };
 
-  function request() {
-    if (!date) return;
-    const a: Appointment = { id: String(Date.now()), date, note: note.trim() || undefined };
-    setItems((s) => [a, ...s]);
-    setDate("");
-    setNote("");
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-3 animate-pulse">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="p-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-full shrink-0"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="h-3 w-48 bg-gray-100 dark:bg-gray-800 rounded"></div>
+                <div className="flex gap-1.5">
+                  <div className="h-5 w-14 bg-gray-100 dark:bg-gray-800 rounded-full"></div>
+                  <div className="h-5 w-14 bg-gray-100 dark:bg-gray-800 rounded-full"></div>
+                </div>
+              </div>
+              <div className="h-9 w-28 bg-gray-200 dark:bg-gray-700 rounded-lg shrink-0"></div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    );
   }
 
   return (
-    <Card className="space-y-4">
-      <h3 className="text-lg font-semibold">咨询预约</h3>
-      
-      {/* 桌面端横向布局 */}
-      <div className="hidden sm:flex gap-2">
-        <input 
-          type="datetime-local" 
-          value={date} 
-          onChange={(e) => setDate(e.target.value)} 
-          className="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
-        />
-        <input 
-          value={note} 
-          onChange={(e) => setNote(e.target.value)} 
-          placeholder="备注（可选）" 
-          className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
-        />
-        <button 
-          onClick={request} 
-          disabled={!date}
-          className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          预约
-        </button>
-      </div>
+    <div className="flex flex-col gap-3">
+      {counselors.length === 0 ? (
+        <Card className="p-8 text-center text-gray-500">
+          <UserCheck className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+          <p>当前暂无可预约的咨询师，请稍后刷新重试</p>
+        </Card>
+      ) : (
+        counselors.map((counselor) => {
+          let parsedSpecialties: string[] = [];
+          if (Array.isArray(counselor.specialties)) {
+            parsedSpecialties = counselor.specialties;
+          } else if (typeof counselor.specialties === "string") {
+            try {
+              parsedSpecialties = JSON.parse(counselor.specialties);
+            } catch (e) {
+              parsedSpecialties = [];
+            }
+          }
 
-      {/* 移动端垂直布局 */}
-      <div className="sm:hidden space-y-3">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">预约时间</label>
-          <input 
-            type="datetime-local" 
-            value={date} 
-            onChange={(e) => setDate(e.target.value)} 
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">备注</label>
-          <input 
-            value={note} 
-            onChange={(e) => setNote(e.target.value)} 
-            placeholder="预约相关说明（可选）" 
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
-          />
-        </div>
-        <button 
-          onClick={request} 
-          disabled={!date}
-          className="w-full px-4 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-        >
-          确认预约
-        </button>
-      </div>
-
-      <div className="space-y-2">
-        {items.length === 0 && (
-          <div className="text-gray-500 text-center py-4 text-sm">暂无预约记录</div>
-        )}
-        {items.map((it) => (
-          <div key={it.id} className="p-3 border rounded-lg hover:bg-gray-50">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <div className="text-sm font-medium text-gray-800 mb-1 sm:mb-0">
-                📅 {new Date(it.date).toLocaleString('zh-CN', {
-                  year: 'numeric',
-                  month: 'short', 
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </div>
-              {it.note && (
-                <div className="text-sm text-gray-600 sm:text-right sm:max-w-xs">
-                  💬 {it.note}
+          return (
+            <Card key={counselor.id} className="p-4 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-4">
+                <Avatar
+                  username={counselor.name}
+                  avatar={counselor.avatar}
+                  size="large"
+                  className="shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
+                    {counselor.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1 mt-0.5">
+                    {counselor.bio || "该咨询师暂时没有留下个人简介。"}
+                  </p>
+                  {parsedSpecialties.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {parsedSpecialties.slice(0, 3).map((tag, idx) => (
+                        <span key={idx} className="bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 text-xs px-2 py-0.5 rounded-full">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </Card>
+                <button
+                  onClick={() => handleStartChat(counselor.id)}
+                  className="shrink-0 flex items-center gap-1.5 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors font-medium text-sm"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  开始咨询
+                </button>
+              </div>
+            </Card>
+          );
+        })
+      )}
+    </div>
   );
 }

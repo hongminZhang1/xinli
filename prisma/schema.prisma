@@ -21,11 +21,13 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  emotionRecords EmotionRecord[]
-  chatSessions   ChatSession[]
-  appointments   Appointment[]
-  journalEntries JournalEntry[]
-  comments       Comment[]
+  emotionRecords    EmotionRecord[]
+  chatSessions      ChatSession[]
+  appointments      Appointment[]
+  journalEntries    JournalEntry[]
+  comments          Comment[]
+  counselorChannels CounselorChannel[] @relation("UserToChannels")
+  counselorSessions CounselorChannel[] @relation("CounselorToChannels")
 
   @@map("users")
 }
@@ -48,7 +50,7 @@ model EmotionRecord {
   emotion   EmotionType
   intensity Int
   notes     String?     @db.Text
-  tags      Json        // MySQL JSON type for arrays
+  tags      Json // MySQL JSON type for arrays
   createdAt DateTime    @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -60,7 +62,7 @@ model ChatSession {
   id        String   @id @default(cuid())
   userId    String
   title     String
-  messages  Json     // MySQL JSON type for message arrays
+  messages  Json // MySQL JSON type for message arrays
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -90,17 +92,17 @@ model Appointment {
 }
 
 model Counselor {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  phone        String?
-  specialties  Json     // MySQL JSON for specialties array
-  bio          String?  @db.Text
-  avatar       String?
-  isAvailable  Boolean  @default(true)
-  hourlyRate   Decimal? @db.Decimal(10, 2)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  phone       String?
+  specialties Json // MySQL JSON for specialties array
+  bio         String?  @db.Text
+  avatar      String?
+  isAvailable Boolean  @default(true)
+  hourlyRate  Decimal? @db.Decimal(10, 2)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   appointments Appointment[]
 
@@ -113,7 +115,7 @@ model JournalEntry {
   title     String
   content   String   @db.Text
   mood      String?
-  tags      Json     // MySQL JSON for tags array
+  tags      Json // MySQL JSON for tags array
   isPrivate Boolean  @default(true)
   likes     Int      @default(0)
   createdAt DateTime @default(now())
@@ -165,4 +167,35 @@ enum AppointmentStatus {
   COMPLETED
   CANCELLED
   NO_SHOW
+}
+
+model CounselorChannel {
+  id            String   @id @default(cuid())
+  userId        String
+  counselorId   String
+  status        String   @default("ACTIVE") // ACTIVE, CLOSED
+  lastMessageAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user      User               @relation(name: "UserToChannels", fields: [userId], references: [id], onDelete: Cascade)
+  counselor User               @relation(name: "CounselorToChannels", fields: [counselorId], references: [id], onDelete: Cascade)
+  messages  CounselorMessage[]
+
+  @@unique([userId, counselorId])
+  @@map("counselor_channels")
+}
+
+model CounselorMessage {
+  id         String   @id @default(cuid())
+  channelId  String
+  senderId   String
+  senderType String // "USER"  "COUNSELOR"
+  content    String   @db.Text
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  channel CounselorChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@map("counselor_messages")
 }

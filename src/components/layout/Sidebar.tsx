@@ -11,12 +11,13 @@ import {
   Settings,
   MessageSquare,
   Brain,
+  Smile,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-const navItems = [
+const baseNavItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "我的主页" },
   { href: "/dashboard/emotions", icon: HeartPulse, label: "情绪追踪" },
   { href: "/dashboard/assessment", icon: Brain, label: "心理评估" },
@@ -24,7 +25,6 @@ const navItems = [
   { href: "/dashboard/journal", icon: Book, label: "我的日记" },
   { href: "/dashboard/square", icon: MessageSquare, label: "文章广场" },
   { href: "/dashboard/resources", icon: Library, label: "疗愈资源" },
-  { href: "/dashboard/appointments", icon: CalendarCheck, label: "咨询预约" },
 ];
 
 const adminNavItems = [
@@ -36,6 +36,16 @@ export default function Sidebar() {
   const { data: session } = useSession();
 
   const isAdmin = session?.user?.role === 'ADMIN';
+  const isCounselor = session?.user?.role === 'COUNSELOR';
+
+  const navItems = [
+    ...baseNavItems,
+    {
+      href: "/dashboard/appointments",
+      icon: isCounselor ? Smile : CalendarCheck,
+      label: isCounselor ? "情绪开导" : "咨询预约",
+    },
+  ];
 
   return (
     <aside className="hidden lg:flex lg:flex-col w-64 p-4 bg-card border-r h-screen fixed top-0 left-0">

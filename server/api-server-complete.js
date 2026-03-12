@@ -504,6 +504,154 @@ app.put('/api/settings/:key', async (req, res) => {
   }
 });
 
+// 咨询师聊天：获取或创建会话及历史消息（复用 ChatSession 表）
+app.get('/api/counselors/:counselorId/chat', async (req, res) => {
+  try {
+    const { counselorId } = req.params;
+    const { userId } = req.query;
+    if (!userId) return res.status(400).json({ error: 'userId 不能为空' });
+
+    const sessionTitle = `counselor:${counselorId}`;
+    let session = await prisma.chatSession.findFirst({
+      where: { userId, title: sessionTitle },
+    });
+
+    if (!session) {
+      session = await prisma.chatSession.create({
+        data: { userId, title: sessionTitle, messages: [] },
+      });
+      return res.json([]);
+    }
+
+    const messages = Array.isArray(session.messages) ? session.messages : [];
+    res.json(messages);
+  } catch (error) {
+    console.error('获取聊天记录失败:', error);
+    res.status(500).json({ error: '获取聊天记录失败' });
+  }
+});
+
+// 咨询师聊天：发送消息（用户或咨询师均可调用，senderType 区分）
+app.post('/api/counselors/:counselorId/chat', async (req, res) => {
+  try {
+    const { counselorId } = req.params;
+    const { userId, content, senderType = 'USER', senderId } = req.body;
+    if (!userId || !content?.trim()) {
+      return res.status(400).json({ error: '参数不完整' });
+    }
+
+    const sessionTitle = `counselor:${counselorId}`;
+    let session = await prisma.chatSession.findFirst({
+      where: { userId, title: sessionTitle },
+    });
+
+    if (!session) {
+      session = await prisma.chatSession.create({
+        data: { userId, title: sessionTitle, messages: [] },
+      });
+    }
+
+    const existingMessages = Array.isArray(session.messages) ? session.messages : [];
+    const newMessage = {
+      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      senderType,
+      senderId: senderId || userId,
+      content: content.trim(),
+      createdAt: new Date().toISOString(),
+    };
+    const updatedMessages = [...existingMessages, newMessage];
+
+    await prisma.chatSession.update({
+      where: { id: session.id },
+      data: { messages: updatedMessages, updatedAt: new Date() },
+    });
+
+    res.status(201).json(newMessage);
+  } catch (error) {
+    console.error('发送消息失败:', error);
+    res.status(500).json({ error: '发送消息失败' });
+  }
+});
+
+// 咨询师收件箱：列出所有向该咨询师发过消息的用户
+app.get('/api/counselors/:counselorId/sessions', async (req, res) => {
+  try {
+    const { counselorId } = req.params;
+    const sessionTitle = `counselor:${counselorId}`;
+
+    const sessions = await prisma.chatSession.findMany({
+      where: { title: sessionTitle },
+      include: {
+        user: { select: { id: true, name: true, username: true, avatar: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+
+    const result = sessions.map(s => {
+      const msgs = Array.isArray(s.messages) ? s.messages : [];
+      const last = msgs.length > 0 ? msgs[msgs.length - 1] : null;
+      return {
+        userId: s.userId,
+        userName: s.user.name || s.user.username,
+        userAvatar: s.user.avatar,
+        lastMessage: last ? last.content : null,
+        lastMessageAt: last ? last.createdAt : s.updatedAt,
+        unreadCount: msgs.filter(m => m.senderType === 'USER').length,
+      };
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error('获取咨询会话列表失败:', error);
+    res.status(500).json({ error: '获取咨询会话列表失败' });
+  }
+});
+
+// 咨询师列表API（获取所有角色为COUNSELOR且激活的用户）
+app.get('/api/counselors', async (req, res) => {
+  try {
+    const counselors = await prisma.user.findMany({
+      where: {
+        role: 'COUNSELOR',
+        isActive: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        avatar: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    const bios = [
+      '每一段经历都有其意义，我在这里陪你一起探索内心世界。',
+      '用专业与温情，帮助你找到内心的力量与平静。',
+      '相信每个人都有自我疗愈的能力，我愿意做你前行路上的陪伴者。',
+      '无论你正在经历什么，我都愿意用心倾听，陪你走过。',
+      '心理健康是生活幸福的基石，让我们一起守护你的内心花园。',
+      '每一次对话都是一次成长，我很荣幸能成为你信任的倾听者。',
+      '在这里，你可以放下防备，我们一起面对内心深处的困惑与恐惧。',
+      '改变从被理解开始，让我们共同开启这段疗愈之旅。',
+    ];
+
+    const formattedCounselors = counselors.map((user, index) => ({
+      id: user.id,
+      name: user.name || user.username,
+      avatar: user.avatar,
+      specialties: ['心理疏导', '情绪疗愈', '青少年心理'],
+      bio: bios[index % bios.length],
+    }));
+
+    res.json(formattedCounselors);
+  } catch (error) {
+    console.error('获取咨询师列表失败:', error);
+    res.status(500).json({ error: '获取咨询师列表失败' });
+  }
+});
+
 // 错误处理中间件
 app.use((error, req, res, next) => {
   console.error('服务器错误:', error);
