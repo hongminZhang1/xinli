@@ -6,7 +6,7 @@ export const metadata = {
   description: "让每一个年轻的心灵都能找到属于自己的晴朗天空。专为青少年打造的心理健康AI陪伴平台，提供专业、温暖、安全的心理支持服务。",
   keywords: "青少年心理健康,AI陪伴,心理咨询,情感支持,心理测评",
   authors: [{ name: "心晴驿站团队" }],
-  metadataBase: new URL('https://xinli.vercel.app'),
+  metadataBase: new URL(process.env.NEXTAUTH_URL || 'https://xinli.example.com'),
   openGraph: {
     title: "心晴驿站 - 青少年心理健康AI陪伴平台",
     description: "让每一个年轻的心灵都能找到属于自己的晴朗天空",

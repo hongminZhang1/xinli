@@ -21,7 +21,7 @@ export async function GET() {
         const response = await fetch(url, {
           method: 'GET',
           headers: {
-            'User-Agent': 'Vercel-Health-Check/1.0',
+            'User-Agent': 'Health-Check/1.0',
           },
           signal: AbortSignal.timeout(5000) // 5秒超时
         });

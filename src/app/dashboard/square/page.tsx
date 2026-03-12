@@ -5,7 +5,7 @@ async function fetchPublicJournals(): Promise<any[]> {
   try {
     const baseUrl = getApiBaseUrl();
     const response = await fetch(`${baseUrl}/journals?type=public&page=1&pageSize=20`, {
-      next: { revalidate: 60 }, // Vercel 边缘缓存 60 秒，减少对后端的请求
+      next: { revalidate: 60 }, // ISR 缓存 60 秒，减少对后端的请求
     });
     if (!response.ok) return [];
     return response.json();

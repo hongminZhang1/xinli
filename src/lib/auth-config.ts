@@ -8,11 +8,10 @@ export function getNextAuthUrl() {
   if (typeof window === 'undefined') {
     // 生产环境
     if (process.env.NODE_ENV === 'production') {
-      // 优先级：环境变量NEXTAUTH_URL > NEXTAUTH_URL_PROD > Vercel自动 > 默认值
+      // 优先级：环境变量NEXTAUTH_URL > NEXTAUTH_URL_PROD > 默认值
       return process.env.NEXTAUTH_URL ||
              process.env.NEXTAUTH_URL_PROD || 
-             (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-             'https://xinli-two.vercel.app';
+             'https://xinli.example.com'; // 请替换为实际的生产环境域名
     }
     // 开发环境
     return process.env.NEXTAUTH_URL || 'http://localhost:3000';
