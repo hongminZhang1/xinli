@@ -38,6 +38,33 @@ async function fetchGrowthStats(userId: string) {
     const journals: any[] = journalRes.status === 'fulfilled' && journalRes.value.ok
       ? await journalRes.value.json() : [];
 
+    // 组合最近活动
+    const mappedEmotions = emotions.map((e: any) => ({
+      id: e.id,
+      type: 'emotion' as const,
+      title: '记录情绪',
+      desc: e.notes || `记录了情绪`,
+      date: new Date(e.createdAt)
+    }));
+    const mappedChats = chatSessions.map((c: any) => ({
+      id: c.id,
+      type: 'chat' as const,
+      title: 'AI对话',
+      desc: c.title || '和AI伙伴进行了交流',
+      date: new Date(c.updatedAt || c.createdAt)
+    }));
+    const mappedJournals = journals.map((j: any) => ({
+      id: j.id,
+      type: 'journal' as const,
+      title: '成长日记',
+      desc: j.title || '写了一篇日记',
+      date: new Date(j.createdAt)
+    }));
+
+    const recentActivities = [...mappedEmotions, ...mappedChats, ...mappedJournals]
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
+      .slice(0, 3);
+
     // 本周情绪数
     const now = new Date();
     const weekStart = new Date(now);
@@ -57,9 +84,10 @@ async function fetchGrowthStats(userId: string) {
       journalCount: journals.length,
       todayHasEmotion,
       todayHasChat,
+      recentActivities,
     };
   } catch {
-    return { weekEmotionCount: 0, chatSessionCount: 0, journalCount: 0, todayHasEmotion: false, todayHasChat: false };
+    return { weekEmotionCount: 0, chatSessionCount: 0, journalCount: 0, todayHasEmotion: false, todayHasChat: false, recentActivities: [] };
   }
 }
 
@@ -69,7 +97,7 @@ export default async function DashboardPage() {
   // 拉取真实成长数据
   const stats = session?.user?.id
     ? await fetchGrowthStats(session.user.id)
-    : { weekEmotionCount: 0, chatSessionCount: 0, journalCount: 0, todayHasEmotion: false, todayHasChat: false };
+    : { weekEmotionCount: 0, chatSessionCount: 0, journalCount: 0, todayHasEmotion: false, todayHasChat: false, recentActivities: [] };
 
   // 今日目标完成数
   const completedGoals = [stats.todayHasEmotion, stats.todayHasChat, false].filter(Boolean).length;
@@ -393,48 +421,52 @@ export default async function DashboardPage() {
                 <div>
                   <h2 className="text-base font-bold font-display">最近活动</h2>
                 </div>
-                <Link href="/dashboard/journal" className="text-sm text-primary hover:underline font-medium">查看全部</Link>
               </div>
 
               <div className="space-y-3">
-                 <div className="flex gap-3 p-3 rounded-xl bg-muted/20 border border-border/40 hover:bg-muted/40 transition-colors cursor-pointer">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-600">
-                    <Heart size={16} />
-                  </div>
-                  <div className="flex-grow min-w-0">
-                    <div className="flex items-center justify-between mb-0.5">
-                      <span className="text-sm font-medium text-foreground">记录情绪</span>
-                      <span className="text-xs text-muted-foreground font-medium">2小时前</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground line-clamp-1">今天感觉心情不错，和朋友聊天很开心</p>
-                  </div>
-                </div>
+                {stats.recentActivities.length > 0 ? (
+                  stats.recentActivities.map((activity) => {
+                    const timeDiff = new Date().getTime() - activity.date.getTime();
+                    const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+                    const days = Math.floor(hours / 24);
+                    let timeStr = '';
+                    if (hours < 1) timeStr = '刚刚';
+                    else if (hours < 24) timeStr = `${hours}小时前`;
+                    else if (days === 1) timeStr = '昨天';
+                    else timeStr = `${days}天前`;
 
-                <div className="flex gap-3 p-3 rounded-xl bg-muted/20 border border-border/40 hover:bg-muted/40 transition-colors cursor-pointer">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                    <MessageCircle size={16} />
+                    return (
+                      <div key={`${activity.type}-${activity.id}`} className="flex gap-3 p-3 rounded-xl bg-muted/20 border border-border/40 hover:bg-muted/40 transition-colors cursor-pointer">
+                        {activity.type === 'emotion' && (
+                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-600">
+                            <Heart size={16} />
+                          </div>
+                        )}
+                        {activity.type === 'chat' && (
+                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                            <MessageCircle size={16} />
+                          </div>
+                        )}
+                        {activity.type === 'journal' && (
+                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                            <BookOpen size={16} />
+                          </div>
+                        )}
+                        <div className="flex-grow min-w-0">
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="text-sm font-medium text-foreground">{activity.title}</span>
+                            <span className="text-xs text-muted-foreground font-medium">{timeStr}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground line-clamp-1">{activity.desc}</p>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-6 text-sm text-muted-foreground">
+                    暂无活动记录
                   </div>
-                  <div className="flex-grow min-w-0">
-                     <div className="flex items-center justify-between mb-0.5">
-                      <span className="text-sm font-medium text-foreground">AI对话</span>
-                      <span className="text-xs text-muted-foreground font-medium">昨天</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground line-clamp-1">和小晴聊了关于学习压力的话题</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 p-3 rounded-xl bg-muted/20 border border-border/40 hover:bg-muted/40 transition-colors cursor-pointer">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
-                    <BookOpen size={16} />
-                  </div>
-                  <div className="flex-grow min-w-0">
-                     <div className="flex items-center justify-between mb-0.5">
-                      <span className="text-sm font-medium text-foreground">成长日记</span>
-                      <span className="text-xs text-muted-foreground font-medium">2天前</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground line-clamp-1">今天的心理测评帮我更了解自己</p>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
 
