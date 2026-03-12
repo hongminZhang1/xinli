@@ -27,7 +27,7 @@ export default async function JournalPage() {
   if (!session?.user?.id) {
     return (
       <Card className="text-center p-8">
-        <p className="text-gray-500">���ȵ�¼�鿴�����ռ�</p>
+        <p className="text-gray-500">请先登录查看您的日记</p>
       </Card>
     );
   }

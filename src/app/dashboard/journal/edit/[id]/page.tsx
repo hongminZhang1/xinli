@@ -1,4 +1,5 @@
 "use client";
+import Swal from "sweetalert2";
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -67,7 +68,7 @@ export default function EditJournalPage({ params }: { params: { id: string } }) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.user?.id || !title.trim() || !content.trim()) {
-      alert("请填写标题和内容");
+      Swal.fire("请填写标题和内容");
       return;
     }
 
@@ -82,10 +83,10 @@ export default function EditJournalPage({ params }: { params: { id: string } }) 
         isPrivate: isPrivate,
       });
 
-      alert("日记更新成功！");
+      Swal.fire("日记更新成功！");
     } catch (error) {
       console.error("更新日记失败:", error);
-      alert("更新日记失败，请稍后重试");
+      Swal.fire("更新日记失败，请稍后重试");
     }
   };
 

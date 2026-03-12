@@ -3,7 +3,7 @@ export const assessmentCategories = [
   {
     id: "personality",
     name: "人格分析",
-    icon: "�",
+    icon: "👤",
     description: "深入了解你的性格特质和行为模式"
   },
   {

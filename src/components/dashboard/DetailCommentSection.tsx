@@ -1,4 +1,5 @@
 "use client";
+import Swal from "sweetalert2";
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -75,7 +76,7 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
     if (!newComment.trim()) return;
     
     if (!session?.user?.id) {
-      alert("请先登录后再发表评论");
+      Swal.fire("请先登录后再发表评论");
       return;
     }
 
@@ -85,7 +86,7 @@ export default function DetailCommentSection({ journalId, initialComments, onCom
       });
     } catch (error) {
       console.error("发布评论失败:", error);
-      alert("发布评论失败，请稍后重试");
+      Swal.fire("发布评论失败，请稍后重试");
     }
   };
 

@@ -1,4 +1,5 @@
 "use client";
+import Swal from "sweetalert2";
 
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
@@ -31,7 +32,7 @@ export default function NewJournalPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.user?.id || !title.trim() || !content.trim()) {
-      alert("请填写标题和内容");
+      Swal.fire("请填写标题和内容");
       return;
     }
 
@@ -54,11 +55,11 @@ export default function NewJournalPage() {
       });
       if (!res.ok) throw new Error('请求失败');
 
-      alert("日记创建成功！");
+      Swal.fire("日记创建成功！");
       router.push("/dashboard/journal");
     } catch (error) {
       console.error("创建日记失败:", error);
-      alert("创建日记失败，请稍后重试");
+      Swal.fire("创建日记失败，请稍后重试");
     } finally {
       setIsSubmitting(false);
     }

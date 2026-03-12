@@ -1,4 +1,5 @@
 "use client";
+import Swal from "sweetalert2";
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -108,7 +109,7 @@ export default function CommentSection({ journalId, comments, onCommentAdded }: 
       setShowComments(true); // 显示评论列表
     } catch (error) {
       console.error("发布评论失败:", error);
-      alert("发布评论失败，请稍后重试");
+      Swal.fire("发布评论失败，请稍后重试");
     }
   };
 

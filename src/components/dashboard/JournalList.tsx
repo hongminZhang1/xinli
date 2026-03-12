@@ -1,4 +1,5 @@
 "use client";
+import Swal from "sweetalert2";
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -100,11 +101,11 @@ export default function JournalList({ initialJournals, userId }: JournalListProp
   const handleLike = async (e: React.MouseEvent, journalId: string) => {
     e.stopPropagation();
     if (!session) {
-      alert("请先登录后点赞");
+      Swal.fire("请先登录后点赞");
       return;
     }
     if (likedJournals.includes(journalId)) {
-      alert("您已经点过赞啦");
+      Swal.fire("您已经点过赞啦");
       return;
     }
     
@@ -119,7 +120,7 @@ export default function JournalList({ initialJournals, userId }: JournalListProp
       // 回退乐观更新
       setLikedJournals(prev => prev.filter(id => id !== journalId));
       if (error.message || error.error) {
-        alert(error.message || error.error || "点赞失败");
+        Swal.fire(error.message || error.error || "点赞失败");
       }
     }
   };
@@ -138,11 +139,11 @@ export default function JournalList({ initialJournals, userId }: JournalListProp
 
   const handleDelete = async (journalId: string, title: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    if (confirm(`确定要删除日记"${title}"吗？此操作不可恢复。`)) {
+    if ((await Swal.fire({title: "提示", text: `确定要删除日记"${title}"吗？此操作不可恢复。`, icon: "warning", showCancelButton: true, confirmButtonText: "确定", cancelButtonText: "取消"})).isConfirmed) {
       try {
         await deleteMutation.mutate(journalId);
       } catch {
-        alert("删除失败，请稍后重试");
+        Swal.fire("删除失败，请稍后重试");
       }
     }
   };

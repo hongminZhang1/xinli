@@ -1,4 +1,5 @@
 "use client";
+import Swal from "sweetalert2";
 
 import React, { useState } from "react";
 import { useEmotions } from "@/hooks/useEmotions";
@@ -84,7 +85,7 @@ export default function EmotionsWidget({ emotionsData }: EmotionsWidgetProps) {
 
   const handleDeleteEntry = async (id: string) => {
     if (loading) return;
-    if (window.confirm("确定要删除这条记录吗？")) await deleteEntry(id);
+    if ((await Swal.fire({title: "提示", text: "确定要删除这条记录吗？", icon: "warning", showCancelButton: true, confirmButtonText: "确定", cancelButtonText: "取消"})).isConfirmed) await deleteEntry(id);
   };
 
   // ── 加载/未登录状态 ──────────────────────────────────────────────

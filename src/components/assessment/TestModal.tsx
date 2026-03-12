@@ -1,4 +1,5 @@
 "use client";
+import Swal from "sweetalert2";
 
 import { useState, useEffect, useRef } from "react";
 import { X, ArrowLeft, ArrowRight, CheckCircle, Clock, Target, Sparkles, MessageSquare, Send, Brain, Star, BrainCircuit } from "lucide-react";
@@ -186,7 +187,7 @@ export default function TestModal({ test, onClose }: TestModalProps) {
 
     } catch (error) {
         console.error("Analysis failed:", error);
-        alert("分析生成失败，请稍后重试。");
+        Swal.fire("分析生成失败，请稍后重试。");
         onClose();
     } finally {
         setIsAnalyzing(false);

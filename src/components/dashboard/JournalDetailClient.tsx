@@ -1,4 +1,6 @@
-﻿"use client";
+"use client";
+import Swal from "sweetalert2";
+﻿
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -103,11 +105,11 @@ export default function JournalDetailClient({
 
   const handleLike = async () => {
     if (!session) {
-      alert("请先登录后点赞");
+      Swal.fire("请先登录后点赞");
       return;
     }
     if (hasLiked) {
-      alert("您已经点过赞啦");
+      Swal.fire("您已经点过赞啦");
       return;
     }
     try {
@@ -125,7 +127,7 @@ export default function JournalDetailClient({
         setLocalLikes(prev => prev - 1);
       }
       if (err.message || err.error) {
-        alert(err.message || err.error || "点赞失败");
+        Swal.fire(err.message || err.error || "点赞失败");
       }
     }
   };

@@ -3,6 +3,7 @@ import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import { useCacheCleanup } from "@/hooks/useCacheCleanup";
 import { useEffect } from "react";
+import { Toaster } from "react-hot-toast";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -64,6 +65,19 @@ export default function AuthProvider({
             <MotionProvider>
               {children}
             </MotionProvider>
+            <Toaster 
+              position="top-center"
+              toastOptions={{
+                duration: 3000,
+                style: {
+                  background: 'var(--tw-colors-background, #fff)',
+                  color: 'var(--tw-colors-foreground, #333)',
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                  borderRadius: '0.5rem',
+                  padding: '12px 16px',
+                },
+              }} 
+            />
           </CacheProvider>
         </SessionProvider>
       </ThemeProvider>

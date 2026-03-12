@@ -1,4 +1,5 @@
 "use client";
+import Swal from "sweetalert2";
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -151,11 +152,11 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
   const handleLike = async (e: React.MouseEvent, journalId: string) => {
     e.stopPropagation();
     if (!session) {
-      alert("请先登录后点赞");
+      Swal.fire("请先登录后点赞");
       return;
     }
     if (likedJournals.includes(journalId)) {
-      alert("您已经点过赞啦");
+      Swal.fire("您已经点过赞啦");
       return;
     }
     
@@ -170,7 +171,7 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
       // 回退乐观更新
       setLikedJournals(prev => prev.filter(id => id !== journalId));
       if (error.message || error.error) {
-        alert(error.message || error.error || "点赞失败");
+        Swal.fire(error.message || error.error || "点赞失败");
       }
     }
   };
@@ -181,7 +182,7 @@ export default function ArticleSquare({ initialData }: { initialData?: any[] } =
 
   const handleJournalClick = (journalId: string) => {
     if (!session) {
-      alert("请先登录查看文章详情");
+      Swal.fire("请先登录查看文章详情");
       return;
     }
     // 清除日记页面标记，表示从文章广场来
