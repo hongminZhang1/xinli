@@ -180,7 +180,7 @@ export default function CounselorReplyChatClient({
                 {showDate && (
                   <div className="flex items-center gap-3 py-3 my-1">
                     <div className="h-px flex-1 bg-gray-200/70 dark:bg-gray-700/50" />
-                    <span className="text-[11px] text-gray-400 dark:text-gray-500 bg-[#f5f5f7] dark:bg-gray-900 px-1">
+                    <span className="text-[13px] text-gray-400 dark:text-gray-500 bg-[#f5f5f7] dark:bg-gray-900 px-1">
                       {formatDateLabel(msg.createdAt)}
                     </span>
                     <div className="h-px flex-1 bg-gray-200/70 dark:bg-gray-700/50" />
@@ -205,13 +205,13 @@ export default function CounselorReplyChatClient({
                   {/* 气泡 + 时间 */}
                   <div className={`flex flex-col max-w-[68%] ${isMe ? "items-end" : "items-start"}`}>
                     <div
-                      className={`px-3.5 py-2.5 text-[14px] leading-[1.55] break-words whitespace-pre-wrap ${bubbleClass}`}
+                      className={`px-3.5 py-2.5 text-[15px] leading-[1.6] break-words whitespace-pre-wrap ${bubbleClass}`}
                     >
                       {msg.content}
                     </div>
                     {/* 时间戳：每组最后一条消息才显示，位于气泡外下方 */}
                     {isLast && (
-                      <span className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 mx-1 tabular-nums">
+                      <span className="text-[12px] text-gray-400 dark:text-gray-500 mt-1 mx-1 tabular-nums">
                         {formatTime(msg.createdAt)}
                       </span>
                     )}

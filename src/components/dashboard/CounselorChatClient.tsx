@@ -103,11 +103,11 @@ export default function CounselorChatClient({
           <Avatar username={counselor.name} avatar={counselor.avatar} size="medium" />
           <span className="absolute bottom-0 right-0 block w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-gray-800" />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-[14px] text-gray-900 dark:text-gray-100 truncate leading-tight">
+        <div className="flex-1 min-w-0 flex items-center gap-2">
+          <p className="font-semibold text-[16px] text-gray-900 dark:text-gray-100 truncate leading-tight">
             {counselor.name}
           </p>
-          <p className="text-[11px] text-emerald-500 leading-tight">在线 · 专业咨询师</p>
+          <p className="text-[12px] text-emerald-500 shrink-0">在线 · 专业咨询师</p>
         </div>
       </div>
 
@@ -126,8 +126,8 @@ export default function CounselorChatClient({
               <MessageCircle className="w-8 h-8 text-blue-400" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">开始你的第一次倾诉</p>
-              <p className="text-xs text-gray-400 mt-1">{counselor.name} 在这里倾听你的故事</p>
+              <p className="text-base font-medium text-gray-600 dark:text-gray-300">开始你的第一次倾诉</p>
+              <p className="text-sm text-gray-400 mt-1.5">{counselor.name} 在这里倾听你的故事</p>
             </div>
           </div>
         ) : (
@@ -167,7 +167,7 @@ export default function CounselorChatClient({
                 {showDate && (
                   <div className="flex items-center gap-3 py-3 my-1">
                     <div className="h-px flex-1 bg-gray-200/70 dark:bg-gray-700/50" />
-                    <span className="text-[11px] text-gray-400 dark:text-gray-500 bg-[#f5f5f7] dark:bg-gray-900 px-1">
+                    <span className="text-[13px] text-gray-400 dark:text-gray-500 bg-[#f5f5f7] dark:bg-gray-900 px-1">
                       {formatDateLabel(msg.createdAt)}
                     </span>
                     <div className="h-px flex-1 bg-gray-200/70 dark:bg-gray-700/50" />
@@ -191,12 +191,12 @@ export default function CounselorChatClient({
 
                   {/* 气泡 + 时间 */}
                   <div className={`flex flex-col max-w-[68%] ${isMe ? "items-end" : "items-start"}`}>
-                    <div className={`px-3.5 py-2.5 text-[14px] leading-[1.55] break-words whitespace-pre-wrap ${bubbleClass}`}>
+                    <div className={`px-3.5 py-2.5 text-[15px] leading-[1.6] break-words whitespace-pre-wrap ${bubbleClass}`}>
                       {msg.content}
                     </div>
                     {/* 时间戳：每组最后一条消息才显示，位于气泡外下方 */}
                     {isLast && (
-                      <span className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 mx-1 tabular-nums">
+                      <span className="text-[12px] text-gray-400 dark:text-gray-500 mt-1 mx-1 tabular-nums">
                         {formatTime(msg.createdAt)}
                       </span>
                     )}
@@ -241,7 +241,6 @@ export default function CounselorChatClient({
             {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 translate-x-px" />}
           </button>
         </div>
-        <p className="text-[11px] text-gray-300 dark:text-gray-600 mt-1.5 ml-1">Enter 发送 · Shift+Enter 换行</p>
       </div>
     </div>
   );
