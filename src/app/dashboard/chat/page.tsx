@@ -25,7 +25,7 @@ export default function ChatPage() {
       const res = await fetch('/api/chat/sessions');
       if (res.ok) {
         const data = await res.json();
-        setSessions(Array.isArray(data) ? data.slice(0, 10) : []);
+        setSessions(Array.isArray(data) ? data : []);
       }
     } catch {}
   }, []);
@@ -80,14 +80,14 @@ export default function ChatPage() {
 
             {/* 下拉历史面板 */}
             {historyOpen && (
-              <div className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden">
+              <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden">
                 {sessions.length === 0 ? (
                   <div className="p-8 text-center">
                     <MessageCircle className="w-8 h-8 text-gray-200 mx-auto mb-2" />
                     <p className="text-sm text-gray-400">还没有对话记录</p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-50 dark:divide-gray-700/50 max-h-80 overflow-y-auto">
+                  <div className="divide-y divide-gray-50 dark:divide-gray-700/50 max-h-[340px] overflow-y-auto">
                     {sessions.map((s) => (
                       <div
                         key={s.id}

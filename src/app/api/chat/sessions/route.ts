@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getApiBaseUrl } from '@/lib/env-config';
 
-// 获取当前用户的对话会话列表（最近10条）
+// 获取当前用户的对话会话列表
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -13,7 +13,7 @@ export async function GET() {
     const res = await fetch(`${baseUrl}/chat/user/${session.user.id}`, { cache: 'no-store' });
     if (!res.ok) return NextResponse.json([]);
     const data = await res.json();
-    return NextResponse.json(Array.isArray(data) ? data.slice(0, 10) : []);
+    return NextResponse.json(Array.isArray(data) ? data : []);
   } catch {
     return NextResponse.json([]);
   }

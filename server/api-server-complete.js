@@ -355,7 +355,14 @@ app.get('/api/users/:userId/likes', async (req, res) => {
 app.get('/api/chat/user/:userId', async (req, res) => {
   try {
     const chatSessions = await prisma.chatSession.findMany({
-      where: { userId: req.params.userId },
+      where: { 
+        userId: req.params.userId,
+        NOT: {
+          title: {
+            startsWith: 'counselor:'
+          }
+        }
+      },
       include: { user: true },
       orderBy: { updatedAt: 'desc' }
     });
@@ -587,10 +594,12 @@ app.get('/api/counselors/:counselorId/sessions', async (req, res) => {
       orderBy: { updatedAt: 'desc' },
     });
 
-    const result = sessions.map(s => {
-      const msgs = Array.isArray(s.messages) ? s.messages : [];
-      const last = msgs.length > 0 ? msgs[msgs.length - 1] : null;
-      return {
+    const result = sessions
+      .filter(s => s.userId !== counselorId)
+      .map(s => {
+        const msgs = Array.isArray(s.messages) ? s.messages : [];
+        const last = msgs.length > 0 ? msgs[msgs.length - 1] : null;
+        return {
         userId: s.userId,
         userName: s.user.name || s.user.username,
         userAvatar: s.user.avatar,
@@ -607,14 +616,24 @@ app.get('/api/counselors/:counselorId/sessions', async (req, res) => {
   }
 });
 
-// 咨询师列表API（获取所有角色为COUNSELOR且激活的用户）
+// 咨询师列表API（获取所有角色为COUNSELOR且激活的用户，支持排除特定咨询师自己）
 app.get('/api/counselors', async (req, res) => {
   try {
+    const { excludeId } = req.query;
+    
+    // 构建查询条件
+    const whereCondition = {
+      role: 'COUNSELOR',
+      isActive: true,
+    };
+    
+    // 如果带了 excludeId 参数，则排除该 ID
+    if (excludeId) {
+      whereCondition.id = { not: excludeId };
+    }
+    
     const counselors = await prisma.user.findMany({
-      where: {
-        role: 'COUNSELOR',
-        isActive: true,
-      },
+      where: whereCondition,
       select: {
         id: true,
         name: true,
