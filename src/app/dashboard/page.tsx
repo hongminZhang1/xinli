@@ -8,6 +8,7 @@ import UserStatusIndicator from "@/components/dashboard/UserStatusIndicator";
 import QuickActions from "@/components/dashboard/QuickActions";
 import RealTimeDisplay from "@/components/dashboard/RealTimeDisplay";
 import ApiStatusWidget from "@/components/dashboard/ApiStatusWidget";
+import GrowthTrendChart from "@/components/dashboard/GrowthTrendChart";
 import { 
   Sparkles, 
   Heart, 
@@ -78,6 +79,56 @@ async function fetchGrowthStats(userId: string) {
     const todayHasEmotion = emotions.some((e: any) => new Date(e.createdAt) >= todayStart);
     const todayHasChat = chatSessions.some((s: any) => new Date(s.createdAt) >= todayStart || new Date(s.updatedAt) >= todayStart);
 
+    // 计算本周成长趋势(周一至周日)
+    const currentDay = now.getDay() || 7; // 1-7
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - currentDay + 1);
+    monday.setHours(0, 0, 0, 0);
+
+    const weekTrend = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const nextDay = new Date(d);
+      nextDay.setDate(d.getDate() + 1);
+
+      const dayEmotions = emotions.filter((e: any) => {
+        const ed = new Date(e.createdAt);
+        return ed >= d && ed < nextDay;
+      });
+      const dayChats = chatSessions.filter((c: any) => {
+        const cd = new Date(c.updatedAt || c.createdAt);
+        return cd >= d && cd < nextDay;
+      });
+      const dayJournals = journals.filter((j: any) => {
+        const jd = new Date(j.createdAt);
+        return jd >= d && jd < nextDay;
+      });
+
+      // 综合成长分数：记录情绪15分，AI对话25分，写日记30分，基础分10分(有任意活动)
+      let score = 0;
+      let hasActivity = false;
+      
+      if (dayEmotions.length > 0) { score += Math.min(dayEmotions.length * 15, 30); hasActivity = true; }
+      if (dayChats.length > 0) { score += Math.min(dayChats.length * 25, 40); hasActivity = true; }
+      if (dayJournals.length > 0) { score += Math.min(dayJournals.length * 30, 50); hasActivity = true; }
+      
+      if (hasActivity) score += 10;
+      
+      // 情绪加成：积极情绪额外加分
+      dayEmotions.forEach((e: any) => {
+        if (['😊', '😄', '🥰', '😍'].some(emoji => (e.emoji || '').includes(emoji))) {
+          score += 5;
+        }
+      });
+
+      // 未来的日期分数为0
+      if (d > now) {
+        score = 0;
+      }
+
+      return Math.min(score, 100);
+    });
+
     return {
       weekEmotionCount,
       chatSessionCount: chatSessions.length,
@@ -85,9 +136,10 @@ async function fetchGrowthStats(userId: string) {
       todayHasEmotion,
       todayHasChat,
       recentActivities,
+      weekTrend,
     };
   } catch {
-    return { weekEmotionCount: 0, chatSessionCount: 0, journalCount: 0, todayHasEmotion: false, todayHasChat: false, recentActivities: [] };
+    return { weekEmotionCount: 0, chatSessionCount: 0, journalCount: 0, todayHasEmotion: false, todayHasChat: false, recentActivities: [], weekTrend: [0, 0, 0, 0, 0, 0, 0] };
   }
 }
 
@@ -97,7 +149,7 @@ export default async function DashboardPage() {
   // 拉取真实成长数据
   const stats = session?.user?.id
     ? await fetchGrowthStats(session.user.id)
-    : { weekEmotionCount: 0, chatSessionCount: 0, journalCount: 0, todayHasEmotion: false, todayHasChat: false, recentActivities: [] };
+    : { weekEmotionCount: 0, chatSessionCount: 0, journalCount: 0, todayHasEmotion: false, todayHasChat: false, recentActivities: [], weekTrend: [0, 0, 0, 0, 0, 0, 0] };
 
   // 今日目标完成数
   const completedGoals = [stats.todayHasEmotion, stats.todayHasChat, false].filter(Boolean).length;
@@ -307,56 +359,8 @@ export default async function DashboardPage() {
                 </div>
               </div>
 
-              {/* 趋势图表 */}
-              <div className="pt-6 border-t border-border/50">
-                 <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h3 className="font-heading text-base text-foreground">本周成长趋势</h3>
-                    <p className="text-xs text-muted-foreground mt-1">记录你的情绪变化</p>
-                  </div>
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 text-xs font-semibold text-green-600 border border-green-100">
-                    <TrendingUp size={14} />
-                    <span>+12% 相比上周</span>
-                  </div>
-                </div>
-                
-                <div className="relative h-40">
-                   {/* 背景网格线 */}
-                  <div className="absolute inset-x-0 inset-y-4 flex flex-col justify-between text-xs text-muted-foreground/30 pointer-events-none z-0">
-                     <div className="border-b border-dashed border-border/40 w-full h-full"></div>
-                     <div className="border-b border-dashed border-border/40 w-full h-full"></div>
-                     <div className="border-b border-dashed border-border/40 w-full h-full"></div>
-                  </div>
-
-                  <div className="absolute inset-0 flex items-end justify-between px-2 pt-4">
-                    {['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map((day, i) => {
-                       const height = [35, 55, 45, 70, 60, 85, 50][i];
-                       // 根据高度显示不同的颜色状态
-                       let bgColor = "bg-primary/80";
-                       if(height < 40) bgColor = "bg-orange-400";
-                       else if(height > 75) bgColor = "bg-green-500";
-                       else bgColor = "bg-blue-500";
-
-                       return (
-                        <div key={day} className="flex flex-col items-center gap-2 group w-full relative z-10 h-full justify-end">
-                           {/* Tooltip */}
-                          <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 bg-popover text-popover-foreground text-[10px] px-2 py-1 rounded shadow-lg border border-border pointer-events-none whitespace-nowrap z-30">
-                             {height}分
-                          </div>
-
-                          <div className="relative w-2.5 sm:w-3 md:w-3.5 h-[80%] bg-muted/20 rounded-full overflow-hidden flex items-end">
-                             <div 
-                              className={`w-full rounded-full transition-all duration-500 ease-out group-hover:opacity-90 ${bgColor}`}
-                              style={{ height: `${height}%` }}
-                            />
-                          </div>
-                          <span className="text-[10px] sm:text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">{day.replace('周', '')}</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              </div>
+              {/* 趋势图表 - 客户端组件支持切换和交互 */}
+              <GrowthTrendChart weekTrend={stats.weekTrend} />
             </div>
           </div>
 
