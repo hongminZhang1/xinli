@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Brain,
   X,
+  Gamepad2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -27,6 +28,7 @@ const navItems = [
   { href: "/dashboard/square", icon: MessageSquare, label: "文章广场" },
   { href: "/dashboard/resources", icon: Library, label: "疗愈资源" },
   { href: "/dashboard/appointments", icon: CalendarCheck, label: "咨询预约" },
+  { href: "/dashboard/relax", icon: Gamepad2, label: "轻松一刻" },
 ];
 
 const adminNavItems = [

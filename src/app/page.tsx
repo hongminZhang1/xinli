@@ -234,14 +234,19 @@ export default function Home() {
 
               {/* 简化的特色介绍 */}
               <div className="space-y-6 stagger-1 max-w-xl mx-auto lg:mx-0">
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-sm font-medium">
-                  <span className="text-muted-foreground mr-1">支持：</span>
-                  <span className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full border border-blue-100 dark:border-blue-800/50">AI互动</span>
-                  <span className="px-3 py-1 bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 rounded-full border border-sky-100 dark:border-sky-800/50">心理测评</span>
-                  <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full border border-indigo-100 dark:border-indigo-800/50">社区互助</span>
-                  <span className="px-3 py-1 bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 rounded-full border border-violet-100 dark:border-violet-800/50">情绪追踪</span>
-                  <span className="px-3 py-1 bg-fuchsia-50 dark:bg-fuchsia-900/30 text-fuchsia-600 dark:text-fuchsia-400 rounded-full border border-fuchsia-100 dark:border-fuchsia-800/50">心情日记</span>
-                  <span className="px-3 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full border border-purple-100 dark:border-purple-800/50">咨询预约</span>
+                <div className="text-sm font-medium space-y-2">
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+                    <span className="text-muted-foreground mr-1">支持：</span>
+                    <span className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full border border-blue-100 dark:border-blue-800/50">DeepSeek AI 互动</span>
+                    <span className="px-3 py-1 bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 rounded-full border border-sky-100 dark:border-sky-800/50">心理测评</span>
+                    <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full border border-indigo-100 dark:border-indigo-800/50">社区互助</span>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 lg:pl-[3.25rem]">
+                    <span className="px-3 py-1 bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 rounded-full border border-violet-100 dark:border-violet-800/50">情绪追踪</span>
+                    <span className="px-3 py-1 bg-fuchsia-50 dark:bg-fuchsia-900/30 text-fuchsia-600 dark:text-fuchsia-400 rounded-full border border-fuchsia-100 dark:border-fuchsia-800/50">心情日记</span>
+                    <span className="px-3 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full border border-purple-100 dark:border-purple-800/50">咨询预约</span>
+                    <span className="px-3 py-1 bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded-full border border-teal-100 dark:border-teal-800/50">解压游戏</span>
+                  </div>
                 </div>
                 
                 {/* 快速统计 */}

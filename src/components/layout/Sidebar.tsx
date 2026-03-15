@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Brain,
   Smile,
+  Gamepad2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -45,6 +46,7 @@ export default function Sidebar() {
       icon: isCounselor ? Smile : CalendarCheck,
       label: isCounselor ? "情绪开导" : "咨询预约",
     },
+    { href: "/dashboard/relax", icon: Gamepad2, label: "轻松一刻" },
   ];
 
   return (
