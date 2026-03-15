@@ -62,7 +62,6 @@ export default function GrowthTrendChart({ weekTrend }: { weekTrend: number[] })
           <div className="absolute inset-0 flex items-end justify-between px-2 pt-4">
             {days.map((day, i) => {
               const height = validWeekTrend[i] || 0;
-              // 根据高度显示不同的颜色状态
               let bgColor = "bg-primary/80";
               if (height === 0) bgColor = "bg-muted";
               else if (height < 40) bgColor = "bg-orange-400";
