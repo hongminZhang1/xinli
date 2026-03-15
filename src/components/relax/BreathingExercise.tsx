@@ -12,7 +12,7 @@ const PHASES = [
 export default function BreathingExercise() {
   const [isRunning, setIsRunning] = useState(false);
   const [phaseIndex, setPhaseIndex] = useState(0);
-  const [secondsLeft, setSecondsLeft] = useState(PHASES[0].duration);
+  const [secondsLeft, setSecondsLeft] = useState<number>(PHASES[0].duration);
   const [cycles, setCycles] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
