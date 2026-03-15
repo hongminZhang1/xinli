@@ -18,6 +18,14 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/backend-api/:path*',
+        destination: 'http://193.112.165.180:3001/api/:path*',
+      },
+    ];
+  },
 }
 
 module.exports = nextConfig

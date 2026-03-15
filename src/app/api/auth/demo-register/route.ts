@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     }
 
     // 通过API服务器创建用户
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://193.112.165.180:3001/api';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://193.112.165.180:3001/api';  // 服务端运行，无 Mixed Content 问题
     
     const response = await fetch(`${apiBaseUrl}/users/register`, {
       method: 'POST',
