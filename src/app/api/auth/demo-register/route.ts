@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     }
 
     // 通过API服务器创建用户
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || 'http://127.0.0.1:3001/api';  // 服务端运行，改为 localhost，无 Mixed Content 问题 且不绕公网
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://193.112.165.180:3001/api';  // 服务端运行，无 Mixed Content 问题
     
     // 加密密码
     const hashedPassword = await bcrypt.hash(password, 10);
