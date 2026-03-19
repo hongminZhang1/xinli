@@ -119,7 +119,7 @@ export default function ApiStatusWidget() {
         )}
         
         <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-          服务器: 193.112.165.180:3001
+          服务器: 127.0.0.1:3001
         </div>
       </div>
     </Card>
