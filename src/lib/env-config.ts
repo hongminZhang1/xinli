@@ -9,6 +9,6 @@ export const getApiBaseUrl = () => {
   if (typeof window !== 'undefined') {
     return '/backend-api';
   }
-  // 服务端环境：直接连接后端 API
-  return process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || 'http://193.112.165.180:3001/api';
+  // 服务端环境：直接连接本地后端 API (解决本地公网IP回环导致的延迟和间歇性断连问题)
+  return process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || 'http://127.0.0.1:3001/api';
 };

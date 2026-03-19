@@ -22,7 +22,8 @@ const nextConfig = {
     return [
       {
         source: '/backend-api/:path*',
-        destination: 'http://193.112.165.180:3001/api/:path*',
+        // 改为代理到本地服务，避免直接请求公网IP从而出现的路由跳转及丢包导致长延迟或断开
+        destination: 'http://127.0.0.1:3001/api/:path*',
       },
     ];
   },
