@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Switch } from "@headlessui/react";
 import { cn } from "@/lib/utils";
 import { useSystemSettings, useMutation } from "@/hooks/useQuery";
@@ -14,7 +14,12 @@ interface SystemSetting {
 }
 
 export default function AdminSystemSettings() {
+  const [isMounted, setIsMounted] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   // 使用缓存的系统设置查询
   const { data: settings, isLoading: loading, error, refetch } = useSystemSettings();
@@ -66,6 +71,10 @@ export default function AdminSystemSettings() {
     const currentValue = isRegistrationEnabled();
     updateSetting('registration_enabled', (!currentValue).toString());
   };
+
+  if (!isMounted) {
+    return null; // Return null on server-side to avoid hydration mismatch
+  }
 
   if (loading) {
     return <div className="text-center py-8">加载中...</div>;

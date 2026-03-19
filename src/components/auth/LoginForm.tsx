@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Swal from "sweetalert2";
 
 export default function LoginForm() {
   const [username, setUsername] = useState("");
@@ -21,7 +22,15 @@ export default function LoginForm() {
     });
 
     if (result?.ok) {
-      router.push("/dashboard");
+      Swal.fire({
+        icon: "success",
+        title: "登录成功",
+        text: "欢迎回来，即将为您跳转到控制台...",
+        timer: 1500,
+        showConfirmButton: false
+      }).then(() => {
+        router.push("/dashboard");
+      });
     } else if (result?.error && result.error.includes("服务暂时不可用")) {
       setError("服务暂时不可用，请稍候片刻再重试");
     } else {

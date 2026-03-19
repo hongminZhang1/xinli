@@ -475,11 +475,6 @@ export default async function DashboardPage() {
             </div>
 
             {/* 管理员专有内容可以放在这里 */}
-             {session?.user?.role === 'ADMIN' && (
-              <div className="modern-card p-4">
-                <ApiStatusWidget />
-              </div>
-            )}
             
           </div>
         </div>

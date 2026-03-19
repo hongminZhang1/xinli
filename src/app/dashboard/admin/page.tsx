@@ -3,6 +3,7 @@ import { authOptions } from "../../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import AdminUserManagement from "@/components/admin/AdminUserManagement";
 import AdminSystemSettings from "@/components/admin/AdminSystemSettings";
+import ApiStatusWidget from "@/components/dashboard/ApiStatusWidget";
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
@@ -24,16 +25,25 @@ export default async function AdminPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        {/* 用户管理 */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        {/* 左侧：用户管理 */}
+        <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col h-full">
           <h2 className="text-xl font-semibold mb-4">用户管理</h2>
-          <AdminUserManagement />
+          <div className="flex-grow">
+            <AdminUserManagement />
+          </div>
         </div>
 
-        {/* 系统设置 */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">系统设置</h2>
-          <AdminSystemSettings />
+        {/* 右侧：系统设置 & API状态 */}
+        <div className="flex flex-col gap-8">
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-semibold mb-4">系统设置</h2>
+            <AdminSystemSettings />
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-lg p-6">
+             <h2 className="text-xl font-semibold mb-4">服务运行状态</h2>
+             <ApiStatusWidget />
+          </div>
         </div>
       </div>
     </div>

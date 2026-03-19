@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useUsers, useMutation } from "@/hooks/useQuery";
 import Avatar from "@/components/ui/Avatar";
@@ -16,7 +16,12 @@ interface User {
 }
 
 export default function AdminUserManagement() {
+  const [isMounted, setIsMounted] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   // 使用缓存的用户查询
   const { data: users, isLoading: loading, error, refetch } = useUsers();
@@ -57,6 +62,10 @@ export default function AdminUserManagement() {
       setUpdating(null);
     }
   };
+
+  if (!isMounted) {
+    return null; // Return null on server-side to avoid hydration mismatch
+  }
 
   if (loading) {
     return <div className="text-center py-8">加载中...</div>;

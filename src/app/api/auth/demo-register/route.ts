@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { dbAdapter } from '../../../../lib/db-adapter';
+import bcrypt from 'bcryptjs';
 
 export async function POST(req: Request) {
   try {
@@ -37,12 +38,15 @@ export async function POST(req: Request) {
     // 通过API服务器创建用户
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://193.112.165.180:3001/api';  // 服务端运行，无 Mixed Content 问题
     
+    // 加密密码
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
     const response = await fetch(`${apiBaseUrl}/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password: hashedPassword, role: 'USER' }),
     });
 
     if (!response.ok) {

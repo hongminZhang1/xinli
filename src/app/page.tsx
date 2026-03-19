@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Sparkles, Heart, MessageCircle, BookOpen, Users, ArrowRight, Shield, Clock, Zap } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 // 认证表单组件
 function AuthForm({ mode, onSwitchMode, onClose }: { 
@@ -29,7 +30,15 @@ function AuthForm({ mode, onSwitchMode, onClose }: {
 
       if (result?.ok) {
         onClose();
-        router.push("/dashboard");
+        Swal.fire({
+          icon: "success",
+          title: "登录成功",
+          text: "欢迎回来，即将为您跳转到控制台...",
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => {
+          router.push("/dashboard");
+        });
       } else {
         setError("用户名或密码错误");
       }
@@ -50,10 +59,18 @@ function AuthForm({ mode, onSwitchMode, onClose }: {
         });
         onClose();
         if (loginResult?.ok) {
-          router.push('/dashboard');
+          Swal.fire({
+            icon: "success",
+            title: "注册成功",
+            text: "欢迎加入，即将为您跳转到控制台...",
+            timer: 1500,
+            showConfirmButton: false
+          }).then(() => {
+            router.push('/dashboard');
+          });
         } else {
-          // 登录失败时跳转到登录页
-          router.push('/login');
+          // 登录失败时留在主页
+          setError('注册成功，但自动登录失败，请尝试手动登录');
         }
       } else {
         const errorData = await res.json();
