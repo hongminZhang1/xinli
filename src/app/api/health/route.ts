@@ -1,6 +1,6 @@
 /**
- * API健康检查代理
- * 用于检查远程API服务器的健康状态
+ * API健康检查代�?
+ * 用于检查远程API服务器的健康状�?
  */
 import { NextResponse } from "next/server";
 
@@ -8,10 +8,10 @@ export async function GET() {
   try {
     const startTime = Date.now();
     
-    // 尝试多个可能的健康检查端点
+    // 尝试多个可能的健康检查端�?
     const healthUrls = [
-      'http://193.112.165.180:3001/health',
-      'http://193.112.165.180:3001/api/health'
+      'http://127.0.0.1:3001/health',
+      'http://127.0.0.1:3001/api/health'
     ];
     
     let lastError = null;
@@ -23,7 +23,7 @@ export async function GET() {
           headers: {
             'User-Agent': 'Health-Check/1.0',
           },
-          signal: AbortSignal.timeout(5000) // 5秒超时
+          signal: AbortSignal.timeout(5000) // 5秒超�?
         });
         
         const responseTime = Date.now() - startTime;
@@ -35,7 +35,7 @@ export async function GET() {
             status: 'healthy',
             connected: true,
             responseTime,
-            server: '193.112.165.180:3001',
+            server: '127.0.0.1:3001',
             endpoint: url,
             timestamp: new Date().toISOString()
           });
@@ -46,17 +46,17 @@ export async function GET() {
       }
     }
     
-    // 所有URL都失败
+    // 所有URL都失�?
     throw lastError || new Error('All health check endpoints failed');
     
   } catch (error) {
-    console.error('❌ API健康检查失败:', error);
+    console.error('�?API健康检查失�?', error);
     
     return NextResponse.json({
       status: 'unhealthy',
       connected: false,
       error: error instanceof Error ? error.message : 'Unknown error',
-      server: '193.112.165.180:3001',
+      server: '127.0.0.1:3001',
       timestamp: new Date().toISOString()
     }, { status: 503 });
   }
