@@ -105,10 +105,20 @@ export default function EmotionsWidget({ emotionsData }: EmotionsWidgetProps) {
 
   if (!isAuthenticated) {
     return (
-      <div className="bg-white rounded-2xl p-10 shadow-sm border border-gray-100 text-center">
-        <p className="text-4xl mb-3">🔒</p>
-        <p className="font-semibold text-gray-700">请先登录</p>
-        <p className="text-sm text-gray-400 mt-1">登录后即可开始情绪打卡</p>
+      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-8 sm:p-12 shadow-sm border border-gray-100 dark:border-gray-700/50 text-center flex flex-col items-center justify-center min-h-[400px]">
+        <div className="w-20 h-20 bg-gradient-to-tr from-rose-100 to-orange-50 dark:from-rose-900/40 dark:to-orange-800/40 rounded-full flex items-center justify-center mb-6 shadow-inner ring-4 ring-white dark:ring-gray-800">
+          <span className="text-4xl">🔒</span>
+        </div>
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-3">需要登录</h3>
+        <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm leading-relaxed">
+          您当前处于游客模式。登录后即可开始情绪打卡，记录并追踪您的心情变化。
+        </p>
+        <a
+          href="/"
+          className="px-6 py-3 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white rounded-xl font-medium transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 text-sm"
+        >
+          前往 登录 / 注册
+        </a>
       </div>
     );
   }

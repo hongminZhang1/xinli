@@ -25,12 +25,22 @@ export default function ChatPage() {
   // 如果没有 session 且认证状态不是加载中，即表示游客模式
   if (status === "unauthenticated" || (!session && status !== "loading")) {
     return (
-      <div className="max-w-4xl mx-auto p-4 sm:p-6">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">AI倾诉</h2>
-        <div className="bg-white rounded-2xl p-10 shadow-sm border border-gray-100 text-center">
-          <p className="text-4xl mb-3">🔒</p>
-          <p className="font-semibold text-gray-700">请先登录</p>
-          <p className="text-sm text-gray-400 mt-1">登录后即可使用AI倾诉功能</p>
+      <div className="max-w-4xl mx-auto p-4 sm:p-6 h-full flex flex-col">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-gray-800 dark:text-gray-100">AI倾诉</h2>
+        <div className="flex-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-8 sm:p-12 shadow-sm border border-gray-100 dark:border-gray-700/50 text-center flex flex-col items-center justify-center min-h-[500px]">
+          <div className="w-24 h-24 bg-gradient-to-tr from-blue-100 to-indigo-50 dark:from-blue-900/40 dark:to-indigo-800/40 rounded-full flex items-center justify-center mb-6 shadow-inner ring-4 ring-white dark:ring-gray-800">
+            <span className="text-5xl">🔒</span>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-3">需要登录</h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md leading-relaxed">
+            您当前处于游客模式。请登录后使用AI倾诉功能，享受专属、安全的智能心理陪伴服务。
+          </p>
+          <a
+            href="/"
+            className="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-medium transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+          >
+            前往 登录 / 注册
+          </a>
         </div>
       </div>
     );

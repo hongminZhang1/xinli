@@ -165,9 +165,21 @@ export default function JournalWidget() {
 
   if (!session) {
     return (
-      <Card className="text-center p-8">
-        <p>请先登录以使用日记功能</p>
-      </Card>
+      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-8 sm:p-12 shadow-sm border border-gray-100 dark:border-gray-700/50 text-center flex flex-col items-center justify-center min-h-[400px]">
+        <div className="w-20 h-20 bg-gradient-to-tr from-indigo-100 to-purple-50 dark:from-indigo-900/40 dark:to-purple-800/40 rounded-full flex items-center justify-center mb-6 shadow-inner ring-4 ring-white dark:ring-gray-800">
+          <span className="text-4xl">🔒</span>
+        </div>
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-3">需要登录</h3>
+        <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm leading-relaxed">
+          您当前处于游客模式。登录后即可记录您的私人专属日记。
+        </p>
+        <a
+          href="/"
+          className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white rounded-xl font-medium transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 text-sm"
+        >
+          前往 登录 / 注册
+        </a>
+      </div>
     );
   }
 

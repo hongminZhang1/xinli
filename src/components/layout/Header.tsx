@@ -45,10 +45,10 @@ export default function Header() {
           <div className="flex items-center gap-2 md:gap-4">
             {!session && (
               <Link 
-                href="/register" 
-                className="px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-gray-800 hover:text-primary-600 transition-colors"
+                href="/" 
+                className="px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
               >
-                注册
+                登录 / 注册
               </Link>
             )}
             <ThemeToggle />
