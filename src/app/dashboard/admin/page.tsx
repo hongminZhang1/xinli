@@ -5,6 +5,9 @@ import AdminUserManagement from "@/components/admin/AdminUserManagement";
 import AdminSystemSettings from "@/components/admin/AdminSystemSettings";
 import ApiStatusWidget from "@/components/dashboard/ApiStatusWidget";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
 

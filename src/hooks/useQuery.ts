@@ -278,7 +278,7 @@ export const useEmotionRecords = () => {
 };
 
 // 用户管理
-export const useUsers = () => {
+export const useUsers = (options?: Partial<UseQueryOptions>) => {
   return useQuery(
     'users',
     async () => {
@@ -290,12 +290,13 @@ export const useUsers = () => {
       enabled: true,
       cacheTime: CACHE_TTL.USERS,
       staleTime: 5 * 60 * 1000,
+      ...options,
     }
   );
 };
 
 // 系统设置
-export const useSystemSettings = () => {
+export const useSystemSettings = (options?: Partial<UseQueryOptions>) => {
   return useQuery(
     'system-settings',
     async () => {
@@ -307,6 +308,7 @@ export const useSystemSettings = () => {
       enabled: true,
       cacheTime: CACHE_TTL.SETTINGS,
       staleTime: 10 * 60 * 1000,
+      ...options,
     }
   );
 };

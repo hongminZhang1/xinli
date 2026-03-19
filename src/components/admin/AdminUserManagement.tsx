@@ -19,12 +19,15 @@ export default function AdminUserManagement() {
   const [isMounted, setIsMounted] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
 
+  // 使用缓存的用户查询（设置不进行缓存）
+  const { data: users, isLoading: loading, error, refetch } = useUsers({ staleTime: 0, cacheTime: 0 });
+
   useEffect(() => {
     setIsMounted(true);
+    // 组件挂载时强制重新获取避免读取死缓存
+    refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
-  // 使用缓存的用户查询
-  const { data: users, isLoading: loading, error, refetch } = useUsers();
   
   // 更改用户角色的mutation
   const changeUserRoleMutation = useMutation(

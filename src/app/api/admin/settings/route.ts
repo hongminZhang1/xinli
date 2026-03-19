@@ -3,6 +3,9 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 import { NextResponse } from "next/server";
 import { getApiBaseUrl } from "@/lib/env-config";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function checkAdminAuth() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return { error: "未授权", status: 401 };

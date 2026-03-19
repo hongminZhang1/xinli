@@ -17,12 +17,15 @@ export default function AdminSystemSettings() {
   const [isMounted, setIsMounted] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
 
+  // 使用缓存的系统设置查询（设置不进行缓存）
+  const { data: settings, isLoading: loading, error, refetch } = useSystemSettings({ staleTime: 0, cacheTime: 0 });
+
   useEffect(() => {
     setIsMounted(true);
+    // 组件挂载时强制重新获取避免读取死缓存
+    refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
-  // 使用缓存的系统设置查询
-  const { data: settings, isLoading: loading, error, refetch } = useSystemSettings();
   
   // 更新设置的mutation
   const updateSettingMutation = useMutation(
