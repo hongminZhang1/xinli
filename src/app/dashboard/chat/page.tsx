@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import ChatWidget from "@/components/dashboard/ChatWidget";
 import { MessageCircle, Plus, Clock, ChevronDown, ChevronUp } from "lucide-react";
 
@@ -15,10 +16,30 @@ function formatSessionDate(dateStr: string) {
 }
 
 export default function ChatPage() {
+  const { data: session, status } = useSession();
   const [sessions, setSessions] = useState<any[]>([]);
   const [selectedSession, setSelectedSession] = useState<any | null>(null);
   const [widgetKey, setWidgetKey] = useState(0);
   const [historyOpen, setHistoryOpen] = useState(false);
+
+  // 如果没有 session 且认证状态不是加载中，即表示游客模式
+  if (status === "unauthenticated" || (!session && status !== "loading")) {
+    return (
+      <div className="max-w-4xl mx-auto p-4 sm:p-6">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">AI倾诉</h2>
+        <div className="bg-white rounded-2xl p-10 shadow-sm border border-gray-100 text-center">
+          <p className="text-4xl mb-3">🔒</p>
+          <p className="font-semibold text-gray-700">请先登录</p>
+          <p className="text-sm text-gray-400 mt-1">登录后即可使用AI倾诉功能</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 加载中状态显示一个简单的占位符
+  if (status === "loading") {
+    return <div className="p-4 sm:p-6 text-gray-500">加载中...</div>;
+  }
 
   const loadSessions = useCallback(async () => {
     try {
