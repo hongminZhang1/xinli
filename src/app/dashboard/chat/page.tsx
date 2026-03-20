@@ -22,6 +22,34 @@ export default function ChatPage() {
   const [widgetKey, setWidgetKey] = useState(0);
   const [historyOpen, setHistoryOpen] = useState(false);
 
+  const loadSessions = useCallback(async () => {
+    try {
+      const res = await fetch('/api/chat/sessions');
+      if (res.ok) {
+        const data = await res.json();
+        setSessions(Array.isArray(data) ? data : []);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      loadSessions();
+    }
+  }, [loadSessions, status]);
+
+  const startNewChat = () => {
+    setSelectedSession(null);
+    setWidgetKey((k) => k + 1);
+    setHistoryOpen(false);
+  };
+
+  const openSession = (session: any) => {
+    setSelectedSession(session);
+    setWidgetKey((k) => k + 1);
+    setHistoryOpen(false);
+  };
+
   // 如果没有 session 且认证状态不是加载中，即表示游客模式
   if (status === "unauthenticated" || (!session && status !== "loading")) {
     return (
@@ -50,30 +78,6 @@ export default function ChatPage() {
   if (status === "loading") {
     return <div className="p-4 sm:p-6 text-gray-500">加载中...</div>;
   }
-
-  const loadSessions = useCallback(async () => {
-    try {
-      const res = await fetch('/api/chat/sessions');
-      if (res.ok) {
-        const data = await res.json();
-        setSessions(Array.isArray(data) ? data : []);
-      }
-    } catch {}
-  }, []);
-
-  useEffect(() => { loadSessions(); }, [loadSessions]);
-
-  const startNewChat = () => {
-    setSelectedSession(null);
-    setWidgetKey((k) => k + 1);
-    setHistoryOpen(false);
-  };
-
-  const openSession = (session: any) => {
-    setSelectedSession(session);
-    setWidgetKey((k) => k + 1);
-    setHistoryOpen(false);
-  };
 
   return (
     <div className="space-y-4">
