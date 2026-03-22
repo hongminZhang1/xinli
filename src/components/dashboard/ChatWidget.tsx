@@ -321,7 +321,7 @@ export default function ChatWidget({ initialSession, onSessionSaved }: ChatWidge
   };
 
   return (
-    <Card className="flex flex-col h-[650px] border-none shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+    <Card className="flex flex-col h-full flex-1 border-none shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
 
       <div className="flex-1 overflow-y-auto space-y-6 p-4 bg-slate-50/50 dark:bg-slate-900/50 custom-scrollbar rounded-t-xl">
         {messages.length === 0 && (

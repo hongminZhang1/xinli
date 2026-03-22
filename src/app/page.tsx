@@ -33,7 +33,7 @@ function AuthForm({ mode, onSwitchMode, onClose }: {
         Swal.fire({
           icon: "success",
           title: "登录成功",
-          text: "欢迎回来，即将为您跳转到控制台...",
+          text: "欢迎回来，即将跳转到主页...",
           timer: 1500,
           showConfirmButton: false
         }).then(() => {
@@ -62,7 +62,7 @@ function AuthForm({ mode, onSwitchMode, onClose }: {
           Swal.fire({
             icon: "success",
             title: "注册成功",
-            text: "欢迎加入，即将为您跳转到控制台...",
+            text: "欢迎加入，即将跳转到主页...",
             timer: 1500,
             showConfirmButton: false
           }).then(() => {

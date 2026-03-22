@@ -80,9 +80,9 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col h-[calc(95vh-170px)] lg:h-[calc(95vh-130px)] space-y-4">
       {/* 标题行 */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-full overflow-hidden border border-blue-100 shadow-sm flex-shrink-0">
             <img src="/images/OIP.jpg" alt="小晴" className="w-full h-full object-cover" />
