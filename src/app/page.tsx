@@ -315,7 +315,7 @@ export default function Home() {
       </section>
 
       {/* 底部备案信息 */}
-      <footer className="relative z-10 py-6 text-center">
+      <footer className="relative z-10 py-6 text-center flex flex-row items-center justify-center gap-4 flex-wrap">
         <p className="text-sm text-muted-foreground/80">
           <a
             href="https://beian.miit.gov.cn/"
@@ -324,6 +324,17 @@ export default function Home() {
             className="font-semibold hover:text-foreground transition-colors"
           >
             皖ICP备2024064456号
+          </a>
+        </p>
+        <p className="text-sm text-muted-foreground/80">
+          <a
+            href="https://beian.mps.gov.cn/#/query/webSearch?code=34122102000619"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold hover:text-foreground transition-colors flex items-center justify-center gap-1"
+          >
+            <img src="/images/ghs.png" alt="国徽" className="w-4 h-4" />
+            皖公网安备34122102000619号
           </a>
         </p>
       </footer>
